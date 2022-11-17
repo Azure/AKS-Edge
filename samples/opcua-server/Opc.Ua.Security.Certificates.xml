@@ -1,0 +1,1757 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Opc.Ua.Security.Certificates</name>
+    </assembly>
+    <members>
+        <member name="M:Opc.Ua.Security.Certificates.AsnUtils.ToHexString(System.Byte[],System.Boolean)">
+            <summary>
+            Converts a buffer to a hexadecimal string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.AsnUtils.FromHexString(System.String)">
+            <summary>
+            Converts a hexadecimal string to an array of bytes.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.AsnUtils.WriteKeyParameterInteger(System.Formats.Asn1.AsnWriter,System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Writer for Public Key parameters.
+            </summary>
+            <remarks>
+            https://www.itu.int/rec/T-REC-X.690-201508-I/en
+            section 8.3 (Encoding of an integer value).
+            </remarks>
+            <param name="writer">The writer</param>
+            <param name="integer">The key parameter</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.Oids">
+            <summary>
+            Oid constants defined for ASN encoding/decoding.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.Dsa">
+            <summary>
+            The Oid string of the Digital Signature Algorithm (DSA) subject public key.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.Rsa">
+            <summary>
+            The Oid string for the RSA encryption scheme with PKCS#1. 
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaOaep">
+            <summary>
+            The Oid string for the RSA encryption scheme with OAEP. 
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaPss">
+            <summary>
+            The Oid string for the RSA encryption scheme with PSS. 
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaPkcs1Sha1">
+            <summary>
+            The Oid string for RSA signature, PKCS#1 padding with SHA1 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaPkcs1Sha256">
+            <summary>
+            The Oid string for RSA signature, PKCS#1 padding with SHA256 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaPkcs1Sha384">
+            <summary>
+            The Oid string for RSA signature, PKCS#1 padding with SHA384 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.RsaPkcs1Sha512">
+            <summary>
+            The Oid string for RSA signature, PKCS#1 padding with SHA512 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ECPublicKey">
+            <summary>
+            The Oid string for a EC public key.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ECDsaWithSha1">
+            <summary>
+            The Oid string for ECDsa signature with SHA1 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ECDsaWithSha256">
+            <summary>
+            The Oid string for ECDsa signature with SHA256 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ECDsaWithSha384">
+            <summary>
+            The Oid string for ECDsa signature with SHA384 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ECDsaWithSha512">
+            <summary>
+            The Oid string for ECDsa signature with SHA512 hash.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.CrlNumber">
+            <summary>
+            The Oid string for the CRL extension of a CRL Number.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.CrlReasonCode">
+            <summary>
+            The Oid string for the CRL extension of a CRL Reason Code.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ServerAuthentication">
+            <summary>
+            The Oid string for Transport Layer Security(TLS) World Wide Web(WWW)
+            server authentication. 
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.ClientAuthentication">
+            <summary>
+            The Oid string for Transport Layer Security(TLS) World Wide Web(WWW)
+            client authentication. 
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.AuthorityInfoAccess">
+            <summary>
+            The Oid string for Authority Information access.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.OnlineCertificateStatusProtocol">
+            <summary>
+            The Oid string for Online Certificate Status Protocol.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.CertificateAuthorityIssuers">
+            <summary>
+            The Oid string for Certificate Authority Issuer.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.Oids.CRLDistributionPoint">
+            <summary>
+            The Oid string for CRL Distribution Point.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.Oids.GetRSAOid(System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Get the RSA oid for a hash algorithm signature.
+            </summary>
+            <param name="hashAlgorithm">The hash algorithm name.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.Oids.GetECDsaOid(System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Get the ECDsa oid for a hash algorithm signature.
+            </summary>
+            <param name="hashAlgorithm">The hash algorithm name.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.Oids.GetHashAlgorithmName(System.String)">
+            <summary>
+            Get the hash algorithm used to sign a certificate.
+            </summary>
+            <param name="oid">The signature algorithm oid.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509Defaults">
+            <summary>
+            The defaults used in the library for Certificates.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.RSAKeySize">
+            <summary>
+            The default key size for RSA certificates in bits.
+            </summary>
+            <remarks>
+            Supported values are 1024(deprecated), 2048, 3072 or 4096.
+            </remarks>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.RSAKeySizeMin">
+            <summary>
+            The min supported size for a RSA key.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.RSAKeySizeMax">
+            <summary>
+            The max supported size for a RSA key.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.HashAlgorithmName">
+            <summary>
+            The default hash algorithm to use for signatures.
+            </summary>
+            <remarks>
+            Supported values are SHA-1(deprecated) or 256, 384 and 512 for SHA-2.
+            </remarks>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.LifeTime">
+            <summary>
+            The default lifetime of certificates in months.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.SerialNumberLengthMin">
+            <summary>
+            The recommended min serial numbers length in octets.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509Defaults.SerialNumberLengthMax">
+            <summary>
+            The max serial numbers length in octets.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.NamespaceDoc">
+             <summary>
+             The <b>Opc.Ua.Security.Certificates</b> namespace defines classes which can be used to implement
+             functions to create X509 certificates, to encode and decode X509 Certificate Revocation Lists (CRL),
+             X509 Certificate Signing Requests (CSR) and related X509 extensions needed for the OPC UA certificate
+             specification.
+             </summary>
+            <exclude/>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension">
+            <summary>
+            Stores the authority key identifier extension.
+            </summary>
+            <remarks>
+                id-ce-authorityKeyIdentifier OBJECT IDENTIFIER ::=  { id-ce 35 }
+                AuthorityKeyIdentifier ::= SEQUENCE {
+                    keyIdentifier[0] KeyIdentifier           OPTIONAL,
+                    authorityCertIssuer[1] GeneralNames            OPTIONAL,
+                    authorityCertSerialNumber[2] CertificateSerialNumber OPTIONAL
+                    }
+                KeyIdentifier::= OCTET STRING
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor">
+            <summary>
+            Creates an empty extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor(System.Security.Cryptography.AsnEncodedData,System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor(System.Byte[])">
+            <summary>
+            Build the X509 Authority Key extension.
+            </summary>
+            <param name="subjectKeyIdentifier">The subject key identifier</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor(System.Byte[],System.Security.Cryptography.X509Certificates.X500DistinguishedName,System.Byte[])">
+            <summary>
+            Build the X509 Authority Key extension.
+            </summary>
+            <param name="subjectKeyIdentifier">The subject key identifier as a byte array.</param>
+            <param name="authorityName">The distinguished name of the issuer.</param>
+            <param name="serialNumber">The serial number of the issuer certificate as little endian byte array.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.#ctor(System.Security.Cryptography.Oid,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.Format(System.Boolean)">
+            <summary>
+            Returns a formatted version of the Authority Key Identifier as a string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.CopyFrom(System.Security.Cryptography.AsnEncodedData)">
+            <summary>
+            Initializes the extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.AuthorityKeyIdentifierOid">
+            <summary>
+            The OID for a Authority Key Identifier extension.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.AuthorityKeyIdentifier2Oid">
+            <summary>
+            The alternate OID for a Authority Key Identifier extension.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.KeyIdentifier">
+            <summary>
+            The identifier for the key as a little endian hexadecimal string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.GetKeyIdentifier">
+            <summary>
+            The identifier for the key as a byte array.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.Issuer">
+            <summary>
+            A list of distinguished names for the issuer.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.SerialNumber">
+            <summary>
+            The serial number of the authority key as a big endian hexadecimal string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.GetSerialNumber">
+            <summary>
+            The serial number of the authority key as a byte array in little endian order.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509AuthorityKeyIdentifierExtension.kKeyIdentifier">
+            <summary>
+            Authority Key Identifier extension string
+            definitions see RFC 5280 4.2.1.1
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509CrlNumberExtension">
+            <summary>
+            The CRL Number extension.
+            </summary>
+            <remarks>
+               id-ce-cRLNumber OBJECT IDENTIFIER::= { id-ce 20 }
+                    CRLNumber::= INTEGER(0..MAX)
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.#ctor">
+            <summary>
+            Creates an empty extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.#ctor(System.Security.Cryptography.AsnEncodedData,System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.#ctor(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from an Oid and ASN.1 encoded raw data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.#ctor(System.Security.Cryptography.Oid,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.#ctor(System.Numerics.BigInteger)">
+            <summary>
+            Build the CRL Number extension (for CRL extensions).
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.Format(System.Boolean)">
+            <summary>
+            Returns a formatted version of the Abstract Syntax Notation One (ASN.1)-encoded data as a string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.CopyFrom(System.Security.Cryptography.AsnEncodedData)">
+            <summary>
+            Initializes the extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509CrlNumberExtension.CrlNumberOid">
+            <summary>
+            The OID for a CRL Number extension.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CrlNumberExtension.CrlNumber">
+            <summary>
+            Gets the CRL Number.
+            </summary>
+            <value>The uris.</value>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.Encode">
+            <summary>
+            Encode the CRL Number extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CrlNumberExtension.Decode(System.Byte[])">
+            <summary>
+            Decode CRL Number.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509CrlNumberExtension.kFriendlyName">
+            <summary>
+            CRL Number extension string
+            definitions see RFC 5280 5.2.3
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509Extensions">
+            <summary>
+            Supporting functions for X509 extensions.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.FindExtension``1(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Find a typed extension in a certificate.
+            </summary>
+            <typeparam name="T">The type of the extension.</typeparam>
+            <param name="certificate">The certificate with extensions.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.FindExtension``1(System.Security.Cryptography.X509Certificates.X509ExtensionCollection)">
+            <summary>
+            Find a typed extension in a extension collection.
+            </summary>
+            <typeparam name="T">The type of the extension.</typeparam>
+            <param name="extensions">The extensions to search.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildX509AuthorityInformationAccess(System.String[],System.String)">
+            <summary>
+            Build the Authority information Access extension.
+            </summary>
+            <param name="caIssuerUrls">Array of CA Issuer Urls</param>
+            <param name="ocspResponder">optional, the OCSP responder </param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildX509CRLDistributionPoints(System.String)">
+            <summary>
+            Build the CRL Distribution Point extension.
+            </summary>
+            <param name="distributionPoint">The CRL distribution point</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildX509CRLDistributionPoints(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Build the CRL Distribution Point extension with multiple distribution points.
+            </summary>
+            <param name="distributionPoints">The CRL distribution points</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.ReadExtension(System.Formats.Asn1.AsnReader)">
+            <summary>
+            Read an ASN.1 extension sequence as X509Extension object.
+            </summary>
+            <param name="reader">The ASN reader.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.WriteExtension(System.Formats.Asn1.AsnWriter,System.Security.Cryptography.X509Certificates.X509Extension)">
+            <summary>
+            Write an extension object as ASN.1.
+            </summary>
+            <param name="writer"></param>
+            <param name="extension"></param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildX509CRLReason(Opc.Ua.Security.Certificates.CRLReason)">
+            <summary>
+            Build the CRL Reason extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildAuthorityKeyIdentifier(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Build the Authority Key Identifier from an Issuer CA certificate.
+            </summary>
+            <param name="issuerCaCertificate">The issuer CA certificate</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.BuildCRLNumber(System.Numerics.BigInteger)">
+            <summary>
+            Build the CRL number.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.PatchExtensionUrl(System.String,System.Byte[])">
+            <summary>
+            Patch serial number in a Url. byte version.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Extensions.PatchExtensionUrl(System.String,System.String)">
+            <summary>
+            Patch serial number in a Url. string version.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension">
+            <summary>
+            The subject alternate name extension.
+            </summary>
+            <remarks>
+            
+            id-ce-subjectAltName OBJECT IDENTIFIER::=  { id-ce 17 }
+            
+            SubjectAltName::= GeneralNames
+            
+               GeneralNames::= SEQUENCE SIZE(1..MAX) OF GeneralName
+            
+               GeneralName ::= CHOICE {
+                   otherName                       [0] OtherName,
+                   rfc822Name[1]                   IA5String,
+                   dNSName[2]                      IA5String,
+                   x400Address[3]                  ORAddress,
+                   directoryName[4]                Name,
+                   ediPartyName[5]                 EDIPartyName,
+                   uniformResourceIdentifier[6]    IA5String,
+                   iPAddress[7]                    OCTET STRING,
+                   registeredID[8]                 OBJECT IDENTIFIER
+                   }
+            
+               OtherName::= SEQUENCE {
+                   type-id                         OBJECT IDENTIFIER,
+                   value[0] EXPLICIT ANY DEFINED BY type - id
+                   }
+            
+               EDIPartyName::= SEQUENCE {
+                   nameAssigner[0]                 DirectoryString OPTIONAL,
+                   partyName[1]                    DirectoryString
+                   }
+            
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.#ctor">
+            <summary>
+            Creates an empty extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.#ctor(System.Security.Cryptography.AsnEncodedData,System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.#ctor(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from an Oid and ASN.1 encoded raw data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.#ctor(System.Security.Cryptography.Oid,System.Byte[],System.Boolean)">
+            <summary>
+            Creates an extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.#ctor(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Build the Subject Alternative name extension (for OPC UA application certs).
+            </summary>
+            <param name="applicationUri">The application Uri</param>
+            <param name="domainNames">The domain names. DNS Hostnames, IPv4 or IPv6 addresses</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.Format(System.Boolean)">
+            <summary>
+            Returns a formatted version of the Abstract Syntax Notation One (ASN.1)-encoded data as a string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.CopyFrom(System.Security.Cryptography.AsnEncodedData)">
+            <summary>
+            Initializes the extension from ASN.1 encoded data.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.SubjectAltNameOid">
+            <summary>
+            The OID for a Subject Alternate Name extension.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.SubjectAltName2Oid">
+            <summary>
+            The OID for a Subject Alternate Name 2 extension.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.Uris">
+            <summary>
+            Gets the uris.
+            </summary>
+            <value>The uris.</value>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.DomainNames">
+            <summary>
+            Gets the domain names.
+            </summary>
+            <value>The domain names.</value>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.IPAddresses">
+            <summary>
+            Gets the IP addresses.
+            </summary>
+            <value>The IP addresses.</value>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.IPAddressToString(System.Byte[])">
+            <summary>
+            Create a normalized IPv4 or IPv6 address from a 4 byte or 16 byte array.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.Encode">
+            <summary>
+            Encode the Subject Alternative name extension.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.EncodeGeneralNames(System.Security.Cryptography.X509Certificates.SubjectAlternativeNameBuilder,System.Collections.Generic.IList{System.String})">
+            <summary>
+            Encode a list of general Names in a SAN builder.
+            </summary>
+            <param name="sanBuilder">The subject alternative name builder</param>
+            <param name="generalNames">The general Names to add</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.EnsureDecoded">
+            <summary>
+            Decode if RawData is yet undecoded.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.Decode(System.Byte[])">
+            <summary>
+            Decode URI, DNS and IP from Subject Alternative Name.
+            </summary>
+            <remarks>
+            Only general names relevant for Opc.Ua are decoded.
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.Initialize(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Initialize the Subject Alternative name extension.
+            </summary>
+            <param name="applicationUri">The application Uri</param>
+            <param name="generalNames">The general names. DNS Hostnames, IPv4 or IPv6 addresses</param>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509SubjectAltNameExtension.kUniformResourceIdentifier">
+            <summary>
+            Subject Alternate Name extension string
+            definitions see RFC 5280 4.2.1.7
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.PEMReader">
+            <summary>
+            Methods or read PEM data.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMReader.ImportPrivateKeyFromPEM(System.Byte[],System.String)">
+            <summary>
+            Import a PKCS#8 private key or RSA private key from PEM.
+            The PKCS#8 private key may be encrypted using a password.
+            </summary>
+            <param name="pemDataBlob">The PEM datablob as byte array.</param>
+            <param name="password">The password to use (optional).</param>
+            <returns>The RSA private key.</returns>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.PEMWriter">
+            <summary>
+            Write certificate/crl data in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportCRLAsPEM(System.Byte[])">
+            <summary>
+            Returns a byte array containing the CRL in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportCSRAsPEM(System.Byte[])">
+            <summary>
+            Returns a byte array containing the CSR in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportCertificateAsPEM(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Returns a byte array containing the cert in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportPublicKeyAsPEM(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Returns a byte array containing the public key in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportRSAPrivateKeyAsPEM(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Returns a byte array containing the RSA private key in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportECDsaPrivateKeyAsPEM(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Returns a byte array containing the ECDsa private key in PEM format.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.PEMWriter.ExportPrivateKeyAsPEM(System.Security.Cryptography.X509Certificates.X509Certificate2,System.String)">
+            <summary>
+            Returns a byte array containing the private key in PEM format.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.CertificateBuilder">
+            <summary>
+            Builds a Certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.Create(System.Security.Cryptography.X509Certificates.X500DistinguishedName)">
+            <summary>
+            Create a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.Create(System.String)">
+            <summary>
+            Create a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.#ctor(System.Security.Cryptography.X509Certificates.X500DistinguishedName)">
+            <summary>
+            Constructor of a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.#ctor(System.String)">
+            <summary>
+            Constructor of a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateForRSA">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateForRSA(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateForECDsa">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateForECDsa(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.SetECDsaPublicKey(System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.SetRSAPublicKey(System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateDefaults">
+            <summary>
+            Create some defaults needed to build the certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.CreateX509Extensions(System.Security.Cryptography.X509Certificates.CertificateRequest,System.Boolean)">
+            <summary>
+            Create the X509 extensions to build the certificate.
+            </summary>
+            <param name="request">A certificate request.</param>
+            <param name="forECDsa">If the certificate is for ECDsa, not RSA.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilder.GetBasicContraints">
+            <summary>
+            Set the basic constraints for various cases.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.CertificateBuilderBase">
+            <summary>
+            Builds a Certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.#ctor(System.Security.Cryptography.X509Certificates.X500DistinguishedName)">
+            <summary>
+            Initialize a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.#ctor(System.String)">
+            <summary>
+            Initialize a Certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.Initialize">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.SubjectName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.IssuerName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.NotBefore">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.NotAfter">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.SerialNumber">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.GetSerialNumber">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.HashAlgorithmName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.Extensions">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.CreateForRSA">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.CreateForRSA(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.CreateForECDsa">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.CreateForECDsa(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetSerialNumberLength(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetSerialNumber(System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.CreateSerialNumber">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetNotBefore(System.DateTime)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetNotAfter(System.DateTime)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetLifeTime(System.TimeSpan)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetLifeTime(System.UInt16)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetHashAlgorithm(System.Security.Cryptography.HashAlgorithmName)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetCAConstraint(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetRSAKeySize(System.UInt16)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.AddExtension(System.Security.Cryptography.X509Certificates.X509Extension)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetECCurve(System.Security.Cryptography.ECCurve)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetECDsaPublicKey(System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetECDsaPublicKey(System.Security.Cryptography.ECDsa)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetRSAPublicKey(System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetRSAPublicKey(System.Security.Cryptography.RSA)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.SetIssuer(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CertificateBuilderBase.IssuerCAKeyCert">
+            <summary>
+            The issuer CA certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.ValidateSettings">
+            <summary>
+            Validate and adjust settings to avoid creation of invalid certificates.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CertificateBuilderBase.NewSerialNumber">
+            <summary>
+            Create a new cryptographic random serial number.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_isCA">
+            <summary>
+            If the certificate is a CA.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_pathLengthConstraint">
+            <summary>
+            The path length constraint to sue for a CA.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_serialNumberLength">
+            <summary>
+            The serial number length in octets.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_presetSerial">
+            <summary>
+            If the serial number is preset by the user.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_serialNumber">
+            <summary>
+            The serial number as a little endian byte array.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_extensions">
+            <summary>
+            The collection of X509Extension to add to the certificate.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_rsaPublicKey">
+            <summary>
+            The RSA public to use when if a certificate is signed.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_keySize">
+            <summary>
+            The size of a RSA key pair to create.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_ecdsaPublicKey">
+            <summary>
+            The ECDsa public to use when if a certificate is signed.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.CertificateBuilderBase.m_curve">
+            <summary>
+            The ECCurve to use.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilder">
+            <summary>
+            The certificate builder interface.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderIssuer">
+            <summary>
+            The interface to set an issuer.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderPublicKey">
+            <summary>
+            The interface to set a public key.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderParameter">
+            <summary>
+            The interface to set key parameters.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreate">
+            <summary>
+            The interface to create a certificate.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateGenerator">
+            <summary>
+            The interface to use a signature generator.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForRSAAny">
+            <summary>
+            The interface to create a RSA based certifcate.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForECDsaAny">
+            <summary>
+            The interface to create a ECDSA based certifcate.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderConfig">
+            <summary>
+            The interface to set the mandatory certificate
+            fields for a certificate builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetSerialNumberLength(System.Int32)">
+            <summary>
+            Set the length of the serial number.
+            </summary>
+            <remarks>
+            The length of the serial number shall
+            not exceed <see cref="F:Opc.Ua.Security.Certificates.X509Defaults.SerialNumberLengthMax"/> octets.
+            </remarks>
+            <param name="length"></param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetSerialNumber(System.Byte[])">
+            <summary>
+            Set the value of the serial number directly
+            using a byte array.
+            </summary>
+            <remarks>
+            The length of the serial number shall
+            not exceed <see cref="F:Opc.Ua.Security.Certificates.X509Defaults.SerialNumberLengthMax"/> octets.
+            </remarks>
+            <param name="serialNumber">The serial number as an array of bytes in little endian order.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.CreateSerialNumber">
+            <summary>
+            Create a new serial number and preserve
+            it until the certificate is created.
+            </summary>
+            <remarks>
+            The serial number may be needed to create an extension.
+            This function makes it available before the
+            cert is created.
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetNotBefore(System.DateTime)">
+            <summary>
+            Set the date when the certificate becomes valid.
+            </summary>
+            <param name="notBefore">The date.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetNotAfter(System.DateTime)">
+            <summary>
+            Set the certificate expiry date.
+            </summary>
+            <param name="notAfter">The date after which the certificate is expired.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetLifeTime(System.TimeSpan)">
+            <summary>
+            Set the lifetime of the certificate using Timespan.
+            </summary>
+            <param name="lifeTime">The lifetime as <see creftype="Timespan"/>.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetLifeTime(System.UInt16)">
+            <summary>
+            Set the lifetime of the certificate in month starting now.
+            </summary>
+            <param name="months">The lifetime in months.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetHashAlgorithm(System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Set the hash algorithm to use for the signature.
+            </summary>
+            <param name="hashAlgorithmName">The hash algorithm name.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.SetCAConstraint(System.Int32)">
+            <summary>
+            Set the CA flag and the path length constraints of the certificate.
+            </summary>
+            <param name="pathLengthConstraint">
+            The path length constraint to use.
+            -1 corresponds to None, other values constrain the chain length.
+            </param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderConfig.AddExtension(System.Security.Cryptography.X509Certificates.X509Extension)">
+            <summary>
+            Add an extension to the certificate in addition to the default extensions.
+            </summary>
+            <remarks>
+            By default the following X509 extensions are added to a certificate,
+            some depending on certificate type:
+            CA/SubCA/OPC UA application:
+                X509BasicConstraintsExtension
+                X509SubjectKeyIdentifierExtension
+                X509AuthorityKeyIdentifierExtension
+                X509KeyUsageExtension
+            OPC UA application:
+                X509SubjectAltNameExtension
+                X509EnhancedKeyUsageExtension
+            Adding a default extension to the list overrides the default
+            value of the extensions.
+            Adding an extension with a already existing Oid overrides
+            the existing extension in the list.
+            </remarks>
+            <param name="extension">The extension to add</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderSetIssuer">
+            <summary>
+            The interface to select an issuer for the cert builder.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderSetIssuer.SetIssuer(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Set the issuer certificate which is used to sign the certificate.
+            </summary>
+            <remarks>
+            The issuer certificate must contain a private key which matches
+            the selected sign algorithm if no generator is avilable.
+            If a <see cref="T:System.Security.Cryptography.X509Certificates.X509SignatureGenerator"/> is used for signing the
+            the issuer certificate can be set with a public key to create
+            the X509 extensions.
+            </remarks>
+            <param name="issuerCertificate">The issuer certificate.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderRSAParameter">
+            <summary>
+            The interface to select the RSA key size parameter.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderRSAParameter.SetRSAKeySize(System.UInt16)">
+            <summary>
+            Set the RSA key size in bits.
+            </summary>
+            <param name="keySize">The size of the RSA key.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderECCParameter">
+            <summary>
+            The interface to select the ECCurve.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderECCParameter.SetECCurve(System.Security.Cryptography.ECCurve)">
+            <summary>
+            Set the ECC Curve parameter.
+            </summary>
+            <param name="curve">The ECCurve.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderRSAPublicKey">
+            <summary>
+            The interface to set a RSA public key for a certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderRSAPublicKey.SetRSAPublicKey(System.Byte[])">
+            <summary>
+            Set the public key using a ASN.1 encoded byte array.
+            </summary>
+            <param name="publicKey">The public key as encoded byte array.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderRSAPublicKey.SetRSAPublicKey(System.Security.Cryptography.RSA)">
+            <summary>
+            Set the public key using a RSA public key.
+            </summary>
+            <param name="publicKey">The RSA public key.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderECDsaPublicKey">
+            <summary>
+            The interface to set a ECDSA public key for a certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderECDsaPublicKey.SetECDsaPublicKey(System.Byte[])">
+            <summary>
+            Set the public key using a ASN.1 encoded byte array.
+            </summary>
+            <param name="publicKey">The public key as encoded byte array.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderECDsaPublicKey.SetECDsaPublicKey(System.Security.Cryptography.ECDsa)">
+            <summary>
+            Set the public key using a ECDSA public key.
+            </summary>
+            <param name="publicKey">The ECDsa public key.</param>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForRSA">
+            <summary>
+            The interface to create a certificate using the RSA algorithm.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForRSA.CreateForRSA">
+            <summary>
+            Create the RSA certificate with signature.
+            </summary>
+            <returns>The signed certificate.</returns>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForRSAGenerator">
+            <summary>
+            The interface to create a certificate using a signature generator.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForRSAGenerator.CreateForRSA(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <summary>
+            Create the RSA certificate with signature using an external generator.
+            </summary>
+            <returns>The signed certificate.</returns>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForECDsa">
+            <summary>
+            The interface to create a certificate using the ECDSA algorithm.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForECDsa.CreateForECDsa">
+            <summary>
+            Create the ECC certificate with signature.
+            </summary>
+            <returns>The signed certificate.</returns>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForECDsaGenerator">
+            <summary>
+            The interface to create a certificate using a signature generator for ECDSA.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.ICertificateBuilderCreateForECDsaGenerator.CreateForECDsa(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <summary>
+            Create the ECDSA certificate with signature using an external generator.
+            </summary>
+            <returns>The signed certificate.</returns>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.IX509Certificate">
+            <summary>
+            Properties of a X.509v3 certificate.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.SubjectName">
+            <summary>
+            The subject distinguished name from a certificate.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.IssuerName">
+            <summary>
+            The distinguished name of the certificate issuer.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.NotBefore">
+            <summary>
+            The date in UTC time on which a certificate becomes valid.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.NotAfter">
+            <summary>
+            The date in UTC time after which a certificate is no longer valid.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.SerialNumber">
+            <summary>
+            The serial number of the certificate
+            as a big-endian hexadecimal string.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.IX509Certificate.GetSerialNumber">
+            <summary>
+            The serial number of the certificate
+            as an array of bytes in little-endian order.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.HashAlgorithmName">
+            <summary>
+            The hash algorithm used to create the signature.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509Certificate.Extensions">
+            <summary>
+            A collection of X509 extensions.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509PfxUtils">
+            <summary>
+            Utilities to create a Pfx.
+            </summary>
+        </member>
+        <member name="F:Opc.Ua.Security.Certificates.X509PfxUtils.TestBlockSize">
+            <summary>
+            The size of the block used to test a sign or encrypt operation.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.GetKeyUsage(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Return the key usage flags of a certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.VerifyRSAKeyPair(System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Verify RSA key pair of two certificates.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.CreateCertificateFromPKCS12(System.Byte[],System.String)">
+            <summary>
+            Creates a certificate from a PKCS #12 store with a private key.
+            </summary>
+            <param name="rawData">The raw PKCS #12 store data.</param>
+            <param name="password">The password to use to access the store.</param>
+            <returns>The certificate with a private key.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.VerifyRSAKeyPairCrypt(System.Security.Cryptography.RSA,System.Security.Cryptography.RSA)">
+            <summary>
+            Verify a RSA key pair using a encryption.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.VerifyRSAKeyPairSign(System.Security.Cryptography.RSA,System.Security.Cryptography.RSA)">
+            <summary>
+            Verify a RSA key pair using a signature.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.VerifyECDsaKeyPair(System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Verify ECDsa key pair of two certificates.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509PfxUtils.VerifyECDsaKeyPairSign(System.Security.Cryptography.ECDsa,System.Security.Cryptography.ECDsa)">
+            <summary>
+            Verify a ECDsa key pair using a signature.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.CrlBuilder">
+            <summary>
+            Builds a CRL.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.Create(Opc.Ua.Security.Certificates.IX509CRL)">
+            <summary>
+            Create a CRL builder initialized with a decoded CRL.
+            </summary>
+            <param name="crl">The decoded CRL</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.Create(System.Security.Cryptography.X509Certificates.X500DistinguishedName)">
+            <summary>
+            Initialize the CRL builder with Issuer.
+            </summary>
+            <param name="issuerSubjectName">Issuer name</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.Create(System.Security.Cryptography.X509Certificates.X500DistinguishedName,System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Initialize the CRL builder with Issuer and hash algorithm.
+            </summary>
+            <param name="issuerSubjectName">Issuer distinguished name</param>
+            <param name="hashAlgorithmName">The signing algorithm to use.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.#ctor(Opc.Ua.Security.Certificates.IX509CRL)">
+            <summary>
+            Create a CRL builder initialized with a decoded CRL.
+            </summary>
+            <param name="crl">The decoded CRL</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.#ctor(System.Security.Cryptography.X509Certificates.X500DistinguishedName)">
+            <summary>
+            Initialize the CRL builder with Issuer.
+            </summary>
+            <param name="issuerSubjectName">Issuer name</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.#ctor(System.Security.Cryptography.X509Certificates.X500DistinguishedName,System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Initialize the CRL builder with Issuer and hash algorithm.
+            </summary>
+            <param name="issuerSubjectName">Issuer distinguished name</param>
+            <param name="hashAlgorithmName">The signing algorithm to use.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.#ctor">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.IssuerName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.Issuer">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.ThisUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.NextUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.HashAlgorithmName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.RevokedCertificates">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.CrlExtensions">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.CrlBuilder.RawData">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.SetThisUpdate(System.DateTime)">
+            <summary>
+            Set this update time.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.SetNextUpdate(System.DateTime)">
+            <summary>
+            Set next update time (optional).
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.SetHashAlgorithm(System.Security.Cryptography.HashAlgorithmName)">
+            <summary>
+            Set the hash algorithm.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.AddRevokedSerialNumbers(System.String[],Opc.Ua.Security.Certificates.CRLReason)">
+            <summary>
+            Add array of serialnumbers of revoked certificates.
+            </summary>
+            <param name="serialNumbers">The array of serial numbers to revoke.</param>
+            <param name="crlReason">The revocation reason</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.AddRevokedCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2,Opc.Ua.Security.Certificates.CRLReason)">
+            <summary>
+            Add a revoked certificate.
+            </summary>
+            <param name="certificate">The certificate to revoke.</param>
+            <param name="crlReason">The revocation reason</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.AddRevokedCertificate(Opc.Ua.Security.Certificates.RevokedCertificate)">
+            <summary>
+            Add a revoked certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.AddRevokedCertificates(System.Collections.Generic.IList{Opc.Ua.Security.Certificates.RevokedCertificate})">
+            <summary>
+            Add a list of revoked certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.AddCRLExtension(System.Security.Cryptography.X509Certificates.X509Extension)">
+            <summary>
+            Add a revoked certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.CreateSignature(System.Security.Cryptography.X509Certificates.X509SignatureGenerator)">
+            <summary>
+            Create the CRL with signature generator.
+            </summary>
+            <param name="generator">The RSA or ECDsa signature generator to use.</param>
+            <returns>The signed CRL.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.CreateForRSA(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Create the CRL with signature for RSA.
+            </summary>
+            <returns>The signed CRL.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.CreateForECDsa(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Create the CRL with signature for ECDsa.
+            </summary>
+            <returns>The signed CRL.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.CrlBuilder.Encode">
+             <summary>
+             Constructs Certificate Revocation List raw data in X509 ASN format.
+             </summary>
+             <remarks>
+             CRL fields -- https://tools.ietf.org/html/rfc5280#section-5.1
+             
+             CertificateList  ::=  SEQUENCE  {
+                tbsCertList          TBSCertList,
+                signatureAlgorithm   AlgorithmIdentifier,
+                signatureValue       BIT STRING
+                }
+            
+             TBSCertList  ::=  SEQUENCE  {
+                version                 Version OPTIONAL,
+                                        -- if present, MUST be v2
+                signature               AlgorithmIdentifier,
+                issuer                  Name,
+                thisUpdate              Time,
+                nextUpdate              Time OPTIONAL,
+                revokedCertificates     SEQUENCE OF SEQUENCE  {
+                    userCertificate         CertificateSerialNumber,
+                    revocationDate          Time,
+                    crlEntryExtensions      Extensions OPTIONAL
+                                          -- if present, version MUST be v2
+                                        }  OPTIONAL,
+                crlExtensions           [0]  EXPLICIT Extensions OPTIONAL
+                                          -- if present, version MUST be v2
+                                        }
+             </remarks>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.CRLReason">
+            <summary>
+            CRL Reason codes.
+            </summary>
+            <remarks>
+            id-ce-cRLReasons OBJECT IDENTIFIER ::= { id-ce 21 }
+              -- reasonCode::= { CRLReason }
+            CRLReason::= ENUMERATED {
+                 unspecified(0),
+                 keyCompromise(1),
+                 cACompromise(2),
+                 affiliationChanged(3),
+                 superseded(4),
+                 cessationOfOperation(5),
+                 certificateHold(6),
+                      --value 7 is not used
+                 removeFromCRL(8),
+                 privilegeWithdrawn(9),
+                 aACompromise(10) }
+            </remarks>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.IX509CRL">
+            <summary>
+            Provides access to an X509 CRL object.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.IssuerName">
+            <summary>
+            The name of the issuer for the CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.Issuer">
+            <summary>
+            The name of the issuer for the CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.ThisUpdate">
+            <summary>
+            When the CRL was last updated.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.NextUpdate">
+            <summary>
+            When the CRL is due for its next update.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.HashAlgorithmName">
+            <summary>
+            The hash algorithm used to sign the CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.RevokedCertificates">
+            <summary>
+            The revoked user certificates
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.CrlExtensions">
+            <summary>
+            The X509Extensions of the CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.IX509CRL.RawData">
+            <summary>
+            The raw data for the CRL.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.RevokedCertificate">
+             <summary>
+             Represents a revoked certificate in the
+             revoked certificates sequence of a CRL.
+             </summary>
+             <remarks>
+             CRL fields -- https://tools.ietf.org/html/rfc5280#section-5.1
+             
+                ...
+                revokedCertificates     SEQUENCE OF SEQUENCE  {
+                    userCertificate         CertificateSerialNumber,
+                    revocationDate          Time,
+                    crlEntryExtensions      Extensions OPTIONAL
+                                          -- if present, version MUST be v2
+                                        }  OPTIONAL,
+               ...
+            </remarks>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.RevokedCertificate.#ctor(System.String,Opc.Ua.Security.Certificates.CRLReason)">
+            <summary>
+            Construct revoked certificate with serialnumber,
+            actual UTC time and the CRL reason.
+            </summary>
+            <param name="serialNumber">The serial number</param>
+            <param name="crlReason">The reason for revocation</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.RevokedCertificate.#ctor(System.Byte[],Opc.Ua.Security.Certificates.CRLReason)">
+            <summary>
+            Construct revoked certificate with serialnumber,
+            actual UTC time and the CRL reason.
+            </summary>
+            <param name="serialNumber">The serial number</param>
+            <param name="crlReason">The reason for revocation</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.RevokedCertificate.#ctor(System.String)">
+            <summary>
+            Construct minimal revoked certificate
+            with serialnumber and actual UTC time.
+            </summary>
+            <param name="serialNumber"></param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.RevokedCertificate.#ctor(System.Byte[])">
+            <summary>
+            Construct minimal revoked certificate
+            with serialnumber and actual UTC time.
+            </summary>
+            <param name="serialNumber"></param>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.RevokedCertificate.SerialNumber">
+            <summary>
+            The serial number of the revoked certificate as
+            big endian hex string.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.RevokedCertificate.UserCertificate">
+            <summary>
+            The serial number of the revoked user certificate
+            as a little endian byte array.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.RevokedCertificate.RevocationDate">
+            <summary>
+            The UTC time of the revocation event.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.RevokedCertificate.CrlEntryExtensions">
+            <summary>
+            The list of crl entry extensions.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509CRL">
+            <summary>
+            Decodes a X509 CRL and provides access to information.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.#ctor(System.String)">
+            <summary>
+            Loads a CRL from a file.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.#ctor(System.Byte[])">
+            <summary>
+            Loads a CRL from a memory buffer.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.#ctor(Opc.Ua.Security.Certificates.IX509CRL)">
+            <summary>
+            Create CRL from IX509CRL interface.
+            </summary>
+            <param name="crl"></param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.#ctor">
+            <summary>
+            Default constructor, also internal test hook.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.IssuerName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.Issuer">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.ThisUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.NextUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.HashAlgorithmName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.RevokedCertificates">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.CrlExtensions">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRL.RawData">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.VerifySignature(System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Verifies the signature on the CRL.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.IsRevoked(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Returns true if the certificate is revoked in the CRL.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.Decode(System.Byte[])">
+            <summary>
+            Decode the complete CRL.
+            </summary>
+            <param name="crl">The raw signed CRL</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.DecodeCrl(System.Byte[])">
+            <summary>
+            Decode the Tbs of the CRL.
+            </summary>
+            <param name="tbs">The raw TbsCertList of the CRL.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRL.EnsureDecoded">
+            <summary>
+            Decode if RawData is yet undecoded.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509CRLCollection">
+            <summary>
+            A collection of X509CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509CRLCollection.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to get or set.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.#ctor">
+            <summary>
+            Create an empty X509CRL collection.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.#ctor(Opc.Ua.Security.Certificates.X509CRL)">
+            <summary>
+            Create a crl collection from a single CRL.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.#ctor(Opc.Ua.Security.Certificates.X509CRLCollection)">
+            <summary>
+            Create a crl collection from a CRL collection.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.#ctor(Opc.Ua.Security.Certificates.X509CRL[])">
+            <summary>
+            Create a collection from an array.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.ToX509CRLCollection(Opc.Ua.Security.Certificates.X509CRL[])">
+            <summary>
+            Converts an array to a collection.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509CRLCollection.op_Implicit(Opc.Ua.Security.Certificates.X509CRL[])~Opc.Ua.Security.Certificates.X509CRLCollection">
+            <summary>
+            Converts an array to a collection.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Security.Certificates.X509Signature">
+            <summary>
+            Describes the three required fields of a X509 Certificate and CRL.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509Signature.Tbs">
+            <summary>
+            The field contains the ASN.1 data to be signed.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509Signature.Signature">
+            <summary>
+            The signature of the data.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509Signature.SignatureAlgorithmIdentifier">
+            <summary>
+            The encoded signature algorithm that was used for signing.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509Signature.SignatureAlgorithm">
+            <summary>
+            The signature algorithm as Oid string.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Security.Certificates.X509Signature.Name">
+            <summary>
+            The hash algorithm used for signing.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.#ctor(System.Byte[])">
+            <summary>
+            Initialize and decode the sequence with binary ASN.1 encoded CRL or certificate.
+            </summary>
+            <param name="signedBlob"></param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.#ctor(System.Byte[],System.Byte[],System.Byte[])">
+            <summary>
+            Initialize the X509 signature values.
+            </summary>
+            <param name="tbs">The data to be signed.</param>
+            <param name="signature">The signature of the data.</param>
+            <param name="signatureAlgorithmIdentifier">The algorithm used to create the signature.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.Encode">
+            <summary>
+            Encode Tbs with a signature in ASN format.
+            </summary>
+            <returns>X509 ASN format of EncodedData+SignatureOID+Signature bytes.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.Decode(System.Byte[])">
+            <summary>
+            Decoder for the signature sequence.
+            </summary>
+            <param name="crl">The encoded CRL or certificate sequence.</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.Verify(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Verify the signature with the public key of the signer.
+            </summary>
+            <param name="certificate"></param>
+            <returns>true if the signature is valid.</returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.VerifyForRSA(System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.RSASignaturePadding)">
+            <summary>
+            Verify the signature with the RSA public key of the signer.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.VerifyForECDsa(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Verify the signature with the ECC public key of the signer.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.DecodeAlgorithm(System.Byte[])">
+            <summary>
+            Decode the algorithm that was used for encoding.
+            </summary>
+            <param name="oid">The ASN.1 encoded algorithm oid.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.EncodeECDsa(System.Byte[])">
+            <summary>
+            Encode a ECDSA signature as ASN.1.
+            </summary>
+            <param name="signature">The signature to encode as ASN.1</param>
+        </member>
+        <member name="M:Opc.Ua.Security.Certificates.X509Signature.DecodeECDsa(System.ReadOnlyMemory{System.Byte},System.Int32)">
+            <summary>
+            Decode a ECDSA signature from ASN.1.
+            </summary>
+            <param name="signature">The signature to decode from ASN.1</param>
+            <param name="keySize">The keySize in bits.</param>
+        </member>
+    </members>
+</doc>
