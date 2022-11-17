@@ -1,0 +1,877 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Opc.Ua.Configuration</name>
+    </assembly>
+    <members>
+        <member name="T:Opc.Ua.Configuration.ApplicationConfigurationBuilder">
+            <summary>
+            A class that builds a configuration for a UA application.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.#ctor(Opc.Ua.Configuration.ApplicationInstance)">
+            <summary>
+            Create the application instance builder.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationConfigurationBuilder.ApplicationInstance">
+            <summary>
+            The application instance used to build the configuration.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationConfigurationBuilder.ApplicationConfiguration">
+            <summary>
+            The application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AsClient">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddSecurityConfiguration(System.String,System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.Create">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AsServer(System.String[],System.String[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddUnsecurePolicyNone(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddSignPolicies(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddSignAndEncryptPolicies(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddPolicy(Opc.Ua.MessageSecurityMode,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddUserTokenPolicy(Opc.Ua.UserTokenType)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddUserTokenPolicy(Opc.Ua.UserTokenPolicy)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetAutoAcceptUntrustedCertificates(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetAddAppCertToTrustedStore(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetRejectSHA1SignedCertificates(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetRejectUnknownRevocationStatus(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetSuppressNonceValidationErrors(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetSendCertificateChain(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinimumCertificateKeySize(System.UInt16)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddCertificatePasswordProvider(Opc.Ua.ICertificatePasswordProvider)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetTransportQuotas(Opc.Ua.TransportQuotas)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetOperationTimeout(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxStringLength(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxByteStringLength(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxArrayLength(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxMessageSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxBufferSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetChannelLifetime(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetSecurityTokenLifetime(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinRequestThreadCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxRequestThreadCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxQueuedRequestCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetDiagnosticsEnabled(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxSessionCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinSessionTimeout(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxSessionTimeout(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxBrowseContinuationPoints(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxQueryContinuationPoints(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxHistoryContinuationPoints(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxRequestAge(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinPublishingInterval(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxPublishingInterval(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetPublishingResolution(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxSubscriptionLifetime(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxMessageQueueSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxNotificationQueueSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxNotificationsPerPublish(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinMetadataSamplingInterval(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetAvailableSamplingRates(Opc.Ua.SamplingRateGroupCollection)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetRegistrationEndpoint(Opc.Ua.EndpointDescription)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxRegistrationInterval(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetNodeManagerSaveFile(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMinSubscriptionLifetime(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxPublishRequestCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxSubscriptionCount(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxEventQueueSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddServerProfile(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetShutdownDelay(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddServerCapabilities(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetSupportedPrivateKeyFormats(Opc.Ua.StringCollection)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMaxTrustListSize(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetMultiCastDnsEnabled(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetReverseConnect(Opc.Ua.ReverseConnectServerConfiguration)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetOperationLimits(Opc.Ua.OperationLimits)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetDefaultSessionTimeout(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddWellKnownDiscoveryUrls(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddDiscoveryServer(Opc.Ua.EndpointDescription)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetEndpointCacheFilePath(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.Opc#Ua#Configuration#IApplicationConfigurationBuilderClientOptions#SetMinSubscriptionLifetime(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetReverseConnect(Opc.Ua.ReverseConnectClientConfiguration)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetOutputFilePath(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetDeleteOnLoad(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.SetTraceMasks(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddExtension``1(System.Xml.XmlQualifiedName,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Opc.Ua.Configuration.ApplicationConfigurationBuilder.TrustlistType">
+            <summary>
+            Internal enumeration of supported trust lists.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.DefaultPKIRoot(System.String)">
+            <summary>
+            Return the default PKI root path if root is unspecified, directory or X509Store.
+            </summary>
+            <param name="root">A real root path or the store type.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.DefaultCertificateStorePath(Opc.Ua.Configuration.ApplicationConfigurationBuilder.TrustlistType,System.String)">
+            <summary>
+            Determine the default store path for a given trust list type.
+            </summary>
+            <param name="trustListType">The trust list type.</param>
+            <param name="pkiRoot">A PKI root for which the store path is needed.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.AddSecurityPolicies(System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Add specified groups of security policies and security modes.
+            </summary>
+            <param name="includeSign">Include the Sign only policies.</param>
+            <param name="deprecated">Include the deprecated policies.</param>
+            <param name="policyNone">Include policy 'None'. (no security!)</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationConfigurationBuilder.InternalAddPolicy(Opc.Ua.ServerSecurityPolicyCollection,Opc.Ua.MessageSecurityMode,System.String)">
+            <summary>
+            Add security policy if it doesn't exist yet.
+            </summary>
+            <param name="policies">The collection to which the policies are added.</param>
+            <param name="securityMode">The message security mode.</param>
+            <param name="policyUri">The security policy Uri.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.ApplicationInstance">
+            <summary>
+            A class that install, configures and runs a UA application.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Opc.Ua.Configuration.ApplicationInstance"/> class.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.#ctor(Opc.Ua.ApplicationConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Opc.Ua.Configuration.ApplicationInstance"/> class.
+            </summary>
+            <param name="applicationConfiguration">The application configuration.</param>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.ApplicationName">
+            <summary>
+            Gets or sets the name of the application.
+            </summary>
+            <value>The name of the application.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.ApplicationType">
+            <summary>
+            Gets or sets the type of the application.
+            </summary>
+            <value>The type of the application.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.ConfigSectionName">
+            <summary>
+            Gets or sets the name of the config section containing the path to the application configuration file.
+            </summary>
+            <value>The name of the config section.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.ConfigurationType">
+            <summary>
+            Gets or sets the type of configuration file.
+            </summary>
+            <value>The type of configuration file.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.Server">
+            <summary>
+            Gets the server.
+            </summary>
+            <value>The server.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.ApplicationConfiguration">
+            <summary>
+            Gets the application configuration used when the Start() method was called.
+            </summary>
+            <value>The application configuration.</value>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.MessageDlg">
+            <summary>
+            Get or set the message dialog.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Configuration.ApplicationInstance.CertificatePasswordProvider">
+            <summary>
+            Get or set the certificate password provider.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.ProcessCommandLine">
+            <summary>
+            Processes the command line.
+            </summary>
+            <returns>
+            True if the arguments were processed; False otherwise.
+            </returns>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.StartAsService(Opc.Ua.ServerBase)">
+            <summary>
+            Starts the UA server as a Windows Service.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.Start(Opc.Ua.ServerBase)">
+            <summary>
+            Starts the UA server.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.Stop">
+            <summary>
+            Stops the UA server.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.LoadAppConfig(System.Boolean,System.String,Opc.Ua.ApplicationType,System.Type,System.Boolean,Opc.Ua.ICertificatePasswordProvider)">
+            <summary>
+            Loads the configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.LoadAppConfig(System.Boolean,System.IO.Stream,Opc.Ua.ApplicationType,System.Type,System.Boolean,Opc.Ua.ICertificatePasswordProvider)">
+            <summary>
+            Loads the configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.LoadApplicationConfiguration(System.IO.Stream,System.Boolean)">
+            <summary>
+            Loads the application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.LoadApplicationConfiguration(System.String,System.Boolean)">
+            <summary>
+            Loads the application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.LoadApplicationConfiguration(System.Boolean)">
+            <summary>
+            Loads the application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.FixupAppConfig(Opc.Ua.ApplicationConfiguration)">
+            <summary>
+            Helper to replace localhost with the hostname
+            in the application uri and base adresses of the
+            configuration.
+            </summary>
+            <param name="configuration"></param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.Build(System.String,System.String)">
+            <summary>
+            Create a builder for a UA application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.CheckApplicationInstanceCertificate(System.Boolean,System.UInt16)">
+            <summary>
+            Checks for a valid application instance certificate.
+            </summary>
+            <param name="silent">if set to <c>true</c> no dialogs will be displayed.</param>
+            <param name="minimumKeySize">Minimum size of the key.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.DeleteApplicationInstanceCertificate">
+            <summary>
+            Delete the application certificate.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.CheckApplicationInstanceCertificate(System.Boolean,System.UInt16,System.UInt16)">
+            <summary>
+            Checks for a valid application instance certificate.
+            </summary>
+            <param name="silent">if set to <c>true</c> no dialogs will be displayed.</param>
+            <param name="minimumKeySize">Minimum size of the key.</param>
+            <param name="lifeTimeInMonths">The lifetime in months.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.ApplicationInstance.CertValidationSuppressibleStatusCodes">
+            <summary>
+            Helper to suppress errors which are allowed for the application certificate validation.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.CheckApplicationInstanceCertificate(Opc.Ua.ApplicationConfiguration,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean,System.UInt16)">
+            <summary>
+            Creates an application instance certificate if one does not already exist.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.CheckDomainsInCertificate(Opc.Ua.ApplicationConfiguration,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Checks that the domains in the server addresses match the domains in the certificates.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.CreateApplicationInstanceCertificate(Opc.Ua.ApplicationConfiguration,System.UInt16,System.UInt16)">
+            <summary>
+            Creates the application instance certificate.
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <param name="keySize">Size of the key.</param>
+            <param name="lifeTimeInMonths">The lifetime in months.</param>
+            <returns>The new certificate</returns>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.DeleteApplicationInstanceCertificate(Opc.Ua.ApplicationConfiguration)">
+            <summary>
+            Deletes an existing application instance certificate.
+            </summary>
+            <param name="configuration">The configuration instance that stores the configurable information for a UA application.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.AddToTrustedStore(Opc.Ua.ApplicationConfiguration,System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Adds the certificate to the Trusted Certificate Store
+            </summary>
+            <param name="configuration">The application's configuration which specifies the location of the TrustedStore.</param>
+            <param name="certificate">The certificate to register.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.ApplicationInstance.ApproveMessage(System.String,System.Boolean)">
+            <summary>
+            Show a message for approval and return result.
+            </summary>
+            <param name="message"></param>
+            <param name="silent"></param>
+            <returns>True if approved, false otherwise.</returns>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilder">
+            <summary>
+            A fluent API to build the application configuration.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderTypes">
+            <summary>
+            The client or server configuration types to chose.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas">
+            <summary>
+            The set transport quota state.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetTransportQuotas(Opc.Ua.TransportQuotas)">
+            <summary>
+            Set the transport quotas for this application (client and server).
+            </summary>
+            <param name="transportQuotas">The object with the new transport quotas.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetOperationTimeout(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.OperationTimeout"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.OperationTimeout"/></remarks>
+            <param name="operationTimeout">The operation timeout in ms.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetMaxStringLength(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.MaxStringLength"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.MaxStringLength"/></remarks>
+            <param name="maxStringLength">The max string length.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetMaxByteStringLength(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.MaxByteStringLength"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.MaxByteStringLength"/></remarks>
+            <param name="maxByteStringLength">The max byte string length.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetMaxArrayLength(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.MaxArrayLength"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.MaxArrayLength"/></remarks>
+            <param name="maxArrayLength">The max array length.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetMaxMessageSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.MaxMessageSize"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.MaxMessageSize"/></remarks>
+            <param name="maxMessageSize">The max message size.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetMaxBufferSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.MaxBufferSize"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.MaxBufferSize"/></remarks>
+            <param name="maxBufferSize">The max buffer size.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetChannelLifetime(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.ChannelLifetime"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.ChannelLifetime"/></remarks>
+            <param name="channelLifetime">The lifetime.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotas.SetSecurityTokenLifetime(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TransportQuotas.SecurityTokenLifetime"/>
+            <remarks>applies to <see cref="P:Opc.Ua.TransportQuotas.SecurityTokenLifetime"/></remarks>
+            <param name="securityTokenLifetime">The lifetime in milliseconds.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderTransportQuotasSet">
+            <summary>
+            The set transport quota state.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerSelected">
+            <summary>
+            The interfaces to implement if a server is selected.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions">
+            <summary>
+            The options which can be set if a server is selected.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMinRequestThreadCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerBaseConfiguration.MinRequestThreadCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxRequestThreadCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerBaseConfiguration.MaxRequestThreadCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxQueuedRequestCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerBaseConfiguration.MaxQueuedRequestCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetDiagnosticsEnabled(System.Boolean)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.DiagnosticsEnabled"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxSessionCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxSessionCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMinSessionTimeout(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MinSessionTimeout"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxSessionTimeout(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxSessionTimeout"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxBrowseContinuationPoints(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxBrowseContinuationPoints"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxQueryContinuationPoints(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxQueryContinuationPoints"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxHistoryContinuationPoints(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxHistoryContinuationPoints"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxRequestAge(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxRequestAge"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMinPublishingInterval(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MinPublishingInterval"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxPublishingInterval(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxPublishingInterval"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetPublishingResolution(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.PublishingResolution"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxSubscriptionLifetime(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxSubscriptionLifetime"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxMessageQueueSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxMessageQueueSize"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxNotificationQueueSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxNotificationQueueSize"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxNotificationsPerPublish(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxNotificationsPerPublish"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMinMetadataSamplingInterval(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MinMetadataSamplingInterval"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetAvailableSamplingRates(Opc.Ua.SamplingRateGroupCollection)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.AvailableSamplingRates"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetRegistrationEndpoint(Opc.Ua.EndpointDescription)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.RegistrationEndpoint"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxRegistrationInterval(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxRegistrationInterval"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetNodeManagerSaveFile(System.String)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.NodeManagerSaveFile"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMinSubscriptionLifetime(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MinSubscriptionLifetime"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxPublishRequestCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxPublishRequestCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxSubscriptionCount(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxSubscriptionCount"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxEventQueueSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxEventQueueSize"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.AddServerProfile(System.String)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.ServerProfileArray" path="/summary"/>
+            <param name="serverProfile">Add a server profile to the array.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetShutdownDelay(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.ShutdownDelay"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.AddServerCapabilities(System.String)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.ServerCapabilities" path="/summary"/>
+            <param name="serverCapability">The server capability to add.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetSupportedPrivateKeyFormats(Opc.Ua.StringCollection)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.SupportedPrivateKeyFormats"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMaxTrustListSize(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MaxTrustListSize"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetMultiCastDnsEnabled(System.Boolean)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.MultiCastDnsEnabled"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetReverseConnect(Opc.Ua.ReverseConnectServerConfiguration)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.ReverseConnect"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerOptions.SetOperationLimits(Opc.Ua.OperationLimits)">
+            <inheritdoc cref="P:Opc.Ua.ServerConfiguration.OperationLimits"/>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientSelected">
+            <summary>
+            The interfaces to implement if a client is selected.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions">
+            <summary>
+            The options to set if a client is selected.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.SetDefaultSessionTimeout(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.DefaultSessionTimeout"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.AddWellKnownDiscoveryUrls(System.String)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.WellKnownDiscoveryUrls"/>
+            <param name="wellKnownDiscoveryUrl">The well known discovery server url to add.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.AddDiscoveryServer(Opc.Ua.EndpointDescription)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.DiscoveryServers"/>
+            <param name="discoveryServer">The discovery server endpoint description to add.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.SetEndpointCacheFilePath(System.String)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.EndpointCacheFilePath"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.SetMinSubscriptionLifetime(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.MinSubscriptionLifetime"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClientOptions.SetReverseConnect(Opc.Ua.ReverseConnectClientConfiguration)">
+            <inheritdoc cref="P:Opc.Ua.ClientConfiguration.ReverseConnect"/>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderServer">
+            <summary>
+            Add the server configuration (optional).
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServer.AsServer(System.String[],System.String[])">
+            <summary>
+            Configure instance to be used for UA server.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderClient">
+            <summary>
+            Add the client configuration (optional).
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderClient.AsClient">
+            <summary>
+            Configure instance to be used for UA client.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies">
+            <summary>
+            Add the supported server policies.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddUnsecurePolicyNone(System.Boolean)">
+            <summary>
+            Add the unsecure security policy type none to server configuration.
+            </summary>
+            <param name="addPolicy">Add policy if true.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddSignPolicies(System.Boolean)">
+            <summary>
+            Add the sign security policies to the server configuration.
+            </summary>
+            <param name="addPolicies">Add policies if true.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddSignAndEncryptPolicies(System.Boolean)">
+            <summary>
+            Add the sign and encrypt security policies to the server configuration.
+            </summary>
+            <param name="addPolicies">Add policies if true.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddPolicy(Opc.Ua.MessageSecurityMode,System.String)">
+            <summary>
+            Add the specified security policy with the specified security mode.
+            </summary>
+            <param name="securityMode">The message security mode to add the policy to.</param>
+            <param name="securityPolicy">The security policy Uri string.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddUserTokenPolicy(Opc.Ua.UserTokenType)">
+            <summary>
+            Add user token policy to the server configuration.
+            </summary>
+            <param name="userTokenType">The user token type to add.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderServerPolicies.AddUserTokenPolicy(Opc.Ua.UserTokenPolicy)">
+            <summary>
+            Add user token policy to the server configuration.
+            </summary>
+            <param name="userTokenPolicy">The user token policy to add.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurity">
+            <summary>
+            Add the security configuration (mandatory).
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurity.AddSecurityConfiguration(System.String,System.String,System.String,System.String)">
+            <summary>
+            Add the security configuration.
+            </summary>
+            <remarks>
+            The pki root path default to the certificate store
+            location as defined in <see cref="F:Opc.Ua.CertificateStoreIdentifier.DefaultPKIRoot"/>
+            A <see cref="T:Opc.Ua.CertificateStoreType"/> defaults to the corresponding default store location.
+            </remarks>
+            <param name="subjectName">Application certificate subject name as distinguished name. A DC=localhost entry is converted to the hostname. The common name CN= is mandatory.</param>
+            <param name="pkiRoot">The path to the pki root. By default all cert stores use the pki root.</param>
+            <param name="appRoot">The path to the app cert store, if different than the pki root.</param>
+            <param name="rejectedRoot">The path to the rejected certificate store.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions">
+            <summary>
+            Add security options to the configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetAutoAcceptUntrustedCertificates(System.Boolean)">
+            <summary>
+            Whether an unknown application certificate should be accepted
+            once all other security checks passed.
+            </summary>
+            <param name="autoAccept"><see langword="true"/> to accept unknown application certificates.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetAddAppCertToTrustedStore(System.Boolean)">
+            <summary>
+            Whether a newly created application certificate should be added to the trusted store.
+            This function is only useful if multiple UA applications share the same trusted store.
+            </summary>
+            <param name="addToTrustedStore"><see langword="true"/> to add the cert to the trusted store.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetRejectSHA1SignedCertificates(System.Boolean)">
+            <summary>
+            Reject SHA1 signed certificates.
+            </summary>
+            <param name="rejectSHA1Signed"><see langword="false"/> to accept SHA1 signed certificates.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetRejectUnknownRevocationStatus(System.Boolean)">
+            <summary>
+            Reject chain validation with CA certs with unknown revocation status,
+            e.g. when the CRL is not available or the OCSP provider is offline.
+            </summary>
+            <param name="rejectUnknownRevocationStatus"><see langword="false"/> to accept CA certs with unknown revocation status.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetSuppressNonceValidationErrors(System.Boolean)">
+            <summary>
+            Whether to suppress errors which are caused by clients and servers which provide
+            zero nonce values or nonce with insufficient entropy.
+            Suppressing this error is a security risk and may allow an attacker to decrypt user tokens.
+            Only use if interoperability issues with legacy servers or clients leave no other choice to operate.
+            </summary>
+            <param name="suppressNonceValidationErrors"><see langword="true"/> to suppress nonce validation errors.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetSendCertificateChain(System.Boolean)">
+            <summary>
+            Whether a certificate chain should be sent with the application certificate.
+            Only used if the application certificate is CA signed.
+            </summary>
+            <param name="sendCertificateChain"><see langword="true"/> to send the certificate chain with the application certificate.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.SetMinimumCertificateKeySize(System.UInt16)">
+            <summary>
+            The minimum RSA key size to accept.
+            By default the key size is set to <see cref="F:Opc.Ua.CertificateFactory.DefaultKeySize"/>.
+            </summary>
+            <param name="keySize">The minimum RSA key size to accept.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderSecurityOptions.AddCertificatePasswordProvider(Opc.Ua.ICertificatePasswordProvider)">
+            <summary>
+            Add a certificate password provider.
+            </summary>
+            <param name="certificatePasswordProvider">The certificate password provider to use.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderExtension">
+            <summary>
+            Add extensions configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderExtension.AddExtension``1(System.Xml.XmlQualifiedName,System.Object)">
+            <summary>
+            Add an extension to the configuration.
+            </summary>
+            <typeparam name="T">The type of the object to add as an extension.</typeparam>
+            <param name="elementName">The name of the extension, null to use the name.</param>
+            <param name="value">The object to add and encode.</param>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderTraceConfiguration">
+            <summary>
+            Add the trace configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTraceConfiguration.SetOutputFilePath(System.String)">
+            <inheritdoc cref="P:Opc.Ua.TraceConfiguration.OutputFilePath"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTraceConfiguration.SetDeleteOnLoad(System.Boolean)">
+            <inheritdoc cref="P:Opc.Ua.TraceConfiguration.DeleteOnLoad"/>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderTraceConfiguration.SetTraceMasks(System.Int32)">
+            <inheritdoc cref="P:Opc.Ua.TraceConfiguration.TraceMasks"/>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationConfigurationBuilderCreate">
+            <summary>
+            Create and validate the application configuration.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationConfigurationBuilderCreate.Create">
+            <summary>
+            Creates and updates the application configuration.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Configuration.IApplicationMessageDlg">
+            <summary>
+            Interface to create application callbacks.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationMessageDlg.Message(System.String,System.Boolean)">
+            <summary>
+            The application message.
+            </summary>
+            <param name="text">The text of the message.</param>
+            <param name="ask">If the application should ask the user.</param>
+        </member>
+        <member name="M:Opc.Ua.Configuration.IApplicationMessageDlg.ShowAsync">
+            <summary>
+            Show the message and return result.
+            </summary>
+        </member>
+    </members>
+</doc>

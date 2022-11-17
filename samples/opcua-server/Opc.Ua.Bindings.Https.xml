@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Opc.Ua.Bindings.Https</name>
+    </assembly>
+    <members>
+        <member name="T:Opc.Ua.Bindings.HttpsServiceHost">
+            <summary>
+            Creates a new <see cref="T:Opc.Ua.Bindings.HttpsTransportListener"/> with
+            <see cref="T:Opc.Ua.ITransportListener"/> interface.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsServiceHost.UriScheme">
+            <summary>
+            The protocol supported by the listener.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsServiceHost.Create">
+            <summary>
+            The method creates a new instance of a <see cref="T:Opc.Ua.Bindings.HttpsTransportListener"/>.
+            </summary>
+            <returns>The transport listener.</returns>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsServiceHost.CreateServiceHost(Opc.Ua.ServerBase,System.Collections.Generic.IDictionary{System.String,Opc.Ua.ServiceHost},Opc.Ua.ApplicationConfiguration,System.Collections.Generic.IList{System.String},Opc.Ua.ApplicationDescription,System.Collections.Generic.List{Opc.Ua.ServerSecurityPolicy},System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Certificate2Collection)">
+            <inheritdoc/>
+            <summary>
+            Create a new service host for UA HTTPS.
+            </summary>
+        </member>
+        <member name="T:Opc.Ua.Bindings.HttpsTransportChannelFactory">
+            <summary>
+            Creates a new HttpsTransportChannel with ITransportChannel interface.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannelFactory.UriScheme">
+            <summary>
+            The protocol supported by the channel.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannelFactory.Create">
+            <summary>
+            The method creates a new instance of a Https transport channel
+            </summary>
+            <returns>The transport channel</returns>
+        </member>
+        <member name="T:Opc.Ua.Bindings.HttpsTransportChannel">
+            <summary>
+            Wraps the HttpsTransportChannel and provides an ITransportChannel implementation.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.UriScheme">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.SupportedFeatures">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.EndpointDescription">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.EndpointConfiguration">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.MessageContext">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.CurrentToken">
+            <inheritdoc/>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportChannel.OperationTimeout">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Initialize(System.Uri,Opc.Ua.TransportChannelSettings)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Initialize(Opc.Ua.ITransportWaitingConnection,Opc.Ua.TransportChannelSettings)">
+            <summary>
+            Initializes a secure channel with a waiting reverse connection.
+            </summary>
+            <param name="connection">The connection to use.</param>
+            <param name="settings">The settings to use when creating the channel.</param>
+            <exception cref="T:Opc.Ua.ServiceResultException">Thrown if any communication error occurs.</exception>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Open">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Close">
+            <inheritdoc/>
+        </member>
+        <member name="T:Opc.Ua.Bindings.HttpsTransportChannel.HttpsAsyncResult">
+            <summary>
+            The async result class for the Https transport.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.BeginSendRequest(Opc.Ua.IServiceRequest,System.AsyncCallback,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.EndSendRequest(System.IAsyncResult)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.BeginOpen(System.AsyncCallback,System.Object)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.EndOpen(System.IAsyncResult)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Reconnect">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.Opc#Ua#ITransportChannel#Reconnect(Opc.Ua.ITransportWaitingConnection)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.BeginReconnect(System.AsyncCallback,System.Object)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.EndReconnect(System.IAsyncResult)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.BeginClose(System.AsyncCallback,System.Object)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.EndClose(System.IAsyncResult)">
+            <inheritdoc/>
+            <remarks>Not implemented here.</remarks>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.SendRequest(Opc.Ua.IServiceRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.SendRequestAsync(Opc.Ua.IServiceRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportChannel.SaveSettings(System.Uri,Opc.Ua.TransportChannelSettings)">
+            <summary>
+            Save the settings for a connection.
+            </summary>
+            <param name="url">The server url.</param>
+            <param name="settings">The settings for the transport channel.</param>
+        </member>
+        <member name="T:Opc.Ua.Bindings.HttpsTransportListenerFactory">
+            <summary>
+            Creates a new <see cref="T:Opc.Ua.Bindings.HttpsTransportListener"/> with
+            <see cref="T:Opc.Ua.ITransportListener"/> interface.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportListenerFactory.UriScheme">
+            <summary>
+            The protocol supported by the listener.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListenerFactory.Create">
+            <summary>
+            The method creates a new instance of a <see cref="T:Opc.Ua.Bindings.HttpsTransportListener"/>.
+            </summary>
+            <returns>The transport listener.</returns>
+        </member>
+        <member name="T:Opc.Ua.Bindings.Startup">
+            <summary>
+            Implements the kestrel startup of the Https listener.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Bindings.Startup.Listener">
+            <summary>
+            Get the Https listener.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Configure the request pipeline for the listener.
+            </summary>
+            <param name="appBuilder">The application builder.</param>
+        </member>
+        <member name="T:Opc.Ua.Bindings.HttpsTransportListener">
+            <summary>
+            Manages the connections for a UA HTTPS server.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Opc.Ua.Bindings.HttpsTransportListener"/> class.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Dispose">
+            <summary>
+            Frees any unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Dispose(System.Boolean)">
+            <summary>
+            An overrideable version of the Dispose.
+            </summary>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportListener.UriScheme">
+            <summary>
+            The URI scheme handled by the listener.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Open(System.Uri,Opc.Ua.TransportListenerSettings,Opc.Ua.ITransportListenerCallback)">
+            <summary>
+            Opens the listener and starts accepting connection.
+            </summary>
+            <param name="baseAddress">The base address.</param>
+            <param name="settings">The settings to use when creating the listener.</param>
+            <param name="callback">The callback to use when requests arrive via the channel.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if any parameter is null.</exception>
+            <exception cref="T:Opc.Ua.ServiceResultException">Thrown if any communication error occurs.</exception>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Close">
+            <summary>
+            Closes the listener and stops accepting connection.
+            </summary>
+            <exception cref="T:Opc.Ua.ServiceResultException">Thrown if any communication error occurs.</exception>
+        </member>
+        <member name="E:Opc.Ua.Bindings.HttpsTransportListener.ConnectionWaiting">
+            <summary>
+            Raised when a new connection is waiting for a client.
+            </summary>
+        </member>
+        <member name="E:Opc.Ua.Bindings.HttpsTransportListener.ConnectionStatusChanged">
+            <summary>
+            Raised when a monitored connection's status changed.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.CreateReverseConnection(System.Uri,System.Int32)">
+            <inheritdoc/>
+            <remarks>
+            Reverse connect for the https transport listener is not implemeted.
+            </remarks>
+        </member>
+        <member name="P:Opc.Ua.Bindings.HttpsTransportListener.EndpointUrl">
+            <summary>
+            Gets the URL for the listener's endpoint.
+            </summary>
+            <value>The URL for the listener's endpoint.</value>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Start">
+            <summary>
+            Starts listening at the specified port.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.Stop">
+            <summary>
+            Stops listening.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.SendAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Handles requests arriving from a channel.
+            </summary>
+        </member>
+        <member name="M:Opc.Ua.Bindings.HttpsTransportListener.CertificateUpdate(Opc.Ua.ICertificateValidator,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Certificate2Collection)">
+            <summary>
+            Called when a UpdateCertificate event occured.
+            </summary>
+        </member>
+    </members>
+</doc>

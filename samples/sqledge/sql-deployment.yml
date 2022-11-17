@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqledge-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqledge
+  template:
+    metadata:
+      labels:
+        app: sqledge
+    spec:
+      volumes:
+        - name: task-pv-volume
+          persistentVolumeClaim:
+            claimName: mssql-data
+      containers:
+        - name: azuresqledge
+          image: mcr.microsoft.com/azure-sql-edge:latest
+          ports:
+            - containerPort: 1433
+          volumeMounts:
+            - name: task-pv-volume
+              mountPath: /var/lib/data/
+          env:
+            - name: MSSQL_PID
+              value: "Developer"
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql
+                  key: SA_PASSWORD
+            - name: MSSQL_AGENT_ENABLED
+              value: "TRUE"
+            - name: MSSQL_COLLATION
+              value: "SQL_Latin1_General_CP1_CI_AS"
+            - name: MSSQL_LCID
+              value: "1033"
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 10001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqledge-deployment
+spec:
+  selector:
+    app: sqledge
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+      name: sql
+  type: LoadBalancer
