@@ -61,13 +61,13 @@ kubectl get akrii
 
 ![akri-resources](/docs/images/akri-resources.png)
 
-Once you've confirmed that Akri is discovering your server(s), you can view monitor the OPC UA outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksLiteLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
+Once you've confirmed that Akri is discovering your server(s), you can view monitor the OPC UA outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksEdgeLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
 
 ![akri-svc-node](/docs/images/akri-svc-port.png)
 
 ![akri-app](/docs/images/akri-app.png)
 
-Once you've confirmed that Akri is discovering your server(s), you can view monitor the OPC UA outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksLiteLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
+Once you've confirmed that Akri is discovering your server(s), you can view monitor the OPC UA outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksEdgeLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
 
 ### Step 5: Clean up deployments
 
@@ -84,4 +84,4 @@ kubectl delete -f akri-opcua\akri-opcua-kXs.yaml
 kubectl delete -f akri-opcua\akri-anomaly-detection-app.yml
 ```
 
-Return to the [deployment guidance homepage](/docs/AKS-Lite-Deployment-Guidance.md) or the [samples page](/samples/README.md).
+Return to the [deployment guidance homepage](https://aka.ms/aks-edge/quickstart) or the [samples page](/samples/README.md).

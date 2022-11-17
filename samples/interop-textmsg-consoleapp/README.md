@@ -1,23 +1,23 @@
-# Interop Windows Console App with AKS lite Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Introduction
-This sample demonstrates bidirectional communication between a Windows console application and a Linux container running inside the AKS lite cluster. 
+This sample demonstrates bidirectional communication between a Windows console application and a Linux container running inside the AKS Edge cluster. 
 
 The underlying communication between the Windows console application and the Linux container is based on [Mosquitto Broker](https://mosquitto.org/), an open-source message broker that implements the MQTT protocol. 
 
 ### Mosquitto Broker
-To establish a bi-directional communication between the Windows companion app and a Linux container, this sample code uses Mosquitto broker running as a container inside the AKS lite cluster. All communication is done using MQTT pub/sub protocol. There are different Mosquitto container options already packaged and published. For this tutorial, we'll use the [Mosquitto broker packaged by Eclipse](https://hub.docker.com/_/eclipse-mosquitto). However, the user can build and package their own version.
+To establish a bi-directional communication between the Windows companion app and a Linux container, this sample code uses Mosquitto broker running as a container inside the AKS Edge cluster. All communication is done using MQTT pub/sub protocol. There are different Mosquitto container options already packaged and published. For this tutorial, we'll use the [Mosquitto broker packaged by Eclipse](https://hub.docker.com/_/eclipse-mosquitto). However, the user can build and package their own version.
 
 ### Windows Companion Application
 The Windows console application in this sample uses the [MQTTNet]https://github.com/dotnet/MQTTnet) package and [.NET](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6) to publish and subscribe to messages using the MQTT broker. In this scenario, the Windows console application is being implemented as a *companion app* that runs side-by-side with a Linux container. 
 
-The Windows console application, doesn't require to authenticate with the Mosquitto broker instance, running as a container inside the AKS lite cluster. If needed, authentication using certificates or username/password can also be configured. For more information about certificates usage, see [Mosquitto - Authentication methods](https://mosquitto.org/documentation/authentication-methods/). 
+The Windows console application, doesn't require to authenticate with the Mosquitto broker instance, running as a container inside the AKS Edge cluster. If needed, authentication using certificates or username/password can also be configured. For more information about certificates usage, see [Mosquitto - Authentication methods](https://mosquitto.org/documentation/authentication-methods/). 
 
 ### Linux container 
 This sample also incorporates a Linux container, which processes messages sent by the *console app* then sends processed results back to the *console app* to be displayed on the console output.
 
 ### Message Routing
-This sample employs concepts described in [MQTT Producer/Suscriber](https://mqtt.org/) to establish message flow between the *companion app* (Windows console application) and a custom AKS lite Linux container. 
+This sample employs concepts described in [MQTT Producer/Suscriber](https://mqtt.org/) to establish message flow between the *companion app* (Windows console application) and a custom AKS Edge Linux container. 
 
 The [topic table](https://kafka.apache.org/documentation/#topicconfigs) below defines a set of topic entries, where each entry defines a message routing between the two endpoints. 
 
@@ -49,11 +49,11 @@ A Windows device with the following minimum requirements:
   * Storage: At least 17 GB free after installing MSI
 
 ## Instructions
-[Step 1 - Setup Azure Kubernetes Service on Windows IoT (AKS-IoT)](/docs/AKS-Lite-Deployment-Guidance.md)
+[Step 1 - Setup Azure Kubernetes Service (AKS) Edge](https://aka.ms/aks-edge/quickstart)
 
 [Step 2 - Develop and publish the Linux container](./Documentation/Develop%20and%20publish%20the%20Linux%20container.MD)
 
-[Step 3 - Deploy the containers onto the AKS lite Edge Device](./Documentation/DeployContainersOnAKSLiteEdgedevice.md)
+[Step 3 - Deploy the containers onto the AKS Edge Device](./Documentation/DeployContainersOnAKSEdgeDevice.md)
 
 [Step 4 - Build and run the Companion Application](./Documentation/Run%20the%20Console%20Application.MD)
 

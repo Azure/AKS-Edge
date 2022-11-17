@@ -24,14 +24,14 @@
 
 ## Interop Samples
 
-_:warning: **WARNING**: Enabling a communication channel between the Windows host and the AKS lite VM may increase security risks._
+_:warning: **WARNING**: Enabling a communication channel between the Windows host and the AKS Edge VM may increase security risks._
 
 | Name           | Description      |
 |----------------|------------------|
-| [interop-textmsg-consoleapp](./interop-textmsg-consoleapp) | Basic interop sample demonstrating text messaging between a Windows console app and an workload running inside the AKS lite cluster. | 
-<!-- | [interop-customvision-textmsg-uwpapp](./interop-customvision-textmsg-uwpapp) | <p>Two more advanced interop samples which demonstrate bidirectional communication between a Windows application and an Edge module running inside the AKS lite VM. </p><ul><li>Text messaging between a UWP application and an Edge module. </li><li>A 'Custom vision' machine learning interop sample with a fruit classifier which uses a Windows UWP app to send camera frames to an Edge module for identification.</li></ul>| -->
+| [interop-textmsg-consoleapp](./interop-textmsg-consoleapp) | Basic interop sample demonstrating text messaging between a Windows console app and an workload running inside the AKS Edge cluster. | 
+<!-- | [interop-customvision-textmsg-uwpapp](./interop-customvision-textmsg-uwpapp) | <p>Two more advanced interop samples which demonstrate bidirectional communication between a Windows application and an Edge module running inside the AKS Edge VM. </p><ul><li>Text messaging between a UWP application and an Edge module. </li><li>A 'Custom vision' machine learning interop sample with a fruit classifier which uses a Windows UWP app to send camera frames to an Edge module for identification.</li></ul>| -->
 
-The interop samples demonstrate usage patterns for interoperatibility between Microsoft's Windows host OS and workloads running on the AKS lite cluster.  These code samples were created with templates available in Visual Studio and are designed, but not limited to, run on devices using AKS lite. For more information, review [AKS lite docs](/docs/AKS-Lite-Concepts.md).
+The interop samples demonstrate usage patterns for interoperatibility between Microsoft's Windows host OS and workloads running on the AKS Edge cluster.  These code samples were created with templates available in Visual Studio and are designed, but not limited to, run on devices using AKS Edge. For more information, review [AKS Edge docs](/docs/AKS-Edge-Concepts.md).
 
 > **Note:** If you are unfamiliar with Git and GitHub, you can download the entire collection as a 
 > [ZIP file](https://github.com/Microsoft/Windows-universal-samples/archive/master.zip), but be 
@@ -61,7 +61,7 @@ The samples use Linked files in Visual Studio to reduce duplication of common fi
 
 **Reminder:** If you unzip individual samples, they will not build due to references to other portions of the ZIP file that were not unzipped. You must unzip the entire archive if you intend to build the samples.
 
-For more info about the programming models, platforms, languages, and APIs demonstrated in these samples, please refer to the guidance, tutorials, and reference topics provided in the Windows 10 documentation available in the [Windows Developer Center](http://go.microsoft.com/fwlink/p/?LinkID=532421). These samples are provided as-is in order to indicate or demonstrate the functionality of the programming models and feature APIs for Windows and AKS lite.
+For more info about the programming models, platforms, languages, and APIs demonstrated in these samples, please refer to the guidance, tutorials, and reference topics provided in the Windows 10 documentation available in the [Windows Developer Center](http://go.microsoft.com/fwlink/p/?LinkID=532421). These samples are provided as-is in order to indicate or demonstrate the functionality of the programming models and feature APIs for Windows and AKS Edge.
 
 ## Contributing
 

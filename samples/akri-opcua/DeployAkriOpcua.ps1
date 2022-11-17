@@ -37,7 +37,7 @@ kubectl get services
 $status = (kubectl get services) | Where-Object { $_ -match "akri-anomaly-detection-app" }
 if ($status) {
     $portno = ($status | Select-String ":(\d+)/").Matches.Groups[1].Value
-    $nodeip = (Get-AksLiteLinuxNodeAddr)[1]
+    $nodeip = (Get-AksEdgeLinuxNodeAddr)[1]
     $url = "http:\\$($nodeip):$portno"
     Write-Host ">> Launching browser for url : $url"
     Start-Process $url

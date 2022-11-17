@@ -1,13 +1,13 @@
-# Interop Windows Console App with AKS lite Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Progress
-- [x] [Step 1 - Setup Azure Kubernetes Service on Windows IoT (AKS lite)](/docs/AKS-Lite-Deployment-Guidance.md)
+- [x] [Step 1 - Step 1 - Setup Azure Kubernetes Service (AKS) Edge](https://aka.ms/aks-edge/quickstart)
 - [x] [Step 2 - Develop and publish the Linux container](./Documentation/Develop%20and%20publish%20the%20Linux%20container.MD)
-- [x] [Step 3 - Deploy the containers onto the AKS lite Edge Device](../DeployContainersOnAKSLiteEdgedevice.md)
+- [x] [Step 3 - Deploy the containers onto the AKS Edge Edge Device](./DeployContainersOnAKSEdgeDevice.md)
 - [ ] [Step 4 - Build and run the Companion Application](./Run%20the%20Console%20Application.MD)
 ---
 
-# Step 3: Deploy the containers onto the AKS lite Edge Device
+# Step 3: Deploy the containers onto the AKS Edge Edge Device
 
 ## Deploy Mosquitto MQTT Broker
 1. First create a namespace for your demo artifacts:

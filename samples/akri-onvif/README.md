@@ -41,7 +41,7 @@ This should apply all the YAMLs in the folder, including the akri configurations
 
 ### Step 3: Allow Linux VM to Discover ONVIF Devices
 
-Make sure you are using `AksLitePrompt.cmd` located in the `tools` folder. Here, type in `mars` and enter to enter the bash shell of your node.
+Make sure you are using `AksEdgePrompt.cmd` located in the `tools` folder. Here, type in `mars` and enter to enter the bash shell of your node.
 Once in the bash shell, run:
 
 ```bash
@@ -62,7 +62,7 @@ kubectl get akrii
 
 ![akri-resources](/docs/images/akri-onvif-resources.png)
 
-Once you've confirmed that Akri is discovering your server(s), you can view monitor the ONVIF outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksLiteLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
+Once you've confirmed that Akri is discovering your server(s), you can view monitor the ONVIF outputs by going to `<Node IP>:<Port>` in your browser. You can find the node IP by running `Get-AksEdgeLinuxNodeAddr`, and you can find the service port by running `kubectl get services`.
 
 ![akri-svc-node](/docs/images/akri-onvif-svc-port.png)
 
@@ -83,4 +83,4 @@ kubectl delete -f akri-onvif\akri-onvif-kXs.yaml
 kubectl delete -f akri-onvif\akri-streaming.yaml
 ```
 
-Return to the [deployment guidance homepage](/docs/AKS-Lite-Deployment-Guidance.md) or the [samples page](/samples/README.md).
+Return to the [deployment guidance homepage](https://aka.ms/aks-edge/quickstart) or the [samples page](/samples/README.md).

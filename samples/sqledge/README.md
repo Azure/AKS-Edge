@@ -2,7 +2,7 @@
 
 Azure SQL Edge is an optimized relational database engine geared for IoT deployments, providing capabilities to create a high-performance data storage and processing layer for IoT applications and solutions.
 
-In this demo, you will learn to deploy an Azure SQL Edge container on your AKS lite cluster.
+In this demo, you will learn to deploy an Azure SQL Edge container on your AKS Edge cluster.
 
 ## Step 1: Create namespace and password
 
@@ -30,7 +30,7 @@ kubectl apply -f sqledge\ -n sqledge
 
 This will:
 
-- Create a local storage (learn more about creating local storage on your AKS lite cluster [here](/docs/additionalconfigs.md))
+- Create a local storage (learn more about creating local storage on your AKS Edge cluster [here](/docs/additionalconfigs.md))
 - Create a persistent volume and persistent volume claim (learn more about [PVs](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/#create-a-persistentvolume) and [PVCs](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/#create-a-persistentvolumeclaim))
 - Deploy SQL Edge
 
@@ -73,4 +73,4 @@ kubectl delete -f sqledge -n sqledge
 kubectl delete namespace sqledge
 ```
 
-Return to the [deployment guidance homepage](/docs/AKS-Lite-Deployment-Guidance.md) or the [samples page](/samples/README.md).
+Return to the [deployment guidance homepage](https://aka.ms/aks-edge/quickstart) or the [samples page](/samples/README.md).

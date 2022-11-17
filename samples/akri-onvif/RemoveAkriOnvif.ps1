@@ -15,9 +15,9 @@ if ($natswitch1 -or $natswitch2 ) {
 Write-Host "1. Disabling UDP traffic for the linux node."
 Write-Host "Warning: All ports of UDP closed here. Need to restrict to required ports" -ForegroundColor Yellow
 Write-Host ">> sudo iptables -D INPUT -p udp -j ACCEPT" -ForegroundColor Cyan
-Invoke-AksLiteLinuxNodeCommand "sudo iptables -D INPUT -p udp -j ACCEPT"
+Invoke-AksEdgeLinuxNodeCommand "sudo iptables -D INPUT -p udp -j ACCEPT"
 Write-Host ">> sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" -ForegroundColor Cyan
-Invoke-AksLiteLinuxNodeCommand "sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" | Out-Null
+Invoke-AksEdgeLinuxNodeCommand "sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" | Out-Null
 
 Write-Host "2. Delete deployment of akri with onvif discovery handlers"
 $IsK3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}

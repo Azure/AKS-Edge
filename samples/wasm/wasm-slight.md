@@ -1,7 +1,7 @@
-# Interop Windows Console App with AKS lite Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Introduction
-This sample demonstrates how to run a WebAssembly (WASM) payload using [slight-containerd-wasm-shim](https://github.com/deislabs/containerd-wasm-shims) inside the AKS lite cluster. **slight-containerd-wasm-shim** is currently in _alpha_ version and is not intended for production deployments. 
+This sample demonstrates how to run a WebAssembly (WASM) payload using [slight-containerd-wasm-shim](https://github.com/deislabs/containerd-wasm-shims) inside the AKS Edge cluster. **slight-containerd-wasm-shim** is currently in _alpha_ version and is not intended for production deployments. 
 
 ## Prerequisites
 A Windows device with the following minimum requirements:
@@ -15,12 +15,12 @@ A Windows device with the following minimum requirements:
   * Storage: At least 17 GB free after installing MSI
 
 ## Instructions
-1. Setup Azure Kubernetes Service on Windows IoT (AKS lite) - Follow [this guide](/docs/AKS-Lite-Deployment-Guidance.md) 
+1. Setup Azure Kubernetes Service (AKS) Edge- Follow [this guide](https://aka.ms/aks-edge/quickstart) 
 1. Open an elevated PowerShell session
-1. Download and load [Enable-AksLiteWasmWorkload.ps1](./Enable-AksLiteWasmWorkloads.ps1)
-1. Run the `Enable-AksLiteWasmWorkload` cmdlet for **slight** shim. For a specific shim version, use the `-shimVersion` parameter. By default version **v0.3.0** is used.
+1. Download and load [Enable-AksEdgeWasmWorkload.ps1](./Enable-AksEdgeWasmWorkloads.ps1)
+1. Run the `Enable-AksEdgeWasmWorkload` cmdlet for **slight** shim. For a specific shim version, use the `-shimVersion` parameter. By default version **v0.3.0** is used.
     ```powershell
-    .\Enable-AksLiteWasmWorkloads.ps1 -shimOption "slight"
+    .\Enable-AksEdgeWasmWorkloads.ps1 -shimOption "slight"
     ```
 1. Apply a runtime class that contains a handler that matches the "slight" config runtime name from previous step.
     ```powershell
@@ -55,7 +55,7 @@ A Windows device with the following minimum requirements:
     ```
 1. Finally, check that the wasm Hello World sample is running correctly
     ```powershell
-    Invoke-AksLiteLinuxNodeCommand "curl -v http://<wasm-slight-ip-address>:<wasm-slight-port>/hello"
+    Invoke-AksEdgeLinuxNodeCommand "curl -v http://<wasm-slight-ip-address>:<wasm-slight-port>/hello"
     ```
     If everything is running correctly, you should see the following output
     ```bash
