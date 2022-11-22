@@ -111,7 +111,7 @@
                 },
                 "TimeoutSeconds": {
                     "type": "int",
-                    "default": 300
+                    "default": 900
                 },
                 "NodeType": {
                     "enum": [
