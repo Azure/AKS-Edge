@@ -20,7 +20,7 @@ $jsonContent = @"
 {
     "SchemaVersion": "1.1",
     "Version": "1.0",
-    "AksEdgeProduct": "Azure Kubernetes Service on Windows IoT (Public Preview)",
+    "AksEdgeProduct": "Azure Kubernetes Service Edge Essentials (Public Preview)",
     "AksEdgeProductUrl": "$($msifile.Replace("\","\\"))",
     "DeployOptions": {
         "SingleMachineCluster": true,

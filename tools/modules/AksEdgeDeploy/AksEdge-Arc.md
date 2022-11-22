@@ -33,14 +33,14 @@ The following functions enables you to install and use `Arc enabled Servers` and
 3. Import the AksLiteDeploy module and set the user config.
 4. Run `Initialize-ArcIot` to install the required software (Azure CLI) and validates that Azure setup is good.
 5. `Connect-ArcIoTCmAgent` to connect your machine to Arc for Servers.
-6. After installing AKS lite or any kuberenetes cluster in your Linux VM, verify with `kubectl get nodes` and then call `Connect-ArcIotK8s`
+6. After installing AKS edge or any kuberenetes cluster in your Linux VM, verify with `kubectl get nodes` and then call `Connect-ArcIotK8s`
 
 ```powershell
 # installs AzCLI 
 Initialize-ArcIot
 # Connects the Win IoT machine to Arc for Servers
 Connect-ArcIotCmAgent
-# Prereq: install AKS lite and deploy cluster
+# Prereq: install AKS edge and deploy cluster
 # test the cluster is good
 kubectl get nodes
 # Connect the cluster to Arc for Kubernetes

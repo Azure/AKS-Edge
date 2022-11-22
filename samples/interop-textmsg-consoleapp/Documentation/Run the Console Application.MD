@@ -1,9 +1,9 @@
-# Interop Windows Console App with AKS lite Linux container
+# Interop Windows Console App with AKS edge Linux container
 
 ## Progress
-- [x] [Step 1 - Setup Azure Kubernetes Service on Windows IoT (AKS lite)](/docs/AKS-Lite-Deployment-Guidance.md)
+- [x] [Step 1 - Setup Azure Kubernetes Service Edge Essentials (AKS edge)](/docs/AKS-Lite-Deployment-Guidance.md)
 - [x] [Step 2 - Develop and publish the Linux container](./Develop%20and%20publish%20the%20Linux%20module.MD)
-- [x] [Step 3 - Deploy the containers onto the AKS lite Edge Device](./DeployContainersOnAKSLiteEdgedevice.md)
+- [x] [Step 3 - Deploy the containers onto the AKS edge Edge Device](./DeployContainersOnAKSLiteEdgedevice.md)
 - [x] [Step 4 - Build and run the Companion Application](./Run%20the%20Console%20Application.MD)
 ---
 

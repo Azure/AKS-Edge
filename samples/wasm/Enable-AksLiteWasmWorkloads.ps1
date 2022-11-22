@@ -1,5 +1,5 @@
 <#
-  Sample script to enable WASM workloads with AKS lite
+  Sample script to enable WASM workloads with AKS edge
 #>
 param(
     [string] $shimVersion = "v0.3.0"
@@ -10,10 +10,10 @@ param(
 #Requires -RunAsAdministrator
 $k8SOption = $false
 
-$version = (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like 'Azure Kubernetes Service on Windows IoT*'}).DisplayName
+$version = (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like 'Azure Kubernetes Service Edge Essentials*'}).DisplayName
 if ([string]::IsNullOrEmpty($version))
 {
-    throw $("AKS lite is not installed on this device")
+    throw $("AKS edge is not installed on this device")
 }
 
 if ($version.Contains("K8s"))
@@ -27,7 +27,7 @@ elseif ($version.Contains("K3s"))
 }
 else
 {
-    throw $("AKS lite verison not supported")
+    throw $("AKS edge verison not supported")
 }
 
 Write-Host "Downloading shim verison $shimVersion" -ForegroundColor green

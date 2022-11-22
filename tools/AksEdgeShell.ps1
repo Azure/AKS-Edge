@@ -14,7 +14,7 @@ $aksjson = (Resolve-Path -Path $aksjson).Path
 Push-Location $PSScriptRoot
 $aksedgemodule = (Get-Module -Name AksIot -ListAvailable)
 if ($aksedgemodule -and $aksedgemodule.Version.Minor -lt 7) {
-    Write-Host "Older version of AKS lite found. Please uninstall.Press any key to exit." -ForegroundColor Red
+    Write-Host "Older version of AKS edge found. Please uninstall.Press any key to exit." -ForegroundColor Red
     pause
     return
 }

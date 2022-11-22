@@ -1,7 +1,7 @@
-# Interop Windows Console App with AKS lite Linux container
+# Interop Windows Console App with AKS edge Linux container
 
 ## Introduction
-This sample demonstrates how to run a WebAssembly (WASM) payload using [spin-containerd-wasm-shim](https://github.com/deislabs/containerd-wasm-shims) inside the AKS lite cluster. **spin-containerd-wasm-shim** is currently in _alpha_ version and is not intended for production deployments. 
+This sample demonstrates how to run a WebAssembly (WASM) payload using [spin-containerd-wasm-shim](https://github.com/deislabs/containerd-wasm-shims) inside the AKS edge cluster. **spin-containerd-wasm-shim** is currently in _alpha_ version and is not intended for production deployments. 
 
 ## Prerequisites
 A Windows device with the following minimum requirements:
@@ -15,7 +15,7 @@ A Windows device with the following minimum requirements:
   * Storage: At least 17 GB free after installing MSI
 
 ## Instructions
-1. Setup Azure Kubernetes Service on Windows IoT (AKS lite) - Follow [this guide](/docs/AKS-Lite-Deployment-Guidance.md) 
+1. Setup Azure Kubernetes Service Edge Essentials (AKS edge) - Follow [this guide](/docs/AKS-Lite-Deployment-Guidance.md) 
 1. Open an elevated PowerShell session
 1. Download and load [Enable-AksLiteWasmWorkload.ps1](./Enable-AksLiteWasmWorkloads.ps1)
 1. Run the `Enable-AksLiteWasmWorkload` cmdlet for **spin** shim. For a specific shim version, use the `-shimVersion` parameter. By default version **v0.3.0** is used.

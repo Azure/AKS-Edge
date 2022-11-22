@@ -1,6 +1,6 @@
 <#
     .DESCRIPTION
-        This module contains the Arc functions to use on Windows IoT (ArcIot)
+        This module contains the Arc functions to use Edge Essentials (ArcIot)
 #>
 #Requires -RunAsAdministrator
 if (! [Environment]::Is64BitProcess) {

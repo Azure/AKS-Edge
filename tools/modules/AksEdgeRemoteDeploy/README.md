@@ -1,6 +1,6 @@
-# AKS lite Remote Deployment
+# AKS edge Remote Deployment
 
-AksEdgeRemoteDeploy enables you to deploy the Azure Kubernetes Service on Windows IoT (Public Preview) using AksEdgeDeploy module through Intune, Arc for Server channels.
+AksEdgeRemoteDeploy enables you to deploy the Azure Kubernetes Service Edge Essentials (Public Preview) using AksEdgeDeploy module through Intune, Arc for Server channels.
 
 ## Via Intune
 
