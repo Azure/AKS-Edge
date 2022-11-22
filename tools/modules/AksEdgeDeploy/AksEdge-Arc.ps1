@@ -541,7 +541,7 @@ function Get-ArcIotClusterName {
         if ($aicfg.ClusterName) {
             $arciotSession.ClusterName = $aicfg.ClusterName
         } else {
-            $clustername = $(kubectl get configmap -n akslite akslite -o jsonpath="{.data.clustername}")
+            $clustername = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
             if (!$clustername){
                 $clustername = hostname
                 $k3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}

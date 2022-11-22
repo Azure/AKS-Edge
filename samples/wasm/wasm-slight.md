@@ -17,10 +17,10 @@ A Windows device with the following minimum requirements:
 ## Instructions
 1. Setup Azure Kubernetes Service Edge Essentials (AKS edge) - Follow [this guide](/docs/AKS-Lite-Deployment-Guidance.md) 
 1. Open an elevated PowerShell session
-1. Download and load [Enable-AksLiteWasmWorkload.ps1](./Enable-AksLiteWasmWorkloads.ps1)
-1. Run the `Enable-AksLiteWasmWorkload` cmdlet for **slight** shim. For a specific shim version, use the `-shimVersion` parameter. By default version **v0.3.0** is used.
+1. Download and load [Enable-AksEdgeWasmWorkload.ps1](./Enable-AksEdgeWasmWorkloads.ps1)
+1. Run the `Enable-AksEdgeWasmWorkload` cmdlet for **slight** shim. For a specific shim version, use the `-shimVersion` parameter. By default version **v0.3.0** is used.
     ```powershell
-    .\Enable-AksLiteWasmWorkloads.ps1 -shimOption "slight"
+    .\Enable-AksEdgeWasmWorkloads.ps1 -shimOption "slight"
     ```
 1. Apply a runtime class that contains a handler that matches the "slight" config runtime name from previous step.
     ```powershell
@@ -55,7 +55,7 @@ A Windows device with the following minimum requirements:
     ```
 1. Finally, check that the wasm Hello World sample is running correctly
     ```powershell
-    Invoke-AksLiteLinuxNodeCommand "curl -v http://<wasm-slight-ip-address>:<wasm-slight-port>/hello"
+    Invoke-AksEdgeNodeCommand "curl -v http://<wasm-slight-ip-address>:<wasm-slight-port>/hello"
     ```
     If everything is running correctly, you should see the following output
     ```bash

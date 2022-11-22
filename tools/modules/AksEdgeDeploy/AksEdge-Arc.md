@@ -30,7 +30,7 @@ The following functions enables you to install and use `Arc enabled Servers` and
    ..\tools\scripts\AksEdgeAzureSetup-Test.ps1 .\aide-userconfig.json
    ```
 
-3. Import the AksLiteDeploy module and set the user config.
+3. Import the AksEdgeDeploy module and set the user config.
 4. Run `Initialize-ArcIot` to install the required software (Azure CLI) and validates that Azure setup is good.
 5. `Connect-ArcIoTCmAgent` to connect your machine to Arc for Servers.
 6. After installing AKS edge or any kuberenetes cluster in your Linux VM, verify with `kubectl get nodes` and then call `Connect-ArcIotK8s`

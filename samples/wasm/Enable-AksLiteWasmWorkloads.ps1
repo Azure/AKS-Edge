@@ -31,11 +31,11 @@ else
 }
 
 Write-Host "Downloading shim verison $shimVersion" -ForegroundColor green
-Invoke-AksLiteLinuxNodeCommand "wget -O /home/iotedge-user/containerd-wasm-shim.tar.gz https://github.com/deislabs/containerd-wasm-shims/releases/download/$shimVersion/containerd-wasm-shims-v1-$shimVersion-linux-amd64.tar.gz"
+Invoke-AksEdgeNodeCommand "wget -O /home/iotedge-user/containerd-wasm-shim.tar.gz https://github.com/deislabs/containerd-wasm-shims/releases/download/$shimVersion/containerd-wasm-shims-v1-$shimVersion-linux-amd64.tar.gz"
 
 Write-Host "Unpacking and moving shim to appropiate folder" -ForegroundColor green
-Invoke-AksLiteLinuxNodeCommand "tar -xvf /home/iotedge-user/containerd-wasm-shim.tar.gz && sudo mkdir /var/lib/bin" | Out-Null
-Invoke-AksLiteLinuxNodeCommand "sudo mv /home/iotedge-user/containerd-shim-$shimOption-v1 /var/lib/bin/ && sudo rm /home/iotedge-user/containerd-*"  | Out-Null
+Invoke-AksEdgeommand "tar -xvf /home/iotedge-user/containerd-wasm-shim.tar.gz && sudo mkdir /var/lib/bin" | Out-Null
+Invoke-AksEdgeNodeCommand "sudo mv /home/iotedge-user/containerd-shim-$shimOption-v1 /var/lib/bin/ && sudo rm /home/iotedge-user/containerd-*"  | Out-Null
 
 Write-Host "Configuring containerd to support runwasi runtime" -ForegroundColor green
 $command = "echo -e '\n[plugins.cri.containerd.runtimes.$shimOption]\n  runtime_type = \`"io.containerd.$shimOption.v1\`"'  | sudo tee -a /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl"
@@ -45,12 +45,12 @@ if($k8SOption)
 }
 else
 {
-  Invoke-AksLiteLinuxNodeCommand "sudo cp /var/lib/rancher/k3s/agent/etc/containerd/config.toml /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl"  
+  Invoke-AksEdgeNodeCommand "sudo cp /var/lib/rancher/k3s/agent/etc/containerd/config.toml /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl"  
 }
-Invoke-AksLiteLinuxNodeCommand -command $command| Out-Null
+Invoke-AksEdgeNodeCommand -command $command| Out-Null
 
 Write-Host "Adding new runwasi directory to  PATH variable" -ForegroundColor green
-$currentPath = Invoke-AksLiteLinuxNodeCommand 'echo $PATH'
+$currentPath = Invoke-AksEdgeNodeCommand 'echo $PATH'
 $newPath = "PATH=" + $currentPath + ":/var/lib/bin"
 Write-Host "Current PATH=$currentPath - New $newPath" -ForegroundColor green
 
@@ -61,10 +61,10 @@ if($k8SOption)
 }
 Write-Host "Configuring $kubeService service with new configuration" -ForegroundColor green
 
-Invoke-AksLiteLinuxNodeCommand "sudo mkdir /etc/systemd/system/$kubeService.service.d"
+Invoke-AksEdgeNodeCommand "sudo mkdir /etc/systemd/system/$kubeService.service.d"
 $command = "echo -e '[Service]\nEnvironment=\`"$newPath\`"'  | sudo tee -a /etc/systemd/system/$kubeService.service.d/override.conf"
-Invoke-AksLiteLinuxNodeCommand -command $command | Out-Null
-Invoke-AksLiteLinuxNodeCommand "sudo systemctl daemon-reload"
-Invoke-AksLiteLinuxNodeCommand "sudo systemctl restart $kubeService"
+Invoke-AksEdgeNodeCommand -command $command | Out-Null
+Invoke-AksEdgeNodeCommand "sudo systemctl daemon-reload"
+Invoke-AksEdgeNodeCommand "sudo systemctl restart $kubeService"
 
 Write-Host "Configuration finished - You can now deploy WASM workloads using kubectl interface" -ForegroundColor green

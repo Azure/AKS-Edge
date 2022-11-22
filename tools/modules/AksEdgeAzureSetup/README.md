@@ -1,8 +1,8 @@
 # AksEdge Azure Setup
 
-AksLiteAzureSetup enables you to configure your Azure subscription for the use of Arc for Servers and Arc for Kubernetes for AKS-Lite.
+AksEdgeAzureSetup enables you to configure your Azure subscription for the use of Arc for Servers and Arc for Kubernetes for AKS-Lite.
 
-Run the script `AksLiteAzureSetup.ps1` in the `tools\AksLiteAzureSetup` directory to
+Run the script `AksEdgeAzureSetup.ps1` in the `tools\AksEdgeAzureSetup` directory to
 
 * setup your Azure subscription
 * create the resource group
@@ -15,26 +15,26 @@ You will need to login for Azure CLI interactively for the first time to create 
 
 ```powershell
 # prompts for interactive login for serviceprincipal creation with minimal privileges
-.\AksLiteAzureSetup.ps1 .\AzureConfig.json
+.\AksEdgeAzureSetup.ps1 .\AzureConfig.json
 ```
 
 If you require to create the service principal with `Contributor` role at the resource group level, you can add the `-spContributorRole` switch.
 
 ```powershell
 # creates service principal with Contributor role at resource group level
-.\AksLiteAzureSetup.ps1 .\AzureConfig.json -spContributorRole
+.\AksEdgeAzureSetup.ps1 .\AzureConfig.json -spContributorRole
 ```
 
 To, reset an already existing service principal, use `-spCredReset`. Reset should be used cautiously.
 
 ```powershell
 # resets the existing service principal
-.\AksLiteAzureSetup.ps1 .\AzureConfig.json -spCredReset
+.\AksEdgeAzureSetup.ps1 .\AzureConfig.json -spCredReset
 ```
 
 Test the credentials with
 
 ```powershell
 # you can test the creds with 
-.\AksLiteAzureSetup-Test.ps1 .\AzureConfig.json
+.\AksEdgeAzureSetup-Test.ps1 .\AzureConfig.json
 ```
