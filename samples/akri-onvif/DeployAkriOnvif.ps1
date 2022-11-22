@@ -4,8 +4,8 @@ This script deploys Onvif with Akri
 Push-Location $PSScriptRoot
 Write-Host "----Script to deploy Akri with Onvif sample----"
 Write-Host "Checking cluster type"
-$natswitch1 = Get-VMSwitch -Name aksiotsw-int -ErrorAction SilentlyContinue
-$natswitch2 = Get-VMSwitch -Name aksiotnatvswitch -ErrorAction SilentlyContinue
+$natswitch1 = Get-VMSwitch -Name aksedgesw-int -ErrorAction SilentlyContinue
+$natswitch2 = Get-VMSwitch -Name aksedgenatvswitch -ErrorAction SilentlyContinue
 if ($natswitch1 -or $natswitch2 ) {
     Write-Host "Error: ONVIF is not supported on SingleMachineCluster deployment. This requires an deployment with external switch." -ForegroundColor Red
     Pop-Location
@@ -15,9 +15,9 @@ if ($natswitch1 -or $natswitch2 ) {
 Write-Host "1. Enabling UDP traffic for the linux node."
 Write-Host "Warning: All ports opened here. Need to restrict to required ports" -ForegroundColor Yellow
 Write-Host ">> sudo iptables -I INPUT -p udp -j ACCEPT" -ForegroundColor Cyan
-Invoke-AksLiteLinuxNodeCommand "sudo iptables -I INPUT -p udp -j ACCEPT"
+Invoke-AksEdgeNodeCommand "sudo iptables -I INPUT -p udp -j ACCEPT"
 Write-Host ">> sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" -ForegroundColor Cyan
-Invoke-AksLiteLinuxNodeCommand "sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" | Out-Null
+Invoke-AksEdgeNodeCommand "sudo iptables-save | sudo tee /etc/systemd/scripts/ip4save" | Out-Null
 
 
 Write-Host "2. Deploying akri with onvif discovery handlers"
@@ -47,7 +47,7 @@ kubectl get services
 $status = (kubectl get services) | Where-Object { $_ -match "akri-video-streaming-app" }
 if ($status) {
     $portno = ($status | Select-String ":(\d+)/").Matches.Groups[1].Value
-    $nodeip = (Get-AksLiteLinuxNodeAddr)[1]
+    $nodeip = (Get-AksEdgeNodeAddr)[1]
     $url = "http:\\$($nodeip):$portno"
     Write-Host ">> Launching browser for url : $url"
     Start-Process $url
