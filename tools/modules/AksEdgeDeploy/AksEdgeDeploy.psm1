@@ -674,7 +674,18 @@ function Test-AideDeployment {
     .DESCRIPTION
         Checks if the AksEdge VM is deployed (checking vhdx is present)
     #>
-    return Test-AksEdgeDeployment
+    $VhdxPath = "C:\\Program Files\\AksEdge"
+    $aideConfig = Get-AideUserConfig
+    if ($aideConfig.InstallOptions.VhdxPath) {
+        $VhdxPath = $aideConfig.InstallOptions.VhdxPath
+    }
+    $retval = $false
+    if (Get-ChildItem -Path $VhdxPath -Include *ledge.vhdx,*Image.vhdx -Recurse -ErrorAction SilentlyContinue)
+    {
+        $retval = $true
+    }
+
+    return $retval
 }
 function Install-AideMsi {
     <#
