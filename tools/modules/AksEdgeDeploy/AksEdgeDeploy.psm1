@@ -674,17 +674,7 @@ function Test-AideDeployment {
     .DESCRIPTION
         Checks if the AksEdge VM is deployed (checking vhdx is present)
     #>
-    $VhdxPath = "C:\\Program Files\\AksEdge"
-    $aideConfig = Get-AideUserConfig
-    if ($aideConfig.InstallOptions.VhdxPath) {
-        $VhdxPath = $aideConfig.InstallOptions.VhdxPath
-    }
-    $retval = $false
-    if (Get-ChildItem -Path $VhdxPath -Filter '*edge.vhdx' -ErrorAction SilentlyContinue) {
-        $retval = $true
-    }
-
-    return $retval
+    return Test-AksEdgeDeployment
 }
 function Install-AideMsi {
     <#
@@ -796,7 +786,7 @@ function Export-AideWorkerNodeJson {
     param(
         [string] $outDir = (Get-Location).Path
     )
-    return Export-AksEdgeWorkerNodeConfig $outDir
+    return New-AksEdgeScaleConfig -outFile "$outDir\ScaleConfig.json" -NodeType Linux -LinuxIp 192.168.0.1
 }
 function Get-AideClusterType {
     $retval = "k8s"
@@ -829,10 +819,6 @@ function Invoke-AideDeployment {
             if ($nwcfgToRemove -contains $item) {
                 $nwCfg.PSObject.properties.remove($item)
             }
-        }
-    } else {
-        if ($nwCfg.VSwitch.Name ) {
-            $nwCfg | Add-Member -MemberType NoteProperty -Name 'VswitchName' -Value $nwCfg.VSwitch.Name -Force
         }
     }
 
