@@ -63,8 +63,8 @@ The below table provides the details of the supported parameters in the json fil
 | Azure.ResourceGroupName | Mandatory | String | ResourceGroupName  |
 | Azure.ServicePrincipalName | Mandatory | String | ServicePrincipalName  |
 | Azure.Location | Mandatory | String | Location  |
-| Azure.Auth.spID |Optional | String | Specify service principal appID to use|
-| Azure.Auth.password |Optional| String | Specify the password (clear) |
+| Azure.Auth.ServicePrincipalId |Optional | String | Specify service principal appID to use|
+| Azure.Auth.Password |Optional| String | Specify the password (clear) |
 | Azure.Auth.systemidentity | Optional | Boolean | Specify the use system managed identity. **NOT SUPPORTED YET** |
 | Azure.Auth.useridentity | Optional | String| Specify the user managaed identity (full uri)**NOT SUPPORTED YET**|
 | DeployOptions.SingleMachineCluster | Mandatory | Boolean | SingleMachine with internal switch  created when true |

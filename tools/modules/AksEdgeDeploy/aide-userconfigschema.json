@@ -60,10 +60,10 @@
                 "Auth" : {
                     "type" : "object",
                     "propertires": {
-                        "spId": {
+                        "ServicePrincipalId": {
                             "type": "string"
                         },
-                        "password": {
+                        "Password": {
                             "type": "string"
                         }
                     }
@@ -178,7 +178,7 @@
                     "type": "integer"
                 }
             },
-            "required" : ["CpuCount"]
+            "required" : ["CpuCount","MemoryInMB"]
         },
         "WindowsVm": {
             "type": "object",
@@ -205,7 +205,7 @@
                     "type": "integer"
                 }
             },
-            "required" : ["CpuCount"]
+            "required" : ["CpuCount","MemoryInMB"]
         },
         "Network": {
             "type": "object",

@@ -290,8 +290,8 @@ if ($spApp) {
         $xml = "$env:USERPROFILE\.arciot\$($spName).xml"
         $backupxml = "$env:USERPROFILE\.arciot\$($spName)-backup.xml"
         if (!(Test-Path -Path $xml )) {
-            Write-Host "Use existing password for $spName in Auth.password field"
-            Write-Host "spId for $spName is $($spApp.appId)"
+            Write-Host "Use existing password for $spName in Auth.Password field"
+            Write-Host "ServicePrincipalId for $spName is $($spApp.appId)"
             az logout
             exit -1
         }
@@ -332,13 +332,13 @@ if ($spApp) {
     }
 }
 Write-Host "$($servicePrincipal.appId)"
-$spID = $($servicePrincipal.appId)
+$ServicePrincipalId = $($servicePrincipal.appId)
 $password = $($servicePrincipal.password)
 if (!($aicfg.Auth)) {
-    $aicfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value @{"spId" = "$spID"; "password" = "$password"} -Force
+    $aicfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value @{"ServicePrincipalId" = "$ServicePrincipalId"; "Password" = "$password"} -Force
 } else {
-    $aicfg.Auth.spId = $spID
-    $aicfg.Auth.password = $password
+    $aicfg.Auth.ServicePrincipalId = $ServicePrincipalId
+    $aicfg.Auth.Password = $password
 }
 Write-Host "WARNING: The Service Principal password is stored in clear at $jsonFile" -ForegroundColor Yellow
 $jsonContent | ConvertTo-Json | Format-Json | Set-Content -Path "$jsonFile" -Force

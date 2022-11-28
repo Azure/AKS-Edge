@@ -87,8 +87,8 @@ $connectargs = @( "--resource-group", "$($aicfg.ResourceGroupName)",
     "--subscription-id", "$($aicfg.SubscriptionId)",
     "--tags", "owner=AksEdge"
     "--cloud", "AzureCloud",
-    "--service-principal-id", "$($aicfg.Auth.spId)",
-    "--service-principal-secret", "$($aicfg.Auth.password)"
+    "--service-principal-id", "$($aicfg.Auth.ServicePrincipalId)",
+    "--service-principal-secret", "$($aicfg.Auth.Password)"
 )
 $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
 if ($hostSettings.ProxyEnable) {

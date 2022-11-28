@@ -64,7 +64,7 @@ if ($jsonContent.Azure) {
 Install-AzCli
 Write-Host "$aicfg"
 Write-Host ">> Testing the serviceprincpal access"
-$session = (az login --service-principal -u $($aicfg.Auth.spId) -p $($aicfg.Auth.password) --tenant $aicfg.TenantId) | ConvertFrom-Json
+$session = (az login --service-principal -u $($aicfg.Auth.ServicePrincipalId) -p $($aicfg.Auth.Password) --tenant $aicfg.TenantId) | ConvertFrom-Json
 if (-not $session){
     Write-Host "Error: Auth credentials are invalid" -ForegroundColor Red
     exit -1

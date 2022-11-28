@@ -1,4 +1,4 @@
-# AKS edge Remote Deployment
+# AKS Edge Essentials Remote Deployment
 
 AksEdgeRemoteDeploy enables you to deploy the Azure Kubernetes Service Edge Essentials (Public Preview) using AksEdgeDeploy module through Intune, Arc for Server channels.
 

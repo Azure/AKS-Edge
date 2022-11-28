@@ -7,8 +7,8 @@
         "ServicePrincipalName" : "arciot-sp",
         "Location" : "EastUS",
         "Auth": {
-            "spId" : "",
-            "password" : ""
+            "ServicePrincipalId" : "",
+            "Password" : ""
         }
     }
 }

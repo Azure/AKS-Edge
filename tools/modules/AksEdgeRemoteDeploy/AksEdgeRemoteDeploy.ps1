@@ -44,8 +44,8 @@ $jsonContent = @"
         "ServicePrincipalName": "aksedge-sp",
         "Location": "EastUS",
         "Auth":{
-            "spId":"",
-            "password":""
+            "ServicePrincipalId":"",
+            "Password":""
         }
     }
 }
@@ -179,8 +179,8 @@ if ($retval) {
 }
 
 $azConfig = (Get-AideUserConfig).Azure
-if ($azConfig.Auth.spId -and $azConfig.Auth.password -and $azConfig.TenantId){
-    #we have spID, password and TenantId
+if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfig.TenantId){
+    #we have ServicePrincipalId, Password and TenantId
     $retval = Enter-ArcIotSession
     if (!$retval) {
         Write-Error -Message "Azure login failed." -Category OperationStopped

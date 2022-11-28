@@ -1,6 +1,6 @@
 <#
     .DESCRIPTION
-        This module contains the Arc functions to use Edge Essentials (ArcIot)
+        This module contains the Arc functions to use on Edge Essentials platforms (ArcEdge)
 #>
 #Requires -RunAsAdministrator
 if (! [Environment]::Is64BitProcess) {
@@ -49,8 +49,8 @@ function Test-ArcIotUserConfig {
             $retval = $false
         }
     }
-    if ((-not $aicfg.ServicePrincipalName) -and (-not $aicfg.Auth)) {
-        Write-Host "Error: Specify ServicePrincipalName or Auth parameters" -ForegroundColor Red
+    if ((-not $aicfg.Auth.ServicePrincipalId) -and (-not $aicfg.Auth.Password)) {
+        Write-Host "Error: Specify Auth parameters" -ForegroundColor Red
         $retval = $false
     }
     return $retval
@@ -128,33 +128,18 @@ function Enter-ArcIotSession {
             return $false
         }
         $aiauth = $aicfg.Auth
-        if ($aiauth.spId) {
+        if ($aiauth.ServicePrincipalId) {
             Write-Host "Using service principal id to login"
-            if ($aiauth.password) {
-                $ret = az login --service-principal -u $aiauth.spId -p $aiauth.password --tenant $aicfg.TenantId
+            if ($aiauth.Password) {
+                $ret = az login --service-principal -u $aiauth.ServicePrincipalId -p $aiauth.Password --tenant $aicfg.TenantId
                 if (-not $ret) {
-                    Write-Host "Error: spId/password possibly expired." -ForegroundColor Red
+                    Write-Host "Error: ServicePrincipalId/Password possibly expired." -ForegroundColor Red
                     return $false
                 }
             } else {
                 Write-Host "Error: password not specified." -ForegroundColor Red
                 return $false
             }
-            <#} elseif ($aiauth.systemIdentity) {
-            Write-Host "Using system managed identity to login"
-            $ret = az login --identity
-            if (-not $ret) {
-                Write-Host "Error: System managed identity possibly expired." -ForegroundColor Red
-                return $false
-            }
-        } elseif ($aiauth.userIdentity) {
-            Write-Host "Using user managed identity to login"
-            #-u /subscriptions/<subscriptionId>/resourcegroups/myRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myID
-            $ret = az login --identity -u $aiauth.userIdentity
-            if (-not $ret) {
-                Write-Host "Error: User managed identity possibly expired." -ForegroundColor Red
-                return $false
-            }#>
         } else {
             Write-Host "Error: no valid Auth parameters." -ForegroundColor Red
             return $false
@@ -185,19 +170,14 @@ function Exit-ArcIotSession {
 }
 
 function Get-ArcIotAzureCreds {
+    $cred = $null
     $aicfg = Get-ArcIotUserConfig
     if ($aicfg.Auth) {
         $aiauth = $aicfg.Auth
-        <#if ($aiauth.systemIdentity){
-            Write-Host "Using system managed identity to login"
-        } elseif ($aiauth.userIdentity) {
-            Write-Host "Using user managed identity to login"
-            #-u /subscriptions/<subscriptionId>/resourcegroups/myRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myID
-        } else#>
-        if ($aiauth.password -and $aiauth.spId) {
+        if ($aiauth.Password -and $aiauth.ServicePrincipalId) {
             $cred = @{
-                "Username" = $aiauth.spId
-                "Password" = $aiauth.password
+                "Username" = $aiauth.ServicePrincipalId
+                "Password" = $aiauth.Password
             }
         } else {
             Write-Host "Error: spId/password not specified." -ForegroundColor Red
@@ -388,7 +368,7 @@ function Connect-ArcIotCmAgent {
             "--tenant-id", "$($aicfg.TenantId)",
             "--location", "$($aicfg.Location)",
             "--subscription-id", "$($aicfg.SubscriptionId)",
-            "--tags", "owner=ArcIot"
+            "--tags", "owner=AksEdgeEssentials"
             "--cloud", "$($arciotSession.azSession.environmentName)",
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
@@ -598,37 +578,38 @@ function Connect-ArcIotK8s {
             "--infrastructure","TBF"
         )
         #>
-        $tags = @("Type=AKS edge")
-        $msiinfo = Get-AideMsiVersion
-        if ($msiinfo) { $tags += @("Version=$($msiinfo.Version)") }
+        $tags = @("Type=AKSEdgeEssentials")
+        $modVersion = (Get-Module AksEdge).Version
+        if ($modVersion) { $tags += @("Version=$modVersion") }
         $infra = Get-AideInfra
         if ($infra) { $tags += @("Infra=$infra") }
         $aideConfig = Get-AideUserConfig
         if ($aideConfig) {
             $isProxySet = $false
-            if ($aideConfig.Network.Proxy.Https) {
-                $connectargs += @( "--proxy-https", "$($aideConfig.Network.Proxy.Https)")
+            $httpsProxy = $($aideConfig.Network.Proxy.Https).Trim()
+            $httpProxy = $($aideConfig.Network.Proxy.Http).Trim()
+            if ($httpsProxy) {
+                $connectargs += @( "--proxy-https", "$httpsProxy")
                 $isProxySet = $true
             }
-            if ($aideConfig.Network.Proxy.Http) {
-                $connectargs += @( "--proxy-http", "$($aideConfig.Network.Proxy.Http)")
+            if ($httpProxy) {
+                $connectargs += @( "--proxy-http", "$httpProxy")
                 $isProxySet = $true
             }
             if ($isProxySet) {
-                $no_proxy = $($aideConfig.Network.Proxy.No)
-                if (!$no_proxy){
-                    $kubenet =  $(kubectl get services kubernetes -o jsonpath="{$.spec.clusterIP}")
-                    $octets = $kubenet.Split(".")
-                    $octets[2] = 0;$octets[3] = 0
-                    $kubeSubnet = $($octets -join ".") + "/16"
+                $no_proxy = $($aideConfig.Network.Proxy.No).Trim()
+                $kubenet =  $(kubectl get services kubernetes -o jsonpath="{$.spec.clusterIP}")
+                $octets = $kubenet.Split(".")
+                $octets[2] = 0;$octets[3] = 0
+                $kubeSubnet = $($octets -join ".") + "/16"
+                if ($no_proxy){
+                    $no_proxy = "$no_proxy,$kubeSubnet"
+                } else {
                     $no_proxy = "localhost,127.0.0.0/8,192.168.0.0/16,172.17.0.0/16,10.96.0.0/12,10.244.0.0/16,,kubernetes.default.svc,.svc.cluster.local,.svc,$kubeSubnet"
                 }
                 $connectargs += @( "--proxy-skip-range",$no_proxy)
             }
         }
-        <#if ($aicfg.Auth.oid) { 
-            $connectargs += @( "--custom-locations-oid","$($aicfg.Auth.oid)") 
-        }#>
         $connectargs += @( "--tags", $tags)
         $result = (az connectedk8s connect @connectargs ) | ConvertFrom-Json -ErrorAction SilentlyContinue
         if (!$result) {
@@ -636,15 +617,6 @@ function Connect-ArcIotK8s {
             return $false
         }
         Write-Verbose ($result | Out-String)
-        <#
-        Write-Host "Enabling cluster-connect feature for $arciotClusterName"
-        $result = (az connectedk8s enable-features --features cluster-connect -n $arciotClusterName -g $aicfg.ResourceGroupName --kube-config "$($arciotSession.WorkspacePath)\config") | ConvertFrom-Json -ErrorAction SilentlyContinue
-        if (!$result){
-            Write-Host "Error: Cluster connect failed." -ForegroundColor Red
-            return $false
-        }        
-        Write-Verbose ($result | Out-String)
-        #>
         $token = Get-ArcIotK8sServiceToken
         $proxyinfo = @{
             resourcegroup = $aicfg.ResourceGroupName
@@ -667,14 +639,6 @@ function Disconnect-ArcIotK8s {
         # Get the credentials before connecting to ensure that we have the latest file.
         Write-Host "Updating kubeconfig file with Get-AksEdgeKubeConfig..."
         Get-AksEdgeKubeConfig -KubeConfigPath $($arciotSession.WorkspacePath) -Confirm:$false
-        <#
-        Write-Host "Disabling cluster-connect feature for $arciotClusterName"
-        $result = (az connectedk8s disable-features --features cluster-connect -n $arciotClusterName -g $aicfg.ResourceGroupName --kube-config "$($arciotSession.WorkspacePath)\config" --yes) | ConvertFrom-Json -ErrorAction SilentlyContinue
-        if (!$result){
-            Write-Host "Error: cluster connect disable failed." -ForegroundColor Red
-        } 
-        Write-Verbose ($result | Out-String)
-        #>
         Write-Host "Deleting Arc resource for $arciotClusterName"
         $result = (az connectedk8s delete -g $aicfg.ResourceGroupName -n $arciotClusterName --kube-config "$($arciotSession.WorkspacePath)\config" --yes) | ConvertFrom-Json -ErrorAction SilentlyContinue
         Write-Verbose ($result | Out-String)

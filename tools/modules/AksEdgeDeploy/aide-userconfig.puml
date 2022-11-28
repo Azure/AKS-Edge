@@ -38,10 +38,8 @@ jsonDiagram {
         "ServicePrincipalName" : "String",
         "Location" : "String",
         "Auth": {
-            "spId" : "String",
-            "password" : "String",
-            "systemIdentity":"Boolean",
-            "userIdentity":"String"
+            "ServicePrincipalId" : "String",
+            "Password" : "String"
         }
     }
     ,
@@ -93,6 +91,8 @@ jsonDiagram {
         ,
         "ControlPlaneEndpointIp":"IPv4",
         "ControlPlaneEndpointPort": "Int",
+        "InternetDisabled" : "Boolean",
+        "SkipFreeAddressCheck" : "Boolean",
         "Ip4GatewayAddress": "IPv4",
         "Ip4PrefixLength" : "[1-32]",
         "ServiceIPRangeSize" : "[0-127]",

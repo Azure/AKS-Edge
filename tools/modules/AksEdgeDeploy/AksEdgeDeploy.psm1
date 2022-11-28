@@ -20,19 +20,11 @@ $aideSession = @{
 }
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProducts -Value @{
-    "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)" = ""
-    "Azure Kubernetes Service Edge Essentials - K3s (Public Preview)" = ""
+    "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)" = "https://aka.ms/AksEdgeK8sMSI"
+    "Azure Kubernetes Service Edge Essentials - K3s (Public Preview)" = "https://aka.ms/AksEdgeK3sMSI"
 }
-$WindowsInstallFilesToDL = @{
-    "AksEdgeWindows-v1.7z.001" = ""
-    "AksEdgeWindows-v1.7z.002" = ""
-    "AksEdgeWindows-v1.7z.003" = ""
-    "AksEdgeWindows-v1.exe" = ""
-}
-
-
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeValueSet -Value @{
-    NodeType  = @("Linux", "LinuxAndWindows")
+    NodeType  = @("Linux", "LinuxAndWindows","Windows")
     NetworkPlugin = @("calico", "flannel")
 }
 
@@ -49,14 +41,14 @@ function Get-AideHostPcInfo {
     $aideSession.HostPC.Name = $pOS.CSName
     $aideSession.HostOS.IsServerSKU = ($pOS.ProductType -eq 2 -or $pOS.ProductType -eq 3)
     $aideSession.HostPC.FreeMem = [Math]::Round($pOS.FreePhysicalMemory / 1MB) # convert kilo bytes to GB
-    $pCS = Get-WmiObject -Class Win32_ComputerSystem
+    $pCS = Get-CimInstance -class Win32_ComputerSystem
     $aideSession.HostPC.TotalMem = [Math]::Round($pCS.TotalPhysicalMemory / 1GB)
     $aideSession.HostPC.TotalCPU = $pCS.numberoflogicalprocessors
     Write-Host "Total CPUs`t`t: $($aideSession.HostPC.TotalCPU)"
     Write-Host "Free RAM / Total RAM`t: $($aideSession.HostPC.FreeMem) GB / $($aideSession.HostPC.TotalMem) GB"
-    $pCDrive = (Get-WmiObject Win32_LogicalDisk ) | Where-Object { $_.DeviceID -eq 'C:' } #Get the C device size
-    $aideSession.HostPC.FreeDisk = [Math]::Round($pCDrive.Freespace / 1GB) # convert bytes into GB
-    $aideSession.HostPC.TotalDisk = [Math]::Round($pCDrive.Size / 1GB) # convert bytes into GB
+    $disk = Get-CimInstance Win32_LogicalDisk -Filter $("DeviceID='C:'") | Select-Object Size, FreeSpace
+    $aideSession.HostPC.FreeDisk = [Math]::Round($disk.Freespace / 1GB) # convert bytes into GB
+    $aideSession.HostPC.TotalDisk = [Math]::Round($disk.Size / 1GB) # convert bytes into GB
     Write-Host "Free Disk / Total Disk`t: $($aideSession.HostPC.FreeDisk) GB / $($aideSession.HostPC.TotalDisk) GB"
     if ((Get-CimInstance Win32_BaseBoard).Product -eq 'Virtual Machine') {
         $aideSession.HostOS.IsVM = $true
@@ -722,10 +714,17 @@ function Install-AideMsi {
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest $url -OutFile .\AksEdge.msi
         if($windowsRequired) {
+            $urlParent = Split-Path $url -Parent
             Write-Host "Downloading Windows companion package..." -ForegroundColor Red
             foreach ($file in $WindowsInstallFiles) {
                 Write-Host "$file"
-                Invoke-WebRequest $WindowsInstallFilesToDL[$file] -OutFile ".\$file"
+                try {
+                    Invoke-WebRequest "$urlParent\$file" -OutFile ".\$file"
+                } catch {
+                    Write-Host "failed to download from $urlParent\\$file"
+                    Pop-Location
+                    return $false
+                }
             }
         }
     }
@@ -741,10 +740,10 @@ function Install-AideMsi {
     }
     Write-Verbose $argList
     Start-Process msiexec.exe -Wait -ArgumentList $argList
-    #Remove-Item .\AksEdge.msi
+    Remove-Item .\AksEdge.msi
     if($windowsRequired) {
         foreach ($file in $WindowsInstallFiles) {
-            #Remove-Item ".\$file"
+            Remove-Item ".\$file"
         }
     }
     Pop-Location
