@@ -1,6 +1,6 @@
 # AKS Edge Essentials Samples
 
-# Quickstart Samples
+## Quickstart Samples
 
 | Name           | Description      |
 |----------------|------------------|
