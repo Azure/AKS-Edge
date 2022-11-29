@@ -583,11 +583,13 @@ function Connect-ArcIotK8s {
         if ($modVersion) { $tags += @("Version=$modVersion") }
         $infra = Get-AideInfra
         if ($infra) { $tags += @("Infra=$infra") }
+        $hostname = hostname
+        if ($hostname) { $tags += @("Hostname=$hostname") }
         $aideConfig = Get-AideUserConfig
         if ($aideConfig) {
             $isProxySet = $false
-            $httpsProxy = $($aideConfig.Network.Proxy.Https).Trim()
-            $httpProxy = $($aideConfig.Network.Proxy.Http).Trim()
+            $httpsProxy = $($aideConfig.Network.Proxy.Https)
+            $httpProxy = $($aideConfig.Network.Proxy.Http)
             if ($httpsProxy) {
                 $connectargs += @( "--proxy-https", "$httpsProxy")
                 $isProxySet = $true
@@ -597,7 +599,7 @@ function Connect-ArcIotK8s {
                 $isProxySet = $true
             }
             if ($isProxySet) {
-                $no_proxy = $($aideConfig.Network.Proxy.No).Trim()
+                $no_proxy = $($aideConfig.Network.Proxy.No)
                 $kubenet =  $(kubectl get services kubernetes -o jsonpath="{$.spec.clusterIP}")
                 $octets = $kubenet.Split(".")
                 $octets[2] = 0;$octets[3] = 0
