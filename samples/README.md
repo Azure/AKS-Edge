@@ -1,26 +1,10 @@
 # AKS Edge Essentials Samples
 
-## Akri samples
-
-| Name           | Description      |
-|----------------|------------------|
-| [akri-opcua](./akri-opcua/) | Sample to deploy Akri OPC UA discovery handler. For more information, see [Akri OPC UA](https://docs.akri.sh/discovery-handlers/opc-ua). |
-| [opcua-server](./opcua-server/) | Sample to deploy a Windows OPC UA server simulator. |
-| [akri-onvif](./akri-onvif/) | Sample to deploy ONVIF discovery handler and video streaming application. For more information, see [Akri ONVIF for IP Cameras](https://docs.akri.sh/discovery-handlers/onvif).|
-
-## WebAssembly (WASM) samples
-
-| Name           | Description      |
-|----------------|------------------|
-| [wasm-spin](./wasm/wasm-spin.md) | Sample to deploy WASM Spin payload. For more information, see [Spin](https://github.com/fermyon/spin/). |
-| [wasm-slight](./wasm/wasm-slight.md) | Sample to deploy WASM Slight payload. For more information, see [Spiderlightning](https://github.com/deislabs/spiderlightning/). | 
-
-
 ## Arc enabled data services
 
 | Name           | Description      |
 |----------------|------------------|
-| [sqledge](./sqledge/) | Sample to deploy SQL Edge container using PVC storage. 
+| [sqledge](./sqledge/) | Sample to deploy SQL Edge container using PVC storage. For more information, check [https://aka.ms/aks-edge/sqledge](https://aka.ms/aks-edge/sqledge).
 
 ## Interop Samples
 
@@ -29,9 +13,8 @@ _:warning: **WARNING**: Enabling a communication channel between the Windows hos
 | Name           | Description      |
 |----------------|------------------|
 | [interop-textmsg-consoleapp](./interop-textmsg-consoleapp) | Basic interop sample demonstrating text messaging between a Windows console app and an workload running inside the AKS edge cluster. | 
-<!-- | [interop-customvision-textmsg-uwpapp](./interop-customvision-textmsg-uwpapp) | <p>Two more advanced interop samples which demonstrate bidirectional communication between a Windows application and an Edge module running inside the AKS edge VM. </p><ul><li>Text messaging between a UWP application and an Edge module. </li><li>A 'Custom vision' machine learning interop sample with a fruit classifier which uses a Windows UWP app to send camera frames to an Edge module for identification.</li></ul>| -->
 
-The interop samples demonstrate usage patterns for interoperatibility between Microsoft's Windows host OS and workloads running on the AKS edge cluster.  These code samples were created with templates available in Visual Studio and are designed, but not limited to, run on devices using AKS edge. For more information, review [AKS edge docs](/docs/AKS-Lite-Concepts.md).
+The interop samples demonstrate usage patterns for interoperatibility between Microsoft's Windows host OS and workloads running on the AKS Edge cluster.  These code samples were created with templates available in Visual Studio and are designed, but not limited to, run on devices using AKS edge. For more information, review [AKS edge docs](/docs/AKS-Lite-Concepts.md).
 
 > **Note:** If you are unfamiliar with Git and GitHub, you can download the entire collection as a 
 > [ZIP file](https://github.com/Microsoft/Windows-universal-samples/archive/master.zip), but be 
