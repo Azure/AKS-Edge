@@ -1,10 +1,13 @@
 # AKS Edge Essentials Samples
 
-## Arc enabled data services
+# Quickstart Samples
 
 | Name           | Description      |
 |----------------|------------------|
-| [sqledge](./sqledge/) | Sample to deploy SQL Edge container using PVC storage. For more information, check [https://aka.ms/aks-edge/sqledge](https://aka.ms/aks-edge/sqledge).
+| [linux-sample](./others/linux-sample.yaml) | Basic Linux voting .NET sample app. For more information, check [AKS Voting App sample](https://learn.microsoft.com/en-us/samples/azure-samples/aks-voting-app/aks-voting-app/) . | 
+| [windows-sample](./others/win-sample.yaml) | Basic Windows ASP NET sample app. For more information, check [AKS Windows App sample](https://learn.microsoft.com/en-us/azure/aks/hybrid/deploy-windows-application/) . | 
+| [metrics-server](./others/metrics-server.yaml) |  Resource metrics are collected by the lightweight, in-memory metrics-server component. Metrics-server discovers nodes and queries each one's kubelet for CPU and memory usage. For more information, check [AKS Monitoring](https://github.com/Azure/aks-engine/blob/master/docs/topics/monitoring.md) . | 
+
 
 ## Interop Samples
 
