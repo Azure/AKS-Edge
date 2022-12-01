@@ -968,6 +968,11 @@ function Start-AideWorkflow {
         }
     }
 
+    $retval = SchemaValidator($aideSession.UserConfig)
+    if (-not $retval) {
+        return $false
+    }
+
     Get-AideHostPcInfo
     # Check PC prequisites (Hyper-V, AksEdge)
     if (!(Test-HyperVStatus -Enable)) { return $false } # todo resume after reboot. Intune will retry. Arc to be checked
@@ -1000,4 +1005,28 @@ function Format-AideJson([Parameter(Mandatory, ValueFromPipeline)][String] $json
         }
         $line
     }) -Join "`n"
+}
+
+function SchemaValidator {
+    <#
+    .DESCRIPTION
+        Validates the json configuration against defined schema
+    #>
+    param (
+        [String]$UserConfig
+    )
+    
+    Add-Type -Path "$PSScriptRoot\..\..\Newtonsoft.Json.dll"
+    Add-Type -Path "$PSScriptRoot\..\..\Newtonsoft.Json.Schema.dll" 
+
+    $jsonString = $UserConfig | ConvertTo-Json
+    $schemaString = Get-Content -Raw "$PSScriptRoot\aide-userconfigschema.json"
+
+    $errorMessages = New-Object System.Collections.Generic.List[string]
+
+    $retval = [Newtonsoft.Json.Schema.SchemaExtensions]::isValid([Newtonsoft.Json.Linq.JToken]::Parse($jsonString), [Newtonsoft.Json.Schema.JSchema]::Parse($schemaString), [ref]$errorMessages)
+    if(-not $retval) {
+        Write-Host $errorMessages
+    }
+    return $retval
 }

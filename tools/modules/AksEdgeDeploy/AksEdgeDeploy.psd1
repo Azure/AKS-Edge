@@ -74,7 +74,7 @@
     'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 'Export-AideWorkerNodeJson',
     'Format-AideJson','Set-AideLinuxVmProxy', 'Install-ArcIotAzCLI', 'Install-ArcIotCmAgent', 'Test-ArcIotCmAgent', 'Connect-ArcIotCmAgent', 'Disconnect-ArcIotCmAgent', 
     'Get-ArcIotCmInfo', 'Enter-ArcIotSession', 'Exit-ArcIotSession', 'Initialize-ArcIot', 'Test-ArcIotK8sConnection', 'Connect-ArcIotK8s', 'Disconnect-ArcIotK8s', 
-    'Get-ArcIotK8sServiceToken', 'Get-ArcIotMIAccessToken', 'Get-ArcIotClusterName','Get-AideInfra'
+    'Get-ArcIotK8sServiceToken', 'Get-ArcIotMIAccessToken', 'Get-ArcIotClusterName','Get-AideInfra', 'SchemaValidator'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
