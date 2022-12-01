@@ -46,10 +46,12 @@
                     "type": "string"
                 },
                 "SubscriptionId": {
-                    "type": "GUID"
+                    "type": "string",
+                    "pattern": "^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$"
                 },
                 "TenantId": {
-                    "type": "GUID"
+                    "type": "string",
+                    "pattern": "^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$"
                 },
                 "SubscriptionName": {
                     "type": "string"
@@ -110,7 +112,7 @@
                     "default": false
                 },
                 "TimeoutSeconds": {
-                    "type": "int",
+                    "type": "integer",
                     "default": 900
                 },
                 "NodeType": {
