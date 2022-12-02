@@ -27,7 +27,10 @@ jsonDiagram {
 {
     "SchemaVersion":"1.0",
     "Version":"1.0",
-    "AksEdgeProduct" : "AKS Edge...",
+    "AksEdgeProduct" : [
+                "AKS Edge Essentials - K8s (Public Preview)",
+                "AKS Edge Essentials - K3s (Public Preview)"
+            ],
     "AksEdgeProductUrl" : "URL",
     "Azure":{
         "ClusterName":"String",

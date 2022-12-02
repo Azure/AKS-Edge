@@ -75,16 +75,16 @@ The below table provides the schema for the AksEdge Deployment Configuration jso
 | Parameter | Required | Type / Values | Comments |
 | --------- | -------- |---------------- | -------- |
 | DeployOptions.SingleMachineCluster | Mandatory | Boolean | SingleMachine with internal switch  created when true |
-| DeployOptions.NodeType | Optional | <ul><li>Linux</li><li>LinuxAndWindows</li></ul> | **LinuxAndWindows not supported in this release** |
-| DeployOptions.NetworkPlugin | Optional | <ul><li>calico</li><li>flannel</li></ul> | calico is default |
+| DeployOptions.NodeType | Optional | <ul><li>Linux</li><li>Windows</li><li>LinuxAndWindows</li></ul> | Windows only is supported in Full Kubernetes deployment |
+| DeployOptions.NetworkPlugin | Optional | <ul><li>calico</li><li>flannel</li></ul> | flannel is default |
 | DeployOptions.Headless | Optional | Boolean | Headless mode |
 | DeployOptions.TimeoutSeconds|Optional|Int| This specifies the maximum wait for a kubernetes node to reach a specified state (eg. Ready) |
 | DeployOptions.JoinCluster|Optional| Boolean | the new deployment will join an existing remote cluster. SingleMachineCluster should be false when this is set to true |
-| DeployOptions.ControlPlane|Optional|Boolean| This parameter indicates that the Linux node of this deployment will join an existing cluster as a node
-that runs the control plane |
+| DeployOptions.ControlPlane|Optional|Boolean| This parameter indicates that the Linux node of this deployment will join an existing cluster as a node that runs the control plane |
 | DeployOptions.ClusterJoinToken|Optional|String| The cluster join token used for joining an existing cluster |
 | DeployOptions.DiscoveryTokenHash|Optional|String| The discovery token hash used for joining an existing cluster |
 | EndUser.AcceptEula | Mandatory | Yes |  Accept Eula |
+| EndUser.AcceptOptionalTelemetry | Mandatory | Yes |  Accept optional telemetry to be sent |
 | LinuxVm.CpuCount | Optional |2 | CpuCount|
 | LinuxVm.MemoryInMB | Optional |2| MemoryInMB|
 | LinuxVm.DataSizeInGB | Optional | 2-2000| Size in GB|
@@ -104,11 +104,17 @@ that runs the control plane |
 | Network.Ip4PrefixLength | Optional | [1..32] | IP PrefixLength |
 | Network.Proxy.Http | Optional | String | HttpProxy link |
 | Network.Proxy.Https | Optional | String | HttpsProxy link |
-| Network.DnsServers | Optional | IPv4 address[] | Array of valid dns servers for VM |
+| Network.DnsServers | Optional | [IPv4 address] | Array of valid dns servers for VM |
 
 ## JSON schema visualization
 
+### AksEdgeDeploy User Config
+
 ![AksEdgeDeploy json](AksEdgeDeploy.png)
+
+### AksEdge Deployment Config
+
+![AksEdge Schema json](AksEdgeSchema.png)
 
 ## Supported Functions
 
