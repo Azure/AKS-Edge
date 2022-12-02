@@ -5,7 +5,7 @@
     "AksEdgeProductUrl": "",
     "InstallOptions": {
         "InstallPath": "",
-        "VhdxPath": "C:\\ProgramData\\AksEdgeVhdx"
+        "VhdxPath": ""
     },
     "Azure": {
         "SubscriptionName":"Visual Studio Enterprise Subscription",
