@@ -1,0 +1,86 @@
+{
+    "$id": "https://microsoft.com/aide-userconfig.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "AKS edge Remote Deployment Configuration",
+    "type": "object",
+    "properties": {
+        "SchemaVersion": {
+            "type": "string",
+            "default": "1.0",
+            "description": "Version of the schema/format of the json"
+        },
+        "Version": {
+            "type": "string",
+            "default": "1.0",
+            "description": "Version of the json instance"
+        },
+        "AksEdgeProduct": {
+            "enum": [
+                "AKS Edge Essentials - K8s (Public Preview)",
+                "AKS Edge Essentials - K3s (Public Preview)"
+            ],
+            "description": "Product name"
+        },
+        "AksEdgeProductUrl": {
+            "type": "string",
+            "description": "Product URL for download"
+        },
+        "Azure": {
+            "type": "object",
+            "properties": {
+                "ClusterName": {
+                    "type": "string"
+                },
+                "Location": {
+                    "type": "string"
+                },
+                "ResourceGroupName": {
+                    "type": "string"
+                },
+                "SubscriptionId": {
+                    "type": "GUID"
+                },
+                "TenantId": {
+                    "type": "GUID"
+                },
+                "SubscriptionName": {
+                    "type": "string"
+                },
+                "ServicePrincipalName": {
+                    "type": "string"
+                },
+                "Auth": {
+                    "type": "object",
+                    "propertires": {
+                        "ServicePrincipalId": {
+                            "type": "string"
+                        },
+                        "Password": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "InstallOptions": {
+            "type": "object",
+            "properties": {
+                "InstallPath": {
+                    "type": "string"
+                },
+                "VhdxPath": {
+                    "type": "string"
+                }
+            }
+        },
+        "AksEdgeConfigFile": {
+            "type": "string",
+            "description": "file path for the AKS Edge Deployment Configuration. If AksEdgeConfig object is defined, it supercedes the specification."
+        },
+        "AksEdgeConfig": {
+            "type": "object",
+            "$ref": "file:aksedge-dcschema.json",
+            "description": "AKS Edge Deployment Configuration Object."
+        }
+    }
+}

@@ -16,19 +16,22 @@ The `Start-AideWorkflow` function in the modole does the following:
 
     ```json
     {
-        "SchemaVersion": "1.1",
+        "SchemaVersion": "1.0",
         "Version": "1.0",
-        "AksEdgeProduct" : "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)",
-        "DeployOptions": {
-            "SingleMachineCluster": true
-        },
-        "EndUser": {
-            "AcceptEula": true
-        },
-        "LinuxVm": {
-            "CpuCount": 4,
-            "MemoryInMB": 4096,
-            "DataSizeinGB": 20
+        "AksEdgeProduct" : "AKS Edge Essentials - K8s (Public Preview)",
+        "AksEdgeConfig": {
+            "DeployOptions": {
+                "SingleMachineCluster": true
+            },
+            "EndUser": {
+                "AcceptEula": true,
+                "AcceptOptionalTelemetry" : true
+            },
+            "LinuxVm": {
+                "CpuCount": 4,
+                "MemoryInMB": 4096,
+                "DataSizeinGB": 20
+            }
         },
         "Azure": {
             "SubscriptionName":"Visual Studio Enterprise",
@@ -65,8 +68,12 @@ The below table provides the details of the supported parameters in the json fil
 | Azure.Location | Mandatory | String | Location  |
 | Azure.Auth.ServicePrincipalId |Optional | String | Specify service principal appID to use|
 | Azure.Auth.Password |Optional| String | Specify the password (clear) |
-| Azure.Auth.systemidentity | Optional | Boolean | Specify the use system managed identity. **NOT SUPPORTED YET** |
-| Azure.Auth.useridentity | Optional | String| Specify the user managaed identity (full uri)**NOT SUPPORTED YET**|
+
+
+The below table provides the schema for the AksEdge Deployment Configuration json.
+
+| Parameter | Required | Type / Values | Comments |
+| --------- | -------- |---------------- | -------- |
 | DeployOptions.SingleMachineCluster | Mandatory | Boolean | SingleMachine with internal switch  created when true |
 | DeployOptions.NodeType | Optional | <ul><li>Linux</li><li>LinuxAndWindows</li></ul> | **LinuxAndWindows not supported in this release** |
 | DeployOptions.NetworkPlugin | Optional | <ul><li>calico</li><li>flannel</li></ul> | calico is default |
@@ -85,9 +92,9 @@ that runs the control plane |
 | WindowsVm.CpuCount | Optional |2 | CpuCount|
 | WindowsVm.MemoryInMB | Optional |2| MemoryInMB|
 | WindowsVm.Ip4Address | Optional | IPv4 address |  Static IP Address for the Windows Node VM |
-| Network.VSwitch.Type | Optional | External |Only **External** switch supported currently. SingleMachine cluster uses Internal switch always |
+| Network.VSwitch.Type | Optional | External |Only **External** switch supported currently. SingleMachine cluster uses Internal switch always and does not required to be specified.|
 | Network.VSwitch.Name | Optional | String | Switch name to use |
-| Network.VSwitch.AdapterName | Optional | String | NetAdapterName for VSwitch |
+| Network.VSwitch.AdapterName | Mandatory | String | NetAdapterName for VSwitch, mandatory for Full kubernetes deployment |
 | Network.ControlPlaneEndpointIp | Optional | IPv4 address |  This parameter allows defining a specific IP address to be used as the control plane endpoint IP for the deployment. If not specified, the endpoint will equal the local Linux node's IP address when creating a new cluster |
 | Network.ControlPlaneEndpointPort | Optional | IPv4 address |  When joining an existing cluster, this parameter specifies the port of the remote control plane endpoint |
 | Network.ServiceIPRangeSize | Optional | IPv4 address |  Required for SingleMachine deployment |

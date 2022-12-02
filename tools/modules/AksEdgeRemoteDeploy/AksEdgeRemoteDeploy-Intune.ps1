@@ -286,15 +286,15 @@ do {
             $azConfig = (Get-AideUserConfig).Azure
             if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfig.TenantId){
                 #we have ServicePrincipalId, Password and TenantId
-                $retval = Enter-ArcIotSession
+                $retval = Enter-ArcEdgeSession
                 if (!$retval) {
                     Write-Error -Message "Azure login failed." -Category OperationStopped
                     Stop-Transcript | Out-Null
                     exit -1
                 }
                 Write-Host "Connecting to Azure Arc"
-                $retval = Connect-ArcIotK8s
-                Exit-ArcIotSession
+                $retval = Connect-ArcEdgeK8s
+                Exit-ArcEdgeSession
                 if ($retval) {
                     Write-Host "Arc connection successful. "
                 } else {
