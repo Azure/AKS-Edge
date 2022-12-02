@@ -322,12 +322,12 @@ function Test-ArcEdgeCmAgent {
         return $retval
     }
     # Check if the machine is already connected
-    $agentstatus = (& $azcmagentexe show)
-    if ($($agentstatus | Select-String -Pattern 'Agent Status') -like '*Disconnected') {
-        Write-Host "ConnectedMachineAgent is disconnected." -ForegroundColor Yellow
-    } else {
+    $agentstatus = (& $azcmagentexe show -j) | ConvertFrom-Json
+    if ($($agentstatus.status) -eq 'Connected') {
         $retval = $true
         Write-Host "ConnectedMachineAgent is connected." -ForegroundColor Green
+    } else {
+        Write-Host "ConnectedMachineAgent is disconnected." -ForegroundColor Yellow
     }
     return $retval
 
@@ -368,11 +368,17 @@ function Connect-ArcEdgeCmAgent {
             "--tenant-id", "$($aicfg.TenantId)",
             "--location", "$($aicfg.Location)",
             "--subscription-id", "$($aicfg.SubscriptionId)",
-            "--tags", "owner=AksEdgeEssentials"
             "--cloud", "$($arciotSession.azSession.environmentName)",
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
         )
+        if (Test-ArcEdgeK8sConnection) {
+            $clustername = Get-ArcEdgeClusterName
+            $tags = @("--tags","AKSEE=$clustername")
+        } else {
+            $tags = @("--tags","owner=AksEdgeEssentials")
+        }
+        $connectargs += $tags
         $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
         if ($hostSettings.ProxyEnable) {
             & $azcmagentexe config set proxy.url $($hostSettings.ProxyServer)
