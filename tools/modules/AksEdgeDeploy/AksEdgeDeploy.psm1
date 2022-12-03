@@ -17,6 +17,7 @@ $aideSession = @{
     AKSEdge        = @{"Product" = $null; "Version" = $null }
     UserConfig     = $null
     UserConfigFile = $null
+    ReadFromFile = $false
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProductPrefix -Value "AKS Edge Essentials"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProducts -Value @{
@@ -112,14 +113,17 @@ function Get-AideAksEdgeConfig {
 function Read-AideUserConfig {
     if ($aideSession.UserConfigFile) {
         $jsonContent = Get-Content "$($aideSession.UserConfigFile)" | ConvertFrom-Json
+        $upgraded = UpgradeJsonFormat $jsonContent
         if ($jsonContent.AksEdgeProduct) {
             $aideSession.UserConfig = $jsonContent
-            if (-not $jsonContent.AksEdgeConfig) {
+            if ($upgraded) { Save-AideUserConfig }
+            #if there is no AksEdgeConfig object or if it was previously read, re-read from file
+            if ((-not $jsonContent.AksEdgeConfig) -or (($jsonContent.AksEdgeConfig)-and ($aideSession.ReadFromFile))) {
                 #there is no embedded aksedge config, so read it from file
                 $aksfile = $jsonContent.AksEdgeConfigFile
                 if (($aksfile) -and (Test-Path -Path $aksfile)) {
                     $aksconfig = Get-Content $aksfile | ConvertFrom-Json
-                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig
+                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig -Force
                 }
             }
             return $true
@@ -144,12 +148,14 @@ function Set-AideUserConfig {
         $jsonContent = $jsonString | ConvertFrom-Json
         if ($jsonContent.AksEdgeProduct) {
             $aideSession.UserConfig = $jsonContent
+            UpgradeJsonFormat $jsonContent | Out-Null
             if (-not $jsonContent.AksEdgeConfig) {
                 #there is no embedded aksedge config, so read it from file
                 $aksfile = $jsonContent.AksEdgeConfigFile
                 if (($aksfile) -and (Test-Path -Path $aksfile)) {
                     $aksconfig = Get-Content $aksfile | ConvertFrom-Json
-                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig
+                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig -Force
+                    $aideSession.ReadFromFile = $true
                 }
             }
         } else {
@@ -167,13 +173,50 @@ function Set-AideUserConfig {
     }
     return $true
 }
+
+function UpgradeJsonFormat {
+    Param(
+        [PSCustomObject] $jsonObj
+    )
+    $retval = $false
+    $azCfg = $jsonObj.Azure
+    if ($azCfg.Auth.spId) {
+        $newAuth = @{
+            ServicePrincipalId = $azCfg.Auth.spId
+            Password = $azCfg.Auth.password
+        }
+        $azCfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value $newAuth -Force
+        $retval = $true
+    }
+    if (($jsonObj.AksEdgeConfig) -or ($jsonObj.AksEdgeConfigFile)) { return $retval }
+    if ($jsonObj.DeployOptions) {
+        $fieldsToCopy = @("DeployOptions","LinuxVm","WindowsVm","Network","EndUser")
+        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value @{"SchemaVersion"="1.0";"Version"="1.0"} -Force
+        $edgeConfig = [PSCustomObject]$jsonObj.AksEdgeConfig
+        foreach ($field in $fieldsToCopy) {
+            if ($jsonObj.$field){
+                $edgeConfig | Add-Member -MemberType NoteProperty -Name $field -Value $jsonObj.$field -Force
+                $jsonObj.PSObject.properties.remove($field)
+            }
+        }
+        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $edgeConfig -Force
+        $retval = $true
+    }
+    return $retval
+}
 function Save-AideUserConfig {
     <#
     .DESCRIPTION
         Saves the configuration to the JSON file
     #>
     if ($aideSession.UserConfigFile) {
-        $aideSession.UserConfig | ConvertTo-Json | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
+        $ObjToSave = $aideSession.UserConfig
+        if ($aideSession.ReadFromFile) {
+            #we dont expect programatic changes to the aide-userconfig. Only in AksEdgeConfig
+            $ObjToSave.AksEdgeConfig | ConvertTo-Json | Format-AideJson | Set-Content -Path "$($ObjToSave.AksEdgeConfigFile)" -Force
+        } else {
+            $ObjToSave | ConvertTo-Json -Depth 4 | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
+        }
     } else {
         Write-Verbose "Error: Aide UserConfigFile not configured"
     }
