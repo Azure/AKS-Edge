@@ -7,44 +7,28 @@
 #>
 param(
     [Switch] $RunToComplete,
-    [Switch] $IncludeWindows,
     [Switch] $UseK8s
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221020.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221201.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
 # Here string for the json content
 $installDir = "C:\AksEdgeScript"
-$msiName = "AksEdge-K3s.msi"
+$productName = "AKS Edge Essentials - K3s (Public Preview)"
 if ($UseK8s) {
-    $msiName ="AksEdge-K8s.msi"
+    $productName ="AKS Edge Essentials - K8s (Public Preview)"
 }
-$msifile = "$installDir\$msiName"
 $aksjson = "$installDir\Scripts\aide-userconfig.json"
 
 $jsonContent = @"
 {
     "SchemaVersion": "1.1",
     "Version": "1.0",
-    "AksEdgeProduct": "Azure Kubernetes Service Edge Essentials (Public Preview)",
-    "AksEdgeProductUrl": "$($msifile.Replace("\","\\"))",
-    "DeployOptions": {
-        "SingleMachineCluster": true,
-        "NodeType": "Linux",
-        "NetworkPlugin": "flannel",
-        "Headless": true
-    },
-    "EndUser": {
-        "AcceptEula": true
-    },
-    "LinuxVm": {
-        "CpuCount": 4,
-        "MemoryInMB": 4096,
-        "DataSizeinGB": 20
-    },
+    "AksEdgeProduct": "$productName",
+    "AksEdgeProductUrl": "",
     "Azure": {
         "SubscriptionName": "Visual Studio Enterprise",
         "SubscriptionId": "",
@@ -56,6 +40,23 @@ $jsonContent = @"
             "ServicePrincipalId":"",
             "Password":""
         }
+    },
+    "AksEdgeConfig": {
+        "DeployOptions": {
+            "SingleMachineCluster": true,
+            "NodeType": "Linux",
+            "NetworkPlugin": "flannel",
+            "Headless": true
+        },
+        "EndUser": {
+            "AcceptEula": true,
+            "AcceptOptionalTelemetry": true
+        },
+        "LinuxVm": {
+            "CpuCount": 4,
+            "MemoryInMB": 4096,
+            "DataSizeinGB": 20
+        }
     }
 }
 "@
@@ -64,8 +65,7 @@ $blobJson = @"
     "Storage": {
         "ConnectionString": "",
         "ContainerName": "",
-        "BlobNames":["$msiName","AksEdge-preview.zip"],
-        "WinBlobs":["AksEdgeWindows-v1.7z.001","AksEdgeWindows-v1.7z.002","AksEdgeWindows-v1.7z.003","AksEdgeWindows-v1.exe"]
+        "BlobNames":["aks-edge-utils.zip"]
     }
 }
 "@
@@ -114,7 +114,6 @@ function DownloadFromBlobStorage {
     $store = $Script:blobJson | ConvertFrom-Json
     Write-Host "Download from Azure blob storage..."
     $files = $store.Storage.BlobNames
-    if ($IncludeWindows) { $files += $store.Storage.WinBlobs }
     foreach ($file in $files) {
         if (-not (Test-Path -Path ".\$file")) {
             Write-Host "Downloading $file" -NoNewline

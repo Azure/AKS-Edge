@@ -57,7 +57,7 @@ The below table provides the details of the supported parameters in the json fil
 | --------- | -------- |---------------- | -------- |
 | SchemaVersion | Mandatory | 1.1 | Fixed value, schema version. Reserved|
 | Version | Mandatory | 1.0 | Fixed value, json instance version. Reserved |
-| AksEdgeProduct | Mandatory | Azure Kubernetes Service Edge Essentials - Kxs (Public Preview) | Desired product K8s or K3s |
+| AksEdgeProduct | Mandatory | AKS Edge Essentials - Kxs (Public Preview) | Desired product K8s or K3s |
 | AksEdgeProductUrl | Optional | URL | URL to download the MSI |
 | Azure.ClusterName | Optional | String | Name of the cluster for Arc connection. Default is hostname-distribution (abc-k8s or def-k3s)|
 | Azure.SubscriptionName | Mandatory | GUID | SubscriptionName  |
