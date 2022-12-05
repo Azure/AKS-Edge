@@ -16,19 +16,22 @@ The `Start-AideWorkflow` function in the modole does the following:
 
     ```json
     {
-        "SchemaVersion": "1.1",
+        "SchemaVersion": "1.0",
         "Version": "1.0",
-        "AksEdgeProduct" : "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)",
-        "DeployOptions": {
-            "SingleMachineCluster": true
-        },
-        "EndUser": {
-            "AcceptEula": true
-        },
-        "LinuxVm": {
-            "CpuCount": 4,
-            "MemoryInMB": 4096,
-            "DataSizeinGB": 20
+        "AksEdgeProduct" : "AKS Edge Essentials - K8s (Public Preview)",
+        "AksEdgeConfig": {
+            "DeployOptions": {
+                "SingleMachineCluster": true
+            },
+            "EndUser": {
+                "AcceptEula": true,
+                "AcceptOptionalTelemetry" : true
+            },
+            "LinuxVm": {
+                "CpuCount": 4,
+                "MemoryInMB": 4096,
+                "DataSizeinGB": 20
+            }
         },
         "Azure": {
             "SubscriptionName":"Visual Studio Enterprise",
@@ -54,7 +57,7 @@ The below table provides the details of the supported parameters in the json fil
 | --------- | -------- |---------------- | -------- |
 | SchemaVersion | Mandatory | 1.1 | Fixed value, schema version. Reserved|
 | Version | Mandatory | 1.0 | Fixed value, json instance version. Reserved |
-| AksEdgeProduct | Mandatory | Azure Kubernetes Service Edge Essentials - Kxs (Public Preview) | Desired product K8s or K3s |
+| AksEdgeProduct | Mandatory | AKS Edge Essentials - Kxs (Public Preview) | Desired product K8s or K3s |
 | AksEdgeProductUrl | Optional | URL | URL to download the MSI |
 | Azure.ClusterName | Optional | String | Name of the cluster for Arc connection. Default is hostname-distribution (abc-k8s or def-k3s)|
 | Azure.SubscriptionName | Mandatory | GUID | SubscriptionName  |
@@ -65,19 +68,23 @@ The below table provides the details of the supported parameters in the json fil
 | Azure.Location | Mandatory | String | Location  |
 | Azure.Auth.ServicePrincipalId |Optional | String | Specify service principal appID to use|
 | Azure.Auth.Password |Optional| String | Specify the password (clear) |
-| Azure.Auth.systemidentity | Optional | Boolean | Specify the use system managed identity. **NOT SUPPORTED YET** |
-| Azure.Auth.useridentity | Optional | String| Specify the user managaed identity (full uri)**NOT SUPPORTED YET**|
+
+
+The below table provides the schema for the AksEdge Deployment Configuration json.
+
+| Parameter | Required | Type / Values | Comments |
+| --------- | -------- |---------------- | -------- |
 | DeployOptions.SingleMachineCluster | Mandatory | Boolean | SingleMachine with internal switch  created when true |
-| DeployOptions.NodeType | Optional | <ul><li>Linux</li><li>LinuxAndWindows</li></ul> | **LinuxAndWindows not supported in this release** |
-| DeployOptions.NetworkPlugin | Optional | <ul><li>calico</li><li>flannel</li></ul> | calico is default |
+| DeployOptions.NodeType | Optional | <ul><li>Linux</li><li>Windows</li><li>LinuxAndWindows</li></ul> | Windows only is supported in Full Kubernetes deployment |
+| DeployOptions.NetworkPlugin | Optional | <ul><li>calico</li><li>flannel</li></ul> | flannel is default |
 | DeployOptions.Headless | Optional | Boolean | Headless mode |
 | DeployOptions.TimeoutSeconds|Optional|Int| This specifies the maximum wait for a kubernetes node to reach a specified state (eg. Ready) |
 | DeployOptions.JoinCluster|Optional| Boolean | the new deployment will join an existing remote cluster. SingleMachineCluster should be false when this is set to true |
-| DeployOptions.ControlPlane|Optional|Boolean| This parameter indicates that the Linux node of this deployment will join an existing cluster as a node
-that runs the control plane |
+| DeployOptions.ControlPlane|Optional|Boolean| This parameter indicates that the Linux node of this deployment will join an existing cluster as a node that runs the control plane |
 | DeployOptions.ClusterJoinToken|Optional|String| The cluster join token used for joining an existing cluster |
 | DeployOptions.DiscoveryTokenHash|Optional|String| The discovery token hash used for joining an existing cluster |
 | EndUser.AcceptEula | Mandatory | Yes |  Accept Eula |
+| EndUser.AcceptOptionalTelemetry | Optional | Yes |  Accept optional telemetry to be sent |
 | LinuxVm.CpuCount | Optional |2 | CpuCount|
 | LinuxVm.MemoryInMB | Optional |2| MemoryInMB|
 | LinuxVm.DataSizeInGB | Optional | 2-2000| Size in GB|
@@ -85,11 +92,10 @@ that runs the control plane |
 | WindowsVm.CpuCount | Optional |2 | CpuCount|
 | WindowsVm.MemoryInMB | Optional |2| MemoryInMB|
 | WindowsVm.Ip4Address | Optional | IPv4 address |  Static IP Address for the Windows Node VM |
-| Network.VSwitch.Type | Optional | External |Only **External** switch supported currently. SingleMachine cluster uses Internal switch always |
+| Network.VSwitch.Type | Optional | External |Only **External** switch supported currently. SingleMachine cluster uses Internal switch always and does not required to be specified.|
 | Network.VSwitch.Name | Optional | String | Switch name to use |
-| Network.VSwitch.AdapterName | Optional | String | NetAdapterName for VSwitch |
+| Network.VSwitch.AdapterName | Mandatory | String | NetAdapterName for VSwitch, mandatory for Full kubernetes deployment |
 | Network.ControlPlaneEndpointIp | Optional | IPv4 address |  This parameter allows defining a specific IP address to be used as the control plane endpoint IP for the deployment. If not specified, the endpoint will equal the local Linux node's IP address when creating a new cluster |
-| Network.ControlPlaneEndpointPort | Optional | IPv4 address |  When joining an existing cluster, this parameter specifies the port of the remote control plane endpoint |
 | Network.ServiceIPRangeSize | Optional | IPv4 address |  Required for SingleMachine deployment |
 | Network.ServiceIPRangeStart | Optional | IPv4 address |  Required for Scalable deployment |
 | Network.ServiceIPRangeEnd | Optional | IPv4 address |  Required for Scalable deployment |
@@ -97,11 +103,17 @@ that runs the control plane |
 | Network.Ip4PrefixLength | Optional | [1..32] | IP PrefixLength |
 | Network.Proxy.Http | Optional | String | HttpProxy link |
 | Network.Proxy.Https | Optional | String | HttpsProxy link |
-| Network.DnsServers | Optional | IPv4 address[] | Array of valid dns servers for VM |
+| Network.DnsServers | Optional | [IPv4 address] | Array of valid dns servers for VM |
 
 ## JSON schema visualization
 
+### AksEdgeDeploy User Config
+
 ![AksEdgeDeploy json](AksEdgeDeploy.png)
+
+### AksEdge Deployment Config
+
+![AksEdge Schema json](AksEdgeSchema.png)
 
 ## Supported Functions
 
@@ -113,7 +125,6 @@ that runs the control plane |
 |`Set-AideUserConfig -jsonFile (or) -jsonString`| Sets the user config and reads the config into the cache |
 |`Read-AideUserConfig`| Reads the json file into the cache |
 |`Test-AideUserConfig`| Tests the User Config json for parameter correctness |
-|`Export-AideWorkerNodeJson` | Exports the WorkerNode userconfig json file with required parameters |
 |**VM Switch Functions** ||
 |`New-AideVmSwitch`| Creates an new VM switch based on user config. If Internal switch is specified, it also assigns a static ip address (no DHCP used) |
 |`Test-AideVmSwitch -Create`| Tests if the VM switch is present, `Create` flag invokes New-AideVmSwitch if switch is not present |

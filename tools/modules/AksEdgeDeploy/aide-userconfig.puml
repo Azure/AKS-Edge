@@ -25,9 +25,12 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion":"1.1",
+    "SchemaVersion":"1.0",
     "Version":"1.0",
-    "AksEdgeProduct" : "Azure Kubernetes Service...",
+    "AksEdgeProduct" : [
+                "AKS Edge Essentials - K8s (Public Preview)",
+                "AKS Edge Essentials - K3s (Public Preview)"
+            ],
     "AksEdgeProductUrl" : "URL",
     "Azure":{
         "ClusterName":"String",
@@ -43,68 +46,14 @@ jsonDiagram {
         }
     }
     ,
-    "DeployOptions":{
-        "SingleMachineCluster":"Boolean",
-        "NodeType" : ["Linux","LinuxAndWindows"],
-        "NetworkPlugin" : ["calico", "flannel"],
-        "Headless":"Boolean",
-        "TimeoutSeconds":"Int",
-        "ClusterJoinToken": "String",
-        "ControlPlane": "Boolean",
-        "DiscoveryTokenHash": "String",
-        "CertificateKey":"String",
-        "JoinCluster": "Boolean"
-    }
-    ,
     "InstallOptions":{
         "InstallPath":"String",
         "VhdxPath":"String"
     }
     ,
-    "EndUser":{
-        "AcceptEula" : "Boolean"
-    }
-    ,
-    "LinuxVm":{
-        "CpuCount" : "2 or more",
-        "MemoryInMB" : "2048 or more",
-        "DataSizeInGB" : "[2-2000]",
-        "Ip4Address": "IPv4",
-        "MacAddress": "String",
-        "Mtu": "Int"
-    }
-    ,
-    "WindowsVm":{
-        "CpuCount" : "2 or more",
-        "MemoryInMB" : "2048 or more",
-        "Ip4Address": "IPv4",
-        "MacAddress": "String",
-        "Mtu": "Int"
-    }
-    ,
-    "Network":{
-        "VSwitch": {
-            "Type" : ["External", "Internal"],
-            "AdapterName": "String",
-            "Name" : "String"
-        }
-        ,
-        "ControlPlaneEndpointIp":"IPv4",
-        "ControlPlaneEndpointPort": "Int",
-        "InternetDisabled" : "Boolean",
-        "SkipFreeAddressCheck" : "Boolean",
-        "Ip4GatewayAddress": "IPv4",
-        "Ip4PrefixLength" : "[1-32]",
-        "ServiceIPRangeSize" : "[0-127]",
-        "ServiceIPRangeStart":"IPv4",
-        "ServiceIPRangeEnd":"IPv4",
-        "Proxy" : {
-            "Http":"URL",
-            "Https":"URL",
-            "No":"String"
-        }
-        ,
-        "DnsServers":["IPv4","IPv4"]
+    "AksEdgeConfigFile":"String",
+    "AksEdgeConfig":{
+        "ref" :"aksedge-dc.json"
     }
 }
 @endjson

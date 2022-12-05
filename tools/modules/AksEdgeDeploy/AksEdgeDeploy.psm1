@@ -17,18 +17,20 @@ $aideSession = @{
     AKSEdge        = @{"Product" = $null; "Version" = $null }
     UserConfig     = $null
     UserConfigFile = $null
+    ReadFromFile = $false
 }
-
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProductPrefix -Value "AKS Edge Essentials"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProducts -Value @{
-    "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)" = "https://aka.ms/AksEdgeK8sMSI"
-    "Azure Kubernetes Service Edge Essentials - K3s (Public Preview)" = "https://aka.ms/AksEdgeK3sMSI"
+    "AKS Edge Essentials - K8s (Public Preview)" = "https://aka.ms/aks-edge/k8s-msi"
+    "AKS Edge Essentials - K3s (Public Preview)" = "https://aka.ms/aks-edge/k3s-msi"
 }
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallUrl -Value "https://aka.ms/aks-edge/windows-node-zip"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeValueSet -Value @{
     NodeType  = @("Linux", "LinuxAndWindows","Windows")
     NetworkPlugin = @("calico", "flannel")
 }
 
-$WindowsInstallFiles = @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003", "AksEdgeWindows-v1.exe")
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallFiles -Value @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003", "AksEdgeWindows-v1.exe")
 function Get-AideHostPcInfo {
     Test-HyperVStatus -Enable | Out-Null
     $pOS = Get-CimInstance Win32_OperatingSystem
@@ -101,11 +103,29 @@ function Get-AideUserConfig {
     }
     return $aideSession.UserConfig
 }
+
+function Get-AideAksEdgeConfig {
+    if ($null -eq $aideSession.UserConfig) {
+        Write-Host "Error: Aide UserConfig is not set." -ForegroundColor Red
+    }
+    return $aideSession.UserConfig.AksEdgeConfig
+}
 function Read-AideUserConfig {
     if ($aideSession.UserConfigFile) {
         $jsonContent = Get-Content "$($aideSession.UserConfigFile)" | ConvertFrom-Json
+        $upgraded = UpgradeJsonFormat $jsonContent
         if ($jsonContent.AksEdgeProduct) {
             $aideSession.UserConfig = $jsonContent
+            if ($upgraded) { Save-AideUserConfig }
+            #if there is no AksEdgeConfig object or if it was previously read, re-read from file
+            if ((-not $jsonContent.AksEdgeConfig) -or (($jsonContent.AksEdgeConfig)-and ($aideSession.ReadFromFile))) {
+                #there is no embedded aksedge config, so read it from file
+                $aksfile = $jsonContent.AksEdgeConfigFile
+                if (($aksfile) -and (Test-Path -Path $aksfile)) {
+                    $aksconfig = Get-Content $aksfile | ConvertFrom-Json
+                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig -Force
+                }
+            }
             return $true
         } else {
             Write-Host "Error: Incorrect json content" -ForegroundColor Red
@@ -128,6 +148,16 @@ function Set-AideUserConfig {
         $jsonContent = $jsonString | ConvertFrom-Json
         if ($jsonContent.AksEdgeProduct) {
             $aideSession.UserConfig = $jsonContent
+            UpgradeJsonFormat $jsonContent | Out-Null
+            if (-not $jsonContent.AksEdgeConfig) {
+                #there is no embedded aksedge config, so read it from file
+                $aksfile = $jsonContent.AksEdgeConfigFile
+                if (($aksfile) -and (Test-Path -Path $aksfile)) {
+                    $aksconfig = Get-Content $aksfile | ConvertFrom-Json
+                    $aideSession.UserConfig | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $aksconfig -Force
+                    $aideSession.ReadFromFile = $true
+                }
+            }
         } else {
             Write-Host "Error: Incorrect jsonString" -ForegroundColor Red
             return $false
@@ -143,13 +173,50 @@ function Set-AideUserConfig {
     }
     return $true
 }
+
+function UpgradeJsonFormat {
+    Param(
+        [PSCustomObject] $jsonObj
+    )
+    $retval = $false
+    $azCfg = $jsonObj.Azure
+    if ($azCfg.Auth.spId) {
+        $newAuth = @{
+            ServicePrincipalId = $azCfg.Auth.spId
+            Password = $azCfg.Auth.password
+        }
+        $azCfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value $newAuth -Force
+        $retval = $true
+    }
+    if (($jsonObj.AksEdgeConfig) -or ($jsonObj.AksEdgeConfigFile)) { return $retval }
+    if ($jsonObj.DeployOptions) {
+        $fieldsToCopy = @("DeployOptions","LinuxVm","WindowsVm","Network","EndUser")
+        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value @{"SchemaVersion"="1.1";"Version"="1.0"} -Force
+        $edgeConfig = [PSCustomObject]$jsonObj.AksEdgeConfig
+        foreach ($field in $fieldsToCopy) {
+            if ($jsonObj.$field){
+                $edgeConfig | Add-Member -MemberType NoteProperty -Name $field -Value $jsonObj.$field -Force
+                $jsonObj.PSObject.properties.remove($field)
+            }
+        }
+        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $edgeConfig -Force
+        $retval = $true
+    }
+    return $retval
+}
 function Save-AideUserConfig {
     <#
     .DESCRIPTION
         Saves the configuration to the JSON file
     #>
     if ($aideSession.UserConfigFile) {
-        $aideSession.UserConfig | ConvertTo-Json | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
+        $ObjToSave = $aideSession.UserConfig
+        if ($aideSession.ReadFromFile) {
+            #we dont expect programatic changes to the aide-userconfig. Only in AksEdgeConfig
+            $ObjToSave.AksEdgeConfig | ConvertTo-Json -Depth 4 | Format-AideJson | Set-Content -Path "$($ObjToSave.AksEdgeConfigFile)" -Force
+        } else {
+            $ObjToSave | ConvertTo-Json -Depth 4 | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
+        }
     } else {
         Write-Verbose "Error: Aide UserConfigFile not configured"
     }
@@ -180,16 +247,14 @@ function Test-AideUserConfigNetwork {
         Checks the AksEdge user configuration needed for AksEdge Network setup
     #>
     $errCnt = 0
-    $aideConfig = Get-AideUserConfig
+    $aideConfig = Get-AideAksEdgeConfig
+
+    $retval = Test-AksEdgeNetworkParameters -JsonConfigString ($aideConfig | ConvertTo-Json -Depth 4)
+    if (!$retval) {
+        $errCnt +=1
+    }
     # 1) Check the virtual switch name
     $nwCfg = $aideConfig.Network
-    if ($null -eq $nwCfg) {
-        if (-not $aideConfig.DeployOptions.SingleMachineCluster) {
-            Write-Host "Error: Non SingleMachineCluster requires Network(external switch) configuration" -ForegroundColor Red
-            $errCnt += 1
-        } else { Write-Host "No Network configuration specified. Using defaults" }
-        return $errCnt
-    }
     if ($aideConfig.DeployOptions.SingleMachineCluster) {
         Write-Host "Checking Network configuration for SingleMachine Cluster"
         if ($nwCfg.ServiceIPRangeSize) {
@@ -201,22 +266,24 @@ function Test-AideUserConfigNetwork {
             }
         }
         # Remove all other settings that are not relevant for single machine cluster
-        $nwcfgToRemove = @("VSwitch", "ControlPlaneEndpointIp", "ControlPlaneEndpointPort", "Ip4GatewayAddress",
+        $nwcfgToRemove = @("VSwitch", "ControlPlaneEndpointIp", "Ip4GatewayAddress",
             "Ip4PrefixLength", "ServiceIPRangeStart", "ServiceIPRangeEnd", "DnsServers")
         $nwitems = $nwCfg.PSObject.properties.Name
         foreach ($item in $nwitems) {
             if ($nwcfgToRemove -contains $item) {
                 Write-Host "$item is redundant. Will be ignored" -ForegroundColor DarkGray
-                #$nwCfg.PSObject.properties.remove($item)
+                $nwCfg.PSObject.properties.remove($item)
             }
         }
-        if ($nwCfg.PSObject.properties.match('*').count -eq 0) {
+        if (($nwCfg) -and ($nwCfg.PSObject.properties.match('*').count -eq 0)) {
             $aideConfig.PSObject.properties.remove('Network')
         }
-        if ($aideConfig.LinuxVm) {
+        if ($aideConfig.LinuxVm.Ip4Address) {
+            Write-Host "Ignoring LinuxVm Ip4Address" -ForegroundColor DarkGray
             $aideConfig.LinuxVm.PSObject.properties.remove('Ip4Address')
         }
-        if ($aideConfig.WindowsVm) {
+        if ($aideConfig.WindowsVm.Ip4Address) {
+            Write-Host "Ignoring WindowsVm Ip4Address" -ForegroundColor DarkGray
             $aideConfig.WindowsVm.PSObject.properties.remove('Ip4Address')
         }
         return $errCnt
@@ -243,11 +310,10 @@ function Test-AideUserConfigNetwork {
     }
 
     # 3) Check the virtual switch IP address allocation
-    if ($nwCfg.ControlPlaneEndpoint) {
-        $nwCfg | Add-Member -MemberType NoteProperty -Name 'ControlPlaneEndpointIp' -Value $nwCfg.ControlPlaneEndpoint
-        $nwCfg.PSObject.properties.remove('ControlPlaneEndpoint')
-        Save-AideUserConfig #persist the change
-    }
+    if (($nwCfg.Ip4PrefixLength -lt 0) -or ($nwCfg.Ip4PrefixLength -ge 32)) {
+        Write-Host "Error: Invalid IP4PrefixLength $($nwCfg.Ip4PrefixLength). Should be [0-32]" -ForegroundColor Red
+        $errCnt += 1
+    } else { Write-Host "* IP4PrefixLength ok" -ForegroundColor Green }
     Write-Host "--- Verifying virtual switch IP address allocation..."
     [IPAddress]$mask = "255.255.255.0"
     $gwMask = ([IPAddress]$nwCfg.Ip4GatewayAddress).Address -band $mask.Address
@@ -259,29 +325,15 @@ function Test-AideUserConfigNetwork {
     $errCnt += Test-IPAddress -ipAddress $nwCfg.ControlPlaneEndpointIp -paramName 'ControlPlaneEndpointIp' -gatewayMask $gwMask
     $errCnt += Test-IPAddress -ipAddress $nwCfg.ServiceIPRangeStart -paramName 'ServiceIPRangeStart' -gatewayMask $gwMask
     $errCnt += Test-IPAddress -ipAddress $nwCfg.ServiceIPRangeEnd -paramName 'ServiceIPRangeEnd' -gatewayMask $gwMask
-    if (($nwCfg.Ip4PrefixLength -lt 0) -or ($nwCfg.Ip4PrefixLength -ge 32)) {
-        Write-Host "Error: Invalid IP4PrefixLength $($nwCfg.Ip4PrefixLength). Should be [0-32]" -ForegroundColor Red
-        $errCnt += 1
-    } else { Write-Host "* IP4PrefixLength ok" -ForegroundColor Green }
     #TODO : Ping DnsServers for reachability. No Tests for http proxies
     Write-Host "--- Checking proxy settings..."
-    if ($nwCfg.useHostProxy) {
-        Write-Host "useHostProxy is set, ignoring httpProxy, httpsProxy settings"
-        $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
-        if ($hostSettings.ProxyEnable) {
-            Write-Host "Using $($hostSettings.ProxyServer) as proxy settings"
-        } else {
-            Write-Host "Warning: useHostProxy is set, but no proxy setting found in host." -ForegroundColor Yellow
-        }
-    } else {
-        if (![string]::IsNullOrEmpty($nwCfg.Proxy.Http) -and $nwCfg.Proxy.Http -NotLike "http://*") {
-            Write-Host "Warning: The httpProxy address does not start with http://, $($nwCfg.Proxy.Http) may not valid." -ForegroundColor Yellow
-            #$errCnt += 1
-        }
-        if (![string]::IsNullOrEmpty($nwCfg.Proxy.Https) -and $nwCfg.Proxy.Https -NotLike "https://*") {
-            Write-Host "Warning: The httpsProxy address does not start with https://, $($nwCfg.Proxy.Https) may not valid." -ForegroundColor Yellow
-            #$errCnt += 1
-        }
+    if (![string]::IsNullOrEmpty($nwCfg.Proxy.Http) -and ($nwCfg.Proxy.Http -NotLike "http://*")) {
+        Write-Host "Warning: The httpProxy address does not start with http://, $($nwCfg.Proxy.Http) may not valid." -ForegroundColor Yellow
+        #$errCnt += 1
+    }
+    if (![string]::IsNullOrEmpty($nwCfg.Proxy.Https) -and ($nwCfg.Proxy.Https -NotLike "https://*")) {
+        Write-Host "Warning: The httpsProxy address does not start with https://, $($nwCfg.Proxy.Https) may not valid." -ForegroundColor Yellow
+        #$errCnt += 1
     }
     return $errCnt
 }
@@ -336,7 +388,7 @@ function Test-AideUserConfigInstall {
         Write-Host "Supported products: [$($aksedgeProducts.Keys -join ',' )]"
         $errCnt += 1
     }
-    $windowsRequired = $aideConfig.DeployOptions.NodeType -ilike '*Windows'
+    $windowsRequired = $aideConfig.AksEdgeConfig.DeployOptions.NodeType -ilike '*Windows'
     # 2) Check if ProductUrl is valid if specified
     if (-not [string]::IsNullOrEmpty($aideConfig.AksEdgeProductUrl)) {
         if (Test-Path -Path $aideConfig.AksEdgeProductUrl) {
@@ -371,14 +423,13 @@ function Test-AideUserConfigInstall {
             }
         }
     }
-    $retval = $true
+
     if ($errCnt) {
         Write-Host "$errCnt errors found in the Install Configuration. Fix errors before Install" -ForegroundColor Red
-        $retval = $false
     } else {
         Write-Host "*** No errors found in the Install Configuration." -ForegroundColor Green
     }
-    return $retval
+    return ($errCnt -eq 0)
 }
 
 function Test-AideUserConfigVMConfig {
@@ -422,35 +473,27 @@ function Test-AideUserConfigDeploy {
         Return $true if no blocking errors are found, and $false otherwise
     #>
     $errCnt = 0
-    $aideConfig = Get-AideUserConfig
+    $aideConfig = Get-AideAksEdgeConfig
     $euCfg = $aideConfig.EndUser
     Write-Host "`n--- Verifying AksEdge VM Deployment Configuration..."
     # 1) Check Mandatory configuration EULA
     Write-Host "--- Verifying EULA..."
     if ($euCfg.AcceptEula) {
-        if ([string]($euCfg.AcceptEula) -eq "Yes") {
-            #remove old tag and add new tag
-            $aideConfig.SchemaVersion = "1.1"
-            $euCfg.AcceptEula = $true
-            Write-Host "AcceptEula value changed from yes to true" -ForegroundColor DarkGray
-            Save-AideUserConfig #persist the change
-        }
         Write-Host "* EULA accepted." -ForegroundColor Green
     } else {
-        Write-Host "Error: Missing/incorrect mandatory EULA acceptance. Set AcceptEula true" -ForegroundColor Red
+        Write-Host "Error: Missing/incorrect mandatory EULA acceptance. Set AcceptEula true for remote deployment" -ForegroundColor Red
         $errCnt += 1
     }
 
-    <#
-    if (($euCfg.acceptOptionalTelemetry) -and ($euCfg.acceptOptionalTelemetry -eq "Yes")) {
+    if ($euCfg.AcceptOptionalTelemetry) {
         Write-Host "* Optional telemetry accepted." -ForegroundColor Green
     }
+    <# if this is set to false, currently it queries during deployment.
     else {
         Write-Host "- Optional telemetry not accepted. Basic telemetry will be sent." -ForegroundColor Yellow
-        if ($euCfg) { $euCfg.PSObject.properties.remove('acceptOptionalTelemetry') }
+        if ($euCfg) { $euCfg.PSObject.properties.remove('AcceptOptionalTelemetry') }
     }#>
 
-    $aideConfig = Get-AideUserConfig
     $doCfg = $aideConfig.DeployOptions
     foreach ($key in $aksedgeValueSet.Keys) {
         if ($($doCfg.$key)) {
@@ -462,42 +505,13 @@ function Test-AideUserConfigDeploy {
             }
         }
     }
-    if ($doCfg.ClusterType) {
-        $IsSingleMachine = ($doCfg.ClusterType -ieq "SingleMachine")
-        #remove old tag and add new tag
-        $aideConfig.SchemaVersion = "1.1"
-        $doCfg.PSObject.properties.remove('ClusterType')
-        $doCfg | Add-Member -MemberType NoteProperty -Name 'SingleMachineCluster' -Value $IsSingleMachine
-        Save-AideUserConfig #persist the change
+
+    #Check for mutually exclusive flags
+    if (($doCfg.JoinCluster) -and ($doCfg.SingleMachineCluster)) {
+        Write-Host "Error: JoinCluster and SingleMachineCluster are both specified" -ForegroundColor Red
+        $errCnt += 1
     }
 
-    #Check for ClusterJoin attributes
-    if ($doCfg.JoinCluster) {
-        if($doCfg.SingleMachineCluster) {
-            Write-Host "Error: JoinCluster and SingleMachineCluster are both enabled" -ForegroundColor Red
-            $errCnt += 1
-        }
-        # Check for ControlPointIP and Port
-        $nwCfg = $aideConfig.Network
-        if ([string]::IsNullOrEmpty($nwCfg.ControlPlaneEndpointIp)) {
-            Write-Host "Error: ControlPlaneEndpointIp missing" -ForegroundColor Red
-            $errCnt += 1
-        }
-        if ([string]::IsNullOrEmpty($nwCfg.ControlPlaneEndpointPort)) {
-            Write-Host "Error: ControlPlaneEndpointPort missing" -ForegroundColor Red
-            $errCnt += 1
-        }
-        # Check for token
-        if ([string]::IsNullOrEmpty($doCfg.ClusterJoinToken) ) {
-            Write-Host "Error: ClusterJoinToken missing" -ForegroundColor Red
-            $errCnt += 1    
-        }
-        <# this is required only for K8s
-        if ([string]::IsNullOrEmpty($doCfg.DiscoveryTokenHash) ) {
-            Write-Host "Error: DiscoveryTokenHash missing" -ForegroundColor Red
-            $errCnt += 1
-        }#>
-    }
     # 2) Check the virtual switch specified
     if (-not (Test-AideVmSwitch)) {
         $errCnt += 1
@@ -513,20 +527,18 @@ function Test-AideUserConfigDeploy {
         $errCnt += Test-AideUserConfigVMConfig $aideConfig.WindowsVm
     }
 
-    $retval = $true
     if ($errCnt) {
         Write-Host "$errCnt errors found in the Deployment Configuration. Fix errors before deployment" -ForegroundColor Red
-        $retval = $false
     } else {
         Write-Host "*** No errors found in the Deployment Configuration." -ForegroundColor Green
     }
-    return $retval
+    return ($errCnt -eq 0)
 }
 function Test-AideUserConfig {
 
     $installResult = Test-AideUserConfigInstall
     $deployResult = Test-AideUserConfigDeploy
-    $arcResult = Test-ArcIotUserConfig
+    $arcResult = Test-ArcEdgeUserConfig
 
     return ($installResult -and $deployResult -and $arcResult)
 
@@ -542,10 +554,6 @@ function Test-AideMsiInstall {
     if ($null -eq $aksedgeVersion) {
         if (!$Install) { return $false }
         if (-not (Install-AideMsi)) { return $false }
-    }
-    $mod = Get-Module -Name AksEdge
-    if ($mod) {
-        Remove-Module AksEdge -Force
     }
 
     $mod = Get-Module -Name AksEdge
@@ -592,7 +600,7 @@ function Test-AideLinuxVmRun {
     #>
     $retval = $false
     if ($aideSession.HostOS.IsServerSKU) {
-        $vm = Get-VM | Where-Object { $_.Name -like '*aksedge' }
+        $vm = Get-VM | Where-Object { $_.Name -like '*ledge' }
         if ($vm -and ($vm.State -ieq 'Running')) { $retval = $true }
 
     } else {
@@ -694,15 +702,20 @@ function Install-AideMsi {
     if (-not (Test-AideUserConfigInstall)) { return $false } # bail if the validation failed
     $reqProduct = $aideConfig.AksEdgeProduct
     $url = $aksedgeProducts[$reqProduct]
+    $winUrl = $WindowsInstallUrl
+    $msiFile = ".\AksEdge.msi"
+    $winFile = ".\AksEdgeWindows.zip"
     if ($aideConfig.AksEdgeProductUrl) {
         $url = $aideConfig.AksEdgeProductUrl
+        $urlParent = Split-Path $url -Parent
+        $winUrl = "$urlParent\AksEdgeWindows-*.zip"
     }
     Write-Host "Installing $reqProduct from $url"
     Push-Location $env:Temp
     $argList = '/I AksEdge.msi /qn '
     $windowsRequired = $aideConfig.DeployOptions.NodeType -ilike '*Windows'
     if (Test-Path -Path $url) {
-        Copy-Item -Path $url -Destination .\AksEdge.msi
+        Copy-Item -Path $url -Destination $msiFile
         if($windowsRequired) {
             $filepath = (Resolve-Path -Path $url).Path | Split-Path -Parent
             foreach ($file in $WindowsInstallFiles) {
@@ -712,19 +725,33 @@ function Install-AideMsi {
         }
     } else {
         $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest $url -OutFile .\AksEdge.msi
+        try {
+            if (-not (Test-Path $msiFile)) {
+                Invoke-WebRequest $url -OutFile $msiFile
+            }
+        } catch {
+            Write-Host "failed to download from $url"
+            Remove-Item $msiFile -Force -ErrorAction SilentlyContinue
+            $ProgressPreference = 'Continue'
+            Pop-Location
+            return $false
+        }
         if($windowsRequired) {
-            $urlParent = Split-Path $url -Parent
-            Write-Host "Downloading Windows companion package..." -ForegroundColor Red
-            foreach ($file in $WindowsInstallFiles) {
-                Write-Host "$file"
-                try {
-                    Invoke-WebRequest "$urlParent\$file" -OutFile ".\$file"
-                } catch {
-                    Write-Host "failed to download from $urlParent\\$file"
-                    Pop-Location
-                    return $false
+            $argList = '/I AksEdge.msi ADDLOCAL=CoreFeature,WindowsNodeFeature /passive '
+            try {
+                if (-not (Test-Path $winFile)) {
+                    Invoke-WebRequest $winUrl -OutFile $winFile
                 }
+                if (Test-Path $winFile) {
+                    Write-Host "Unzip WindowsInstallFiles.."
+                    Expand-ArchiveLocal $winFile .
+                }
+            } catch {
+                Write-Host "failed to download from $winUrl"
+                Remove-Item $winFile -Force -ErrorAction SilentlyContinue
+                $ProgressPreference = 'Continue'
+                Pop-Location
+                return $false
             }
         }
     }
@@ -740,27 +767,45 @@ function Install-AideMsi {
     }
     Write-Verbose $argList
     Start-Process msiexec.exe -Wait -ArgumentList $argList
-    Remove-Item .\AksEdge.msi
-    if($windowsRequired) {
-        foreach ($file in $WindowsInstallFiles) {
-            Remove-Item ".\$file"
+    #Refresh the env variables to include path from installed MSI
+    $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+    $retval = Test-AideMsiInstall
+    if ($retval) {
+        Remove-Item $msiFile
+        if($windowsRequired) {
+            foreach ($file in $WindowsInstallFiles) {
+                Remove-Item ".\$file"
+            }
+            Remove-Item $winFile
         }
+        Write-Host "$reqProduct successfully installed"
+        $retval = $true
+    } else {
+        Write-Host "Error in install. Check installation" -ForegroundColor Red
+        $retval = $false
     }
     Pop-Location
     $ProgressPreference = 'Continue'
-    Write-Host "$reqProduct successfully installed"
-    #Refresh the env variables to include path from installed MSI
-    $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
-    return $true
+    return $retval
+}
+function Expand-ArchiveLocal {
+    Param(
+        [string] $ZipFile,
+        [string] $Destination
+        )
+    $Shell = New-Object -Comobject "Shell.Application"
+    $zipContents = $Shell.Namespace((Convert-Path $ZipFile)).items()
+    $DestinationFolder = $Shell.Namespace((Convert-Path $Destination))
+    $DestinationFolder.CopyHere($zipContents)
 }
 function Remove-AideMsi {
     <#
    .DESCRIPTION
        Checks if AksEdge MSI is installed, and removes it if installed
    #>
-    $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match 'Azure Kubernetes Service Edge Essentials *' }
+    $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match "$aksedgeProductPrefix *" }
     if ($null -eq $aksedgeInfo) {
-        Write-Host "Azure Kubernetes Service Edge Essentials is not installed."
+        Write-Host "$aksedgeProductPrefix is not installed."
     } else {
         Write-Host "$($aksedgeInfo.DisplayName) version $($aksedgeInfo.DisplayVersion) is installed. Removing..."
         Remove-AideDeployment | Out-Null
@@ -777,10 +822,10 @@ function Get-AideMsiVersion {
    .DESCRIPTION
        Gets AksEdge version if installed
    #>
-    $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match 'Azure Kubernetes Service Edge Essentials *' }
+    $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match "$aksedgeProductPrefix *" }
     $retval = $null
     if ($null -eq $aksedgeInfo) {
-        Write-Host "Azure Kubernetes Service Edge Essentials is not installed."
+        Write-Host "$aksedgeProductPrefix is not installed."
     } else {
         $retval = @{
             "Name"    = $($aksedgeInfo.DisplayName)
@@ -792,20 +837,7 @@ function Get-AideMsiVersion {
     }
     return $retval
 }
-function Export-AideWorkerNodeJson {
-    param(
-        [string] $outDir = (Get-Location).Path
-    )
-    return New-AksEdgeScaleConfig -outFile "$outDir\ScaleConfig.json" -NodeType Linux -LinuxIp 192.168.0.1
-}
-function Get-AideClusterType {
-    $retval = "k8s"
-    $k3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}
-    if ($k3s) {
-        $retval = "k3s"
-    }
-    return $retval
-}
+
 function Invoke-AideDeployment {
     <#
     .DESCRIPTION
@@ -816,23 +848,8 @@ function Invoke-AideDeployment {
         return $false
     }
     if (-not (Test-AideUserConfigDeploy)) { return $false }
-    $aideConfig = Get-AideUserConfig
-    $aksedgeConfig = $aideConfig | ConvertTo-Json | ConvertFrom-Json
-    $nwCfg = $aksedgeConfig.Network
-
-    if ($aksedgeConfig.DeployOptions.SingleMachineCluster) {
-        # Remove all other settings that are not relevant for single machine cluster
-        $nwcfgToRemove = @("VSwitch", "ControlPlaneEndpointIp", "ControlPlaneEndpointPort", "Ip4GatewayAddress",
-            "Ip4PrefixLength", "ServiceIPRangeStart", "ServiceIPRangeEnd", "DnsServers")
-        $nwitems = $nwCfg.PSObject.properties.Name
-        foreach ($item in $nwitems) {
-            if ($nwcfgToRemove -contains $item) {
-                $nwCfg.PSObject.properties.remove($item)
-            }
-        }
-    }
-
-    $aksedgeDeployParams = $aksedgeConfig | ConvertTo-Json
+    $aideConfig = Get-AideAksEdgeConfig
+    $aksedgeDeployParams = $aideConfig | ConvertTo-Json -Depth 4
     Write-Verbose "AksEdge VM deployment parameters for New-AksEdgeDeployment..."
     Write-Verbose "$aksedgeDeployParams"
     Write-Host "Starting AksEdge VM deployment..."
@@ -859,8 +876,9 @@ function Test-AideVmSwitch {
     )
     $retval = $true
     # Stubbed out for now
-    $usrCfg = Get-AideUserConfig
-    $nwCfg = $usrCfg.Network
+    $usrCfg = Get-AideAksEdgeConfig
+    $vSwitch = $usrCfg.Network.VSwitch
+    $switchName = $vSwitch.Name
     if (Test-AideUserConfigNetwork) { Write-Host "Errors in Network configuration." -ForegroundColor Red; return $false }
 
     if ($usrCfg.DeployOptions.SingleMachineCluster) {
@@ -869,8 +887,8 @@ function Test-AideVmSwitch {
     }
     # Scalable cluster - check if switch already present
     Write-Host "--- Verifying virtual switch..."
-    if ([string]::IsNullOrEmpty($nwCfg.VSwitch.Name)) { Write-Host "Switch name required" -ForegroundColor Red; return $false }
-    $aksedgeSwitch = Get-VMSwitch -Name $nwCfg.VSwitch.Name -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrEmpty($switchName)) { Write-Host "Switch name required" -ForegroundColor Red; return $false }
+    $aksedgeSwitch = Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue
 
     if ($aksedgeSwitch) {
         Write-Host "* Name:$($aksedgeSwitch.Name) - Type:$($aksedgeSwitch.SwitchType)" -ForegroundColor Green
@@ -878,7 +896,7 @@ function Test-AideVmSwitch {
         if ($netadapter.Status -ieq 'Up') {
             Write-Host "* Name:$($netadapter.Name) is Up" -ForegroundColor Green
         } else {
-            Write-Host "Error: NetAdapter $($netadapter.Name) is not Up.`nVMSwitch $($nwCfg.VSwitch.Name) has not connectivity." -ForegroundColor Red
+            Write-Host "Error: NetAdapter $($netadapter.Name) is not Up.`nVMSwitch $name has not connectivity." -ForegroundColor Red
             $retval = $false
         }
     } else {
@@ -886,41 +904,45 @@ function Test-AideVmSwitch {
         if ($Create) {
             $retval = New-AideVmSwitch
         } else {
-            Write-Host "Error: VMSwitch $($nwCfg.VSwitch.Name) not found." -ForegroundColor Red
+            Write-Host "Error: VMSwitch $name not found." -ForegroundColor Red
             $retval = $false
         }
     }
     return $retval
 }
 function New-AideVmSwitch {
-    $usrCfg = Get-AideUserConfig
-    $nwCfg = $usrCfg.Network
+    $usrCfg = Get-AideAksEdgeConfig
+    $vSwitch = $usrCfg.Network.VSwitch
 
-    $aksedgeSwitch = Get-VMSwitch -Name $nwCfg.VSwitch.Name -ErrorAction SilentlyContinue
+    $switchName = $vSwitch.Name
+    $type = $vSwitch.Type
+    $adapter = $vSwitch.AdapterName
+
+    $aksedgeSwitch = Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue
     if ($aksedgeSwitch) {
         Write-Host "Error: Name:$($aksedgeSwitch.Name) - Type:$($aksedgeSwitch.SwitchType) already exists" -ForegroundColor Red
         return $false
     }
-    # no switch found. Create if requested
-    Write-Host "Creating VMSwitch $($nwCfg.VSwitch.Name) - $($nwCfg.VSwitch.Type)..."
+    # no switch found. Create now
+    Write-Host "Creating VMSwitch $switchName - $type - $adapter..."
     $nwadapters = (Get-NetAdapter -Physical -ErrorAction SilentlyContinue) | Where-Object { $_.Status -eq "Up" }
-    if ($nwadapters.Name -notcontains ($nwCfg.VSwitch.AdapterName)) {
-        Write-Host "Error: $($nwCfg.VSwitch.AdapterName) not found. External switch not created." -ForegroundColor Red
+    if ($nwadapters.Name -notcontains $adapter) {
+        Write-Host "Error: $adapter not found or not connected. External switch not created." -ForegroundColor Red
         return $false
     }
-    $aksedgeSwitch = New-VMSwitch -NetAdapterName $nwCfg.VSwitch.AdapterName -Name $nwCfg.VSwitch.Name -ErrorAction SilentlyContinue
+    $aksedgeSwitch = New-VMSwitch -NetAdapterName $adapter -Name $switchName -ErrorAction SilentlyContinue
     # give some time for the switch creation to succeed
     Start-Sleep 10
-    $aksedgeSwitchAdapter = Get-NetAdapter | Where-Object { $_.Name -eq "vEthernet ($($nwCfg.VSwitch.Name))" }
+    $aksedgeSwitchAdapter = Get-NetAdapter | Where-Object { $_.Name -eq "vEthernet ($switchName)" }
     if ($null -eq $aksedgeSwitchAdapter) {
-        Write-Host "Error: [vEthernet ($($nwCfg.VSwitch.Name))] is not found. $($nwCfg.VSwitch.Name) switch creation failed.  Please try switch creation again."
+        Write-Host "Error: [vEthernet ($switchName)] is not found. $switchName switch creation failed.  Please try switch creation again."
         return $false
     }
     return $true
 }
 
 function Remove-AideVmSwitch {
-    $usrCfg = Get-AideUserConfig
+    $usrCfg = Get-AideAksEdgeConfig
     $switchName = $($usrCfg.Network.VSwitch.Name)
     $aksedgeSwitch = Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue
     if ($aksedgeSwitch) {

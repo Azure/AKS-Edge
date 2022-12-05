@@ -19,12 +19,17 @@ if ($aksedgemodule -and $aksedgemodule.Version.Minor -lt 7) {
     return
 }
 
-$modulePath = (Resolve-Path -Path "$PSScriptRoot\modules").Path
+$modulePath = Split-Path -Path $((Get-ChildItem $PSScriptRoot -recurse -Filter AksEdgeDeploy).FullName) -Parent
 if (!(($env:PSModulePath).Contains($modulePath))) {
     $env:PSModulePath = "$modulePath;$env:PSModulePath"
 }
 
-Write-Host "Loading AksEdgeDeploy module.." -ForegroundColor Cyan
+#remove AksEdgeDeploy module if already loaded
+if (Get-Module -Name AksEdgeDeploy -ErrorAction SilentlyContinue) {
+    Remove-Module -Name AksEdgeDeploy -Force -ErrorAction SilentlyContinue
+}
+
+Write-Host "Loading AksEdgeDeploy module from $modulePath.." -ForegroundColor Cyan
 Import-Module AksEdgeDeploy.psd1 -Force
 $aideVersion = (Get-Module -Name AksEdgeDeploy).Version.ToString()
 Get-AideHostPcInfo

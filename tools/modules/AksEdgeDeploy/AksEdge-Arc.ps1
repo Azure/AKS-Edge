@@ -31,12 +31,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azMinVersions 
     "customlocation"   = "0.1.3"
     "k8s-extension"    = "1.3.3"
 }
-function Get-ArcIotUserConfig {
+function Get-ArcEdgeUserConfig {
     return (Get-AideUserConfig).Azure
 }
-function Test-ArcIotUserConfig {
+function Test-ArcEdgeUserConfig {
     $retval = $true
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     if (! $aicfg) {
         Write-Host "Error: UserConfig not set. Use Set-AideUserConfig to set." -ForegroundColor Red
         return $false
@@ -84,7 +84,7 @@ function Test-AzVersions {
     }
     return $retval
 }
-function Install-ArcIotAzCLI {
+function Install-ArcEdgeAzCLI {
     #Check if Az CLI is installed. If not install it.
     $AzCommand = Get-Command -Name az -ErrorAction SilentlyContinue
     if (!$AzCommand) {
@@ -120,8 +120,8 @@ function Install-ArcIotAzCLI {
         }
     }
 }
-function Enter-ArcIotSession {
-    $aicfg = Get-ArcIotUserConfig
+function Enter-ArcEdgeSession {
+    $aicfg = Get-ArcEdgeUserConfig
     if (!$arciotSession.azSession) {
         if (-not $aicfg.Auth) {
             Write-Host "Error: no valid credentials." -ForegroundColor Red
@@ -152,7 +152,7 @@ function Enter-ArcIotSession {
     $roles = (az role assignment list --all --assignee $($session.user.name)) | ConvertFrom-Json
     if (-not $roles) {
         Write-Host "Error: No roles enabled for this account in this subscription" -ForegroundColor Red
-        Exit-ArcIotSession
+        Exit-ArcEdgeSession
         return $false
     }
     Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
@@ -163,15 +163,15 @@ function Enter-ArcIotSession {
     return $true
 }
 
-function Exit-ArcIotSession {
+function Exit-ArcEdgeSession {
     az logout
     az account clear
     $arciotSession.azSession = $null
 }
 
-function Get-ArcIotAzureCreds {
+function Get-ArcEdgeAzureCreds {
     $cred = $null
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     if ($aicfg.Auth) {
         $aiauth = $aicfg.Auth
         if ($aiauth.Password -and $aiauth.ServicePrincipalId) {
@@ -180,26 +180,26 @@ function Get-ArcIotAzureCreds {
                 "Password" = $aiauth.Password
             }
         } else {
-            Write-Host "Error: spId/password not specified." -ForegroundColor Red
+            Write-Host "Error: ServicePrincipalId/Password not specified." -ForegroundColor Red
             $cred = $null
         }
     }
     return $cred
 }
 
-function Initialize-ArcIot {
+function Initialize-ArcEdge {
     $status = $true
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     if (! $aicfg) {
         Write-Host "Error: UserConfig not set. Use Set-AideUserConfig to set" -Foreground Red
         return
     }
     Write-Host "Azure configuration:"
     Write-Host $aicfg
-    Install-ArcIotAzCLI
-    $spLoginSuccess = Enter-ArcIotSession
+    Install-ArcEdgeAzCLI
+    $spLoginSuccess = Enter-ArcEdgeSession
     if (-not $spLoginSuccess) {
-        Write-Host "Error: Failed to login into Azure. Check Auth parameters. Initialize-ArcIot failed." -ForegroundColor Red
+        Write-Host "Error: Failed to login into Azure. Check Auth parameters. Initialize-ArcEdge failed." -ForegroundColor Red
         return
     } else {
         $status = Test-AzureResourceGroup $aicfg.ResourceGroupName $aicfg.Location
@@ -207,9 +207,9 @@ function Initialize-ArcIot {
         if ($status) { $status = $retval }
     }
     if ($status) {
-        Write-Host "Initialize-ArcIot successful." -ForegroundColor Green
+        Write-Host "Initialize-ArcEdge successful." -ForegroundColor Green
     } else {
-        Write-Host "Initialize-ArcIot failed." -ForegroundColor Red
+        Write-Host "Initialize-ArcEdge failed." -ForegroundColor Red
     }
 }
 function Test-AzureResourceGroup {
@@ -268,7 +268,7 @@ function Test-AzureRoles {
         [Switch]$Add
     )
     $retval = $true
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     #$reqRole = "Azure Connected Machine Onboarding"
     Write-Host "Using principalName $appId"
     Write-Host "Checking for role assignment"
@@ -291,7 +291,7 @@ function Test-AzureRoles {
     return $retval
 }
 
-function Install-ArcIotCmAgent {
+function Install-ArcEdgeCmAgent {
     if (Test-Path -Path $azcmagentexe -PathType Leaf) {
         Write-Host "> ConnectedMachineAgent is already installed" -ForegroundColor Green
         & $azcmagentexe version
@@ -315,26 +315,26 @@ function Install-ArcIotCmAgent {
     Pop-Location
 }
 
-function Test-ArcIotCmAgent {
+function Test-ArcEdgeCmAgent {
     $retval = $false
     if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
         Write-Host "ConnectedMachineAgent is not installed" -ForegroundColor Gray
         return $retval
     }
     # Check if the machine is already connected
-    $agentstatus = (& $azcmagentexe show)
-    if ($($agentstatus | Select-String -Pattern 'Agent Status') -like '*Disconnected') {
-        Write-Host "ConnectedMachineAgent is disconnected." -ForegroundColor Yellow
-    } else {
+    $agentstatus = (& $azcmagentexe show -j) | ConvertFrom-Json
+    if ($($agentstatus.status) -eq 'Connected') {
         $retval = $true
         Write-Host "ConnectedMachineAgent is connected." -ForegroundColor Green
+    } else {
+        Write-Host "ConnectedMachineAgent is disconnected." -ForegroundColor Yellow
     }
     return $retval
 
 }
 
-function Get-ArcIotCmInfo {
-    if (!(Test-ArcIotCmAgent)) {
+function Get-ArcEdgeCmInfo {
+    if (!(Test-ArcEdgeCmAgent)) {
         return $null
     }
     $vmInfo = @{}
@@ -350,16 +350,16 @@ function Get-ArcIotCmInfo {
     $vmInfo.Add("Location", $response.compute.location)
     return $vmInfo
 }
-function Connect-ArcIotCmAgent {
-    if (!(Test-ArcIotCmAgent)) {
-        Install-ArcIotCmAgent
+function Connect-ArcEdgeCmAgent {
+    if (!(Test-ArcEdgeCmAgent)) {
+        Install-ArcEdgeCmAgent
     }
     # Check if the machine is already connected
     $agentstatus = (& $azcmagentexe show)
     if ($($agentstatus | Select-String -Pattern 'Agent Status') -like '*Disconnected') {
         Write-Host "ConnectedMachine Agent state is Disconnected. Connecting now..."
-        $aicfg = Get-ArcIotUserConfig
-        $creds = Get-ArcIotAzureCreds
+        $aicfg = Get-ArcEdgeUserConfig
+        $creds = Get-ArcEdgeAzureCreds
         if (!$creds) {
             Write-Host "Error: No valid credentials found. Connect not attempted." -ForegroundColor Red
             return $false
@@ -368,11 +368,16 @@ function Connect-ArcIotCmAgent {
             "--tenant-id", "$($aicfg.TenantId)",
             "--location", "$($aicfg.Location)",
             "--subscription-id", "$($aicfg.SubscriptionId)",
-            "--tags", "owner=AksEdgeEssentials"
             "--cloud", "$($arciotSession.azSession.environmentName)",
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
         )
+        if (Test-ArcEdgeK8sConnection) {
+            $clustername = Get-ArcEdgeClusterName
+            $tags = @("--tags","AKSEE=$clustername")
+        }
+        $tags = @("--tags","SKU=AksEdgeEssentials")
+        $connectargs += $tags
         $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
         if ($hostSettings.ProxyEnable) {
             & $azcmagentexe config set proxy.url $($hostSettings.ProxyServer)
@@ -390,16 +395,16 @@ function Connect-ArcIotCmAgent {
     return $true
 }
 
-function Disconnect-ArcIotCmAgent {
-    if (! (Test-ArcIotCmAgent) ) {
+function Disconnect-ArcEdgeCmAgent {
+    if (! (Test-ArcEdgeCmAgent) ) {
         return $false
     }
     #check and unregister extensions
-    Remove-ArcIotServerExtension
+    Remove-ArcEdgeServerExtension
     # disconnect
     Write-Host "ConnectedMachineAgent state is connected. Disonnecting now..."
     # Get creds
-    $creds = Get-ArcIotAzureCreds
+    $creds = Get-ArcEdgeAzureCreds
     if ($creds) {
         $disconnectargs = @(
             "--service-principal-id", "$($creds.Username)",
@@ -418,7 +423,7 @@ function Disconnect-ArcIotCmAgent {
     }
     return $false
 }
-function Set-ArcIotCmProxy {
+function Set-ArcEdgeCmProxy {
     Param(
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -430,7 +435,7 @@ function Set-ArcIotCmProxy {
     }
     & $azcmagentexe config set proxy.url $proxyUrl
 }
-function Get-ArcIotMIAccessToken {
+function Get-ArcEdgeMIAccessToken {
     # Return the Managed Identity access token
     $token = $null
     $apiVersion = "2020-06-01"
@@ -454,11 +459,11 @@ function Get-ArcIotMIAccessToken {
     }
     return $token
 }
-function New-ArcIotServerExtension {
-    if (! (Test-ArcIotCmAgent) ) {
+function New-ArcEdgeServerExtension {
+    if (! (Test-ArcEdgeCmAgent) ) {
         return
     }
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     $protectedsettings = @'
     {
         "fileUris": [ filename.ps1 ]
@@ -485,12 +490,12 @@ function New-ArcIotServerExtension {
     Write-Host "CustomScriptExtension created successfully"
 }
 
-function Remove-ArcIotServerExtension {
+function Remove-ArcEdgeServerExtension {
 
-    if (! (Test-ArcIotCmAgent) ) {
+    if (! (Test-ArcEdgeCmAgent) ) {
         return
     }
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     $cmeargs = @(
         "--machine-name", "$($arciotMachineName)",
         "--resource-group", "$($aicfg.ResourceGroupName)"
@@ -515,9 +520,9 @@ function Remove-ArcIotServerExtension {
 # Arc for Kubernetes - Connected Clusters
 #########################################
 
-function Get-ArcIotClusterName {
+function Get-ArcEdgeClusterName {
     if (-not $arciotSession.ClusterName) {
-        $aicfg = Get-ArcIotUserConfig
+        $aicfg = Get-ArcEdgeUserConfig
         if ($aicfg.ClusterName) {
             $arciotSession.ClusterName = $aicfg.ClusterName
         } else {
@@ -537,14 +542,14 @@ function Get-ArcIotClusterName {
     return $arciotSession.ClusterName
 }
 
-function Test-ArcIotK8sConnection {
+function Test-ArcEdgeK8sConnection {
     $retval = $false
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcIotSession))) { return $retval }
+    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $retval }
 
-    $aicfg = Get-ArcIotUserConfig
+    $aicfg = Get-ArcEdgeUserConfig
     # check if this cluster is already registered
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcIotClusterName
+    $arciotClusterName = Get-ArcEdgeClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         Write-Host "$arciotClusterName is connected to Arc" -ForegroundColor Green
         $retval = $true
@@ -554,12 +559,12 @@ function Test-ArcIotK8sConnection {
     return $retval
 }
 
-function Connect-ArcIotK8s {
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcIotSession))) { return $false }
-    $aicfg = Get-ArcIotUserConfig
+function Connect-ArcEdgeK8s {
+    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $false }
+    $aicfg = Get-ArcEdgeUserConfig
     # check if this cluster is already registered
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcIotClusterName
+    $arciotClusterName = Get-ArcEdgeClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         Write-Host "$arciotClusterName is already connected to Arc" -ForegroundColor Green
     } else {
@@ -619,7 +624,18 @@ function Connect-ArcIotK8s {
             return $false
         }
         Write-Verbose ($result | Out-String)
-        $token = Get-ArcIotK8sServiceToken
+        #Update the Arc for Server tag if connected
+        if (Test-ArcEdgeCmAgent) {
+            $cmInfo = Get-ArcEdgeCmInfo
+            $resource = "/subscriptions/$($cmInfo.SubscriptionId)/resourceGroups/$($cmInfo.ResourceGroupName)/providers/Microsoft.HybridCompute/machines/$($cmInfo.Name)"
+            $result= $(az tag update --resource-id $resource --operation Merge --tags "AKSEE=$arciotClusterName")
+            if ($result) {
+                Write-Host "Arc for Server tag updated with cluster id"
+            } else {
+                Write-Host "Error: Arc for Server tag update failed" -ForegroundColor Red
+            }
+        }
+        $token = Get-ArcEdgeK8sServiceToken
         $proxyinfo = @{
             resourcegroup = $aicfg.ResourceGroupName
             clustername   = $arciotClusterName
@@ -632,11 +648,11 @@ function Connect-ArcIotK8s {
     return $true
 }
 
-function Disconnect-ArcIotK8s {
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcIotSession))) { return $false }
-    $aicfg = Get-ArcIotUserConfig
+function Disconnect-ArcEdgeK8s {
+    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $false }
+    $aicfg = Get-ArcEdgeUserConfig
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcIotClusterName
+    $arciotClusterName = Get-ArcEdgeClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         # Get the credentials before connecting to ensure that we have the latest file.
         Write-Host "Updating kubeconfig file with Get-AksEdgeKubeConfig..."
@@ -652,7 +668,7 @@ function Disconnect-ArcIotK8s {
     return $true
 }
 
-function Get-ArcIotK8sServiceToken {
+function Get-ArcEdgeK8sServiceToken {
     $seraccs = $(kubectl get serviceaccounts)
     if (!($seraccs | Where-Object { $_.Contains('aksedge-admin-user') })) {
         kubectl create serviceaccount aksedge-admin-user | Write-Host

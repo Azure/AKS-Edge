@@ -1,58 +1,23 @@
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.0",
     "Version": "1.0",
-    "KubernetesDistribution": "",
-    "AksEdgeProduct" : "Azure Kubernetes Service Edge Essentials - K8s (Public Preview)",
-    "AksEdgeProductUrl" : "",
+    "AksEdgeProduct": "AKS Edge Essentials - K8s (Public Preview)",
+    "AksEdgeProductUrl": "",
+    "InstallOptions": {
+        "InstallPath": "",
+        "VhdxPath": ""
+    },
     "Azure": {
         "SubscriptionName":"Visual Studio Enterprise Subscription",
-        "ServicePrincipalName" : "aksedge-sp",
-        "ClusterName": "",
-        "Connect": true,
-        "Location" : "EastUS",
-        "ResourceGroupName": "aksedgepreview-rg",
         "SubscriptionId": "",
-        "TenantId": ""
-    },
-    "DeployOptions": {
-        "ControlPlane": false,
-        "Headless": false,
-        "JoinCluster": false,
-        "NetworkPlugin": "flannel",
-        "SingleMachineCluster": true,
-        "TimeoutSeconds": 900,
-        "NodeType": "Linux",
-        "DisconnectedDeployment": false,
-        "ServerTLSBootstrap": false
-    },
-    "EndUser": {
-        "AcceptEula": true,
-        "AcceptOptionalTelemetry": true
-    },
-    "LinuxVm": {
-        "CpuCount": 4,
-        "MemoryInMB": 4096,
-        "DataSizeinGB": 20,
-        "Ip4Address": "192.168.1.171"
-    },
-    "Network": {
-        "VSwitch":{
-            "Name": "aksedgeswitch",
-            "Type":"External",
-            "AdapterName" : "Ethernet"
-        },
-        "ControlPlaneEndpointIp": "192.168.1.191",
-        "Ip4GatewayAddress": "192.168.1.1",
-        "Ip4PrefixLength": 24,
-        "ServiceIPRangeSize": 0,
-        "ServiceIPRangeStart": "192.168.1.151",
-        "ServiceIPRangeEnd": "192.168.1.170",
-        "DnsServers": "192.168.1.1",
-        "InternetDisabled":false,
-        "Proxy": {
-            "Http": "",
-            "Https": "",
-            "No": "localhost,127.0.0.1,127.0.0.52,192.168.0.2,10.96.0.1,172.17.0.0/16,192.168.0.0/24,10.96.0.0/12,10.244.0.0/16,.svc"
+        "TenantId": "",
+        "ResourceGroupName": "aksedge-rg",
+        "ServicePrincipalName": "aksedge-sp",
+        "Location": "EastUS",
+        "Auth": {
+            "ServicePrincipalId": "",
+            "Password": ""
         }
-    }
+    },
+    "AksEdgeConfigFile": "aksedge-config.json"
 }

@@ -2,40 +2,24 @@
   Sample script to deploy AksEdge via Intune
 #>
 param(
-    [Switch] $IncludeWindows,
     [Switch] $UseK8s
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221010.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221201.1200" -Option Constant -ErrorAction SilentlyContinue
 $installDir = "C:\AksEdgeScript"
-$msiName = "AksEdge-K3s.msi"
+$productName = "AKS Edge Essentials - K3s (Public Preview)"
 if ($UseK8s) {
-    $msiName ="AksEdge-K8s.msi"
+    $productName ="AKS Edge Essentials - K8s (Public Preview)"
 }
 
-$msifile = "$installDir\$msiName"
 # Here string for the json content
 $jsonContent = @"
 {
     "SchemaVersion": "1.1",
     "Version": "1.0",
-    "AksEdgeProduct": "Azure Kubernetes Service Edge Essentials (Public Preview)",
-    "AksEdgeProductUrl": "$($msifile.Replace("\","\\"))",
-    "DeployOptions": {
-        "SingleMachineCluster": true,
-        "NodeType": "Linux",
-        "NetworkPlugin": "flannel",
-        "Headless": true
-    },
-    "EndUser": {
-        "AcceptEula": true
-    },
-    "LinuxVm": {
-        "CpuCount": 4,
-        "MemoryInMB": 4096,
-        "DataSizeinGB": 20
-    },
+    "AksEdgeProduct": "$productName",
+    "AksEdgeProductUrl": "",
     "Azure": {
         "SubscriptionName": "Visual Studio Enterprise",
         "SubscriptionId": "",
@@ -47,6 +31,23 @@ $jsonContent = @"
             "ServicePrincipalId":"",
             "Password":""
         }
+    },
+    "AksEdgeConfig": {
+        "DeployOptions": {
+            "SingleMachineCluster": true,
+            "NodeType": "Linux",
+            "NetworkPlugin": "flannel",
+            "Headless": true
+        },
+        "EndUser": {
+            "AcceptEula": true,
+            "AcceptOptionalTelemetry": true
+        },
+        "LinuxVm": {
+            "CpuCount": 4,
+            "MemoryInMB": 4096,
+            "DataSizeinGB": 20
+        }
     }
 }
 "@
@@ -55,8 +56,7 @@ $blobJson = @"
     "Storage": {
         "ConnectionString": "",
         "ContainerName": "",
-        "BlobNames":["$msiName","AksEdge-preview.zip"],
-        "WinBlobs":["AksEdgeWindows-v1.7z.001","AksEdgeWindows-v1.7z.002","AksEdgeWindows-v1.7z.003","AksEdgeWindows-v1.exe"]
+        "BlobNames":["aks-edge-utils.zip"]
     }
 }
 "@
@@ -99,13 +99,12 @@ function DownloadFromBlobStorage {
     )
     if (-not (Test-Path "$downloadPath")) {
         Write-Host "Creating $downloadPath..."
-        New-Item -Path "$downloadPath\Scripts" -ItemType Directory
+        New-Item -Path "$downloadPath\Scripts" -ItemType Directory | Out-Null
     }
     Push-Location "$downloadPath"
     $store = $Script:blobJson | ConvertFrom-Json
     Write-Host "Download from Azure blob storage..."
     $files = $store.Storage.BlobNames
-    if ($IncludeWindows) { $files += $store.Storage.WinBlobs }
     foreach ($file in $files) {
         if (-not (Test-Path -Path ".\$file")) {
             Write-Host "Downloading $file" -NoNewline
@@ -161,7 +160,7 @@ if (!(($env:PSModulePath).Contains($modulePath))) {
     $env:PSModulePath = "$modulePath;$env:PSModulePath"
 }
 
-Write-Host "Loading AksEdgeDeploy module.." -ForegroundColor Cyan
+Write-Host "Loading AksEdgeDeploy module from $modulePath.." -ForegroundColor Cyan
 Import-Module AksEdgeDeploy.psd1 -Force
 $aideVersion = (Get-Module -Name AksEdgeDeploy).Version.ToString()
 Write-Host "AksEdgeRemoteDeploy version  `t: $gAksEdgeRemoteDeployVersion"
@@ -181,7 +180,7 @@ if ($retval) {
 $azConfig = (Get-AideUserConfig).Azure
 if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfig.TenantId){
     #we have ServicePrincipalId, Password and TenantId
-    $retval = Enter-ArcIotSession
+    $retval = Enter-ArcEdgeSession
     if (!$retval) {
         Write-Error -Message "Azure login failed." -Category OperationStopped
         Stop-Transcript | Out-Null
@@ -189,10 +188,10 @@ if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfi
     }
     # Arc for Servers
     Write-Host "Connecting to Azure Arc for Servers"
-    $retval = Connect-ArcIotCmAgent
+    $retval = Connect-ArcEdgeCmAgent
     Write-Host "Connecting to Azure Arc for Kubernetes"
-    $retval = Connect-ArcIotK8s
-    Exit-ArcIotSession
+    $retval = Connect-ArcEdgeK8s
+    Exit-ArcEdgeSession
     if ($retval) {
         Write-Host "Arc connection successful. "
     } else {

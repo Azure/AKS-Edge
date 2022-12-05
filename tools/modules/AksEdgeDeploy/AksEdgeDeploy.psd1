@@ -12,7 +12,7 @@
     RootModule        = 'AksEdgeDeploy.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.221122.1200'
+    ModuleVersion     = '1.0.221201.1200'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -71,10 +71,10 @@
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = 'Get-AideUserConfig', 'Read-AideUserConfig', 'Set-AideUserConfig', 'Test-AideUserConfig', 'Start-AideWorkflow', 'New-AideVmSwitch',
     'Test-AideVmSwitch', 'Remove-AideVmSwitch', 'Invoke-AideDeployment', 'Test-AideDeployment', 'Remove-AideDeployment', 'Test-AideLinuxVmRun', 'Get-AideMsiVersion',
-    'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 'Export-AideWorkerNodeJson',
-    'Format-AideJson','Set-AideLinuxVmProxy', 'Install-ArcIotAzCLI', 'Install-ArcIotCmAgent', 'Test-ArcIotCmAgent', 'Connect-ArcIotCmAgent', 'Disconnect-ArcIotCmAgent', 
-    'Get-ArcIotCmInfo', 'Enter-ArcIotSession', 'Exit-ArcIotSession', 'Initialize-ArcIot', 'Test-ArcIotK8sConnection', 'Connect-ArcIotK8s', 'Disconnect-ArcIotK8s', 
-    'Get-ArcIotK8sServiceToken', 'Get-ArcIotMIAccessToken', 'Get-ArcIotClusterName','Get-AideInfra'
+    'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 
+    'Format-AideJson','Set-AideLinuxVmProxy', 'Install-ArcEdgeAzCLI', 'Install-ArcEdgeCmAgent', 'Test-ArcEdgeCmAgent', 'Connect-ArcEdgeCmAgent', 'Disconnect-ArcEdgeCmAgent', 
+    'Get-ArcEdgeCmInfo', 'Enter-ArcEdgeSession', 'Exit-ArcEdgeSession', 'Initialize-ArcEdge', 'Test-ArcEdgeK8sConnection', 'Connect-ArcEdgeK8s', 'Disconnect-ArcEdgeK8s', 
+    'Get-ArcEdgeK8sServiceToken', 'Get-ArcEdgeMIAccessToken', 'Get-ArcEdgeClusterName','Get-AideInfra'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
