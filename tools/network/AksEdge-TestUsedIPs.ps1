@@ -122,6 +122,7 @@ if(!$netIpConfig)
     return
 }
 
+# Get the IP Prefix length of the network
 do 
 {
   Write-Host "`n4. Select IP Prefix Length of the network:" -ForegroundColor Green
