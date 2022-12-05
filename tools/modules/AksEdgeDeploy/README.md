@@ -84,7 +84,7 @@ The below table provides the schema for the AksEdge Deployment Configuration jso
 | DeployOptions.ClusterJoinToken|Optional|String| The cluster join token used for joining an existing cluster |
 | DeployOptions.DiscoveryTokenHash|Optional|String| The discovery token hash used for joining an existing cluster |
 | EndUser.AcceptEula | Mandatory | Yes |  Accept Eula |
-| EndUser.AcceptOptionalTelemetry | Mandatory | Yes |  Accept optional telemetry to be sent |
+| EndUser.AcceptOptionalTelemetry | Optional | Yes |  Accept optional telemetry to be sent |
 | LinuxVm.CpuCount | Optional |2 | CpuCount|
 | LinuxVm.MemoryInMB | Optional |2| MemoryInMB|
 | LinuxVm.DataSizeInGB | Optional | 2-2000| Size in GB|
@@ -96,7 +96,6 @@ The below table provides the schema for the AksEdge Deployment Configuration jso
 | Network.VSwitch.Name | Optional | String | Switch name to use |
 | Network.VSwitch.AdapterName | Mandatory | String | NetAdapterName for VSwitch, mandatory for Full kubernetes deployment |
 | Network.ControlPlaneEndpointIp | Optional | IPv4 address |  This parameter allows defining a specific IP address to be used as the control plane endpoint IP for the deployment. If not specified, the endpoint will equal the local Linux node's IP address when creating a new cluster |
-| Network.ControlPlaneEndpointPort | Optional | IPv4 address |  When joining an existing cluster, this parameter specifies the port of the remote control plane endpoint |
 | Network.ServiceIPRangeSize | Optional | IPv4 address |  Required for SingleMachine deployment |
 | Network.ServiceIPRangeStart | Optional | IPv4 address |  Required for Scalable deployment |
 | Network.ServiceIPRangeEnd | Optional | IPv4 address |  Required for Scalable deployment |
@@ -126,7 +125,6 @@ The below table provides the schema for the AksEdge Deployment Configuration jso
 |`Set-AideUserConfig -jsonFile (or) -jsonString`| Sets the user config and reads the config into the cache |
 |`Read-AideUserConfig`| Reads the json file into the cache |
 |`Test-AideUserConfig`| Tests the User Config json for parameter correctness |
-|`Export-AideWorkerNodeJson` | Exports the WorkerNode userconfig json file with required parameters |
 |**VM Switch Functions** ||
 |`New-AideVmSwitch`| Creates an new VM switch based on user config. If Internal switch is specified, it also assigns a static ip address (no DHCP used) |
 |`Test-AideVmSwitch -Create`| Tests if the VM switch is present, `Create` flag invokes New-AideVmSwitch if switch is not present |

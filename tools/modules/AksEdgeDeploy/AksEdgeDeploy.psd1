@@ -71,7 +71,7 @@
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = 'Get-AideUserConfig', 'Read-AideUserConfig', 'Set-AideUserConfig', 'Test-AideUserConfig', 'Start-AideWorkflow', 'New-AideVmSwitch',
     'Test-AideVmSwitch', 'Remove-AideVmSwitch', 'Invoke-AideDeployment', 'Test-AideDeployment', 'Remove-AideDeployment', 'Test-AideLinuxVmRun', 'Get-AideMsiVersion',
-    'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 'Export-AideWorkerNodeJson',
+    'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 
     'Format-AideJson','Set-AideLinuxVmProxy', 'Install-ArcEdgeAzCLI', 'Install-ArcEdgeCmAgent', 'Test-ArcEdgeCmAgent', 'Connect-ArcEdgeCmAgent', 'Disconnect-ArcEdgeCmAgent', 
     'Get-ArcEdgeCmInfo', 'Enter-ArcEdgeSession', 'Exit-ArcEdgeSession', 'Initialize-ArcEdge', 'Test-ArcEdgeK8sConnection', 'Connect-ArcEdgeK8s', 'Disconnect-ArcEdgeK8s', 
     'Get-ArcEdgeK8sServiceToken', 'Get-ArcEdgeMIAccessToken', 'Get-ArcEdgeClusterName','Get-AideInfra'

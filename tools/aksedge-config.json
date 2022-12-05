@@ -9,7 +9,7 @@
         "SingleMachineCluster": true,
         "TimeoutSeconds": 900,
         "NodeType": "Linux",
-        "ServerTLSBootstrap": false
+        "ServerTLSBootstrap": true
     },
     "EndUser": {
         "AcceptEula": false,
