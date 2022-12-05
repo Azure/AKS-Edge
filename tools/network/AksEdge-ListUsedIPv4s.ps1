@@ -61,7 +61,7 @@ function Get-Subnet {
                 default { Throw "Subnet mask size was not specified and could not be inferred because the address is Class $Class." }
             }
 
-            Write-Host "Subnet mask size was not specified. Using default subnet size for a Class $Class network of /$Mask."
+            Write-Host "Subnet mask size was not specified. Using default subnet size for a Class $Class network of /$Mask." -ForegroundColor Yellow
         }
 
         $MaskAddr = [IPAddress]::Parse((Convert-Int64toIP -int ([convert]::ToInt64(("1" * $Mask + "0" * (32 - $Mask)), 2))))        
