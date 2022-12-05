@@ -275,7 +275,7 @@ function Test-AideUserConfigNetwork {
                 $nwCfg.PSObject.properties.remove($item)
             }
         }
-        if ($nwCfg.PSObject.properties.match('*').count -eq 0) {
+        if (($nwCfg) -and ($nwCfg.PSObject.properties.match('*').count -eq 0)) {
             $aideConfig.PSObject.properties.remove('Network')
         }
         if ($aideConfig.LinuxVm.Ip4Address) {
