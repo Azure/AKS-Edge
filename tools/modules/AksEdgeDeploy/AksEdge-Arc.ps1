@@ -375,9 +375,8 @@ function Connect-ArcEdgeCmAgent {
         if (Test-ArcEdgeK8sConnection) {
             $clustername = Get-ArcEdgeClusterName
             $tags = @("--tags","AKSEE=$clustername")
-        } else {
-            $tags = @("--tags","owner=AksEdgeEssentials")
         }
+        $tags = @("--tags","SKU=AksEdgeEssentials")
         $connectargs += $tags
         $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
         if ($hostSettings.ProxyEnable) {
@@ -625,6 +624,17 @@ function Connect-ArcEdgeK8s {
             return $false
         }
         Write-Verbose ($result | Out-String)
+        #Update the Arc for Server tag if connected
+        if (Test-ArcEdgeCmAgent) {
+            $cmInfo = Get-ArcEdgeCmInfo
+            $resource = "/subscriptions/$($cmInfo.SubscriptionId)/resourceGroups/$($cmInfo.ResourceGroupName)/providers/Microsoft.HybridCompute/machines/$($cmInfo.Name)"
+            $result= $(az tag update --resource-id $resource --operation Merge --tags "AKSEE=$arciotClusterName")
+            if ($result) {
+                Write-Host "Arc for Server tag updated with cluster id"
+            } else {
+                Write-Host "Error: Arc for Server tag update failed" -ForegroundColor Red
+            }
+        }
         $token = Get-ArcEdgeK8sServiceToken
         $proxyinfo = @{
             resourcegroup = $aicfg.ResourceGroupName
