@@ -1,4 +1,4 @@
-# Aks-Lite Arc
+# AKS Edge Essentials Arc Connection
 
 The following functions enables you to install and use `Arc enabled Servers` and `Arc enabled Kubernetes` easily on a windows IoT device.
 
@@ -32,7 +32,7 @@ The following functions enables you to install and use `Arc enabled Servers` and
 
 3. Import the AksEdgeDeploy module and set the user config.
 4. Run `Initialize-ArcEdge` to install the required software (Azure CLI) and validates that Azure setup is good.
-5. `Connect-ArcIoTCmAgent` to connect your machine to Arc for Servers.
+5. `Connect-ArcEdgeCmAgent` to connect your machine to Arc for Servers.
 6. After installing AKS edge or any kuberenetes cluster in your Linux VM, verify with `kubectl get nodes` and then call `Connect-ArcEdgeK8s`
 
 ```powershell
