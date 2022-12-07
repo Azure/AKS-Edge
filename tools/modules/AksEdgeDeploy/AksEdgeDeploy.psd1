@@ -74,7 +74,7 @@
     'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 
     'Format-AideJson', 'Install-AideAzCli', 'Install-AideArcServer', 'Test-AideArcServer', 'Connect-AideArcServer', 'Disconnect-AideArcServer', 
     'Get-AideArcServerInfo', 'Enter-AideArcSession', 'Exit-AideArcSession', 'Initialize-AideArc', 'Test-AideArcKubernetes', 'Connect-AideArcKubernetes', 'Disconnect-AideArcKubernetes', 
-    'Get-AideArcKubernetesServiceToken', 'Get-AideArcServerSMI', 'Get-AideArcClusterName','Get-AideInfra'
+    'Get-AideArcKubernetesServiceToken', 'Get-AideArcServerSMI', 'Get-AideArcClusterName','Get-AideInfra','Connect-AideArc','Disconnect-AideArc'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
