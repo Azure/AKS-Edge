@@ -29,34 +29,43 @@
             "type": "object",
             "properties": {
                 "ClusterName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Cluster name to be used when connecting to Azure Arc-enabled Kubernetes"
                 },
                 "Location": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Azure Location for creating the resource group"
                 },
                 "ResourceGroupName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Resource group name to be used for Azure Arc-enabled Server/Kubernetes"
                 },
                 "SubscriptionId": {
-                    "type": "GUID"
+                    "type": "GUID",
+                    "description": "SubscriptionId to be used for Azure Arc-enabled Server/Kubernetes"
                 },
                 "TenantId": {
-                    "type": "GUID"
+                    "type": "GUID",
+                    "description": "TenantId to be used for Azure Arc-enabled Server/Kubernetes"
                 },
                 "SubscriptionName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Subscription Name to be used for creating serviceprincipal"
                 },
                 "ServicePrincipalName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "ServicePrincipalName to be used for creating service principal to onboard Arc-enabled Server/Kubernetes"
                 },
                 "Auth": {
                     "type": "object",
                     "propertires": {
                         "ServicePrincipalId": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "ServicePrincipalId for ServicePrincipalName to onboard Arc-enabled Server/Kubernetes"
                         },
                         "Password": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Password corresponding to ServicePrincipalId to onboard Arc-enabled Server/Kubernetes"
                         }
                     }
                 }
@@ -66,10 +75,12 @@
             "type": "object",
             "properties": {
                 "InstallPath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Path to install AksEdge software"
                 },
                 "VhdxPath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Path to create/store AksEdge VM Vhdx files"
                 }
             }
         },
@@ -80,7 +91,7 @@
         "AksEdgeConfig": {
             "type": "object",
             "$ref": "file:aksedge-dcschema.json",
-            "description": "AKS Edge Deployment Configuration Object."
+            "description": "Embedded AKS Edge Deployment Configuration Object."
         }
     }
 }

@@ -2,7 +2,7 @@
 
 AksEdgeAzureSetup enables you to configure your Azure subscription for the use of Arc for Servers and Arc for Kubernetes for AKS-Lite.
 
-Run the script `AksEdgeAzureSetup.ps1` in the `tools\AksEdgeAzureSetup` directory to
+Run the script `AksEdgeAzureSetup.ps1` in the `tools\scripts\AksEdgeAzureSetup` directory to
 
 * setup your Azure subscription
 * create the resource group

@@ -31,12 +31,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azMinVersions 
     "customlocation"   = "0.1.3"
     "k8s-extension"    = "1.3.3"
 }
-function Get-ArcEdgeUserConfig {
+function Get-AideArcUserConfig {
     return (Get-AideUserConfig).Azure
 }
-function Test-ArcEdgeUserConfig {
+function Test-AideArcUserConfig {
     $retval = $true
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     if (! $aicfg) {
         Write-Host "Error: UserConfig not set. Use Set-AideUserConfig to set." -ForegroundColor Red
         return $false
@@ -84,7 +84,24 @@ function Test-AzVersions {
     }
     return $retval
 }
-function Install-ArcEdgeAzCLI {
+function Install-AideAzCli {
+    <#
+    .SYNOPSIS
+        Installs Azure CLI and required extensions
+
+    .DESCRIPTION
+        Checks if Azure CLI is installed (az) and installs the latest version of Azure CLI from https://aka.ms/installazurecliwindows.
+        This also checks and installs the following extensions
+        "connectedmachine", "connectedk8s", "customlocation", "k8s-extension"
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Install-AideAzCli
+
+    #>
+
     #Check if Az CLI is installed. If not install it.
     $AzCommand = Get-Command -Name az -ErrorAction SilentlyContinue
     if (!$AzCommand) {
@@ -120,8 +137,21 @@ function Install-ArcEdgeAzCLI {
         }
     }
 }
-function Enter-ArcEdgeSession {
-    $aicfg = Get-ArcEdgeUserConfig
+function Enter-AideArcSession {
+    <#
+    .SYNOPSIS
+        Logs into Azure using the service principal credentials supplied.
+
+    .DESCRIPTION
+        Logs into Azure using the service principal credentials supplied in the json file (Azure.Auth.ServicePrincipalId and Azure.Auth.Password).
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Enter-AideArcSession
+    #>
+    $aicfg = Get-AideArcUserConfig
     if (!$arciotSession.azSession) {
         if (-not $aicfg.Auth) {
             Write-Host "Error: no valid credentials." -ForegroundColor Red
@@ -152,7 +182,7 @@ function Enter-ArcEdgeSession {
     $roles = (az role assignment list --all --assignee $($session.user.name)) | ConvertFrom-Json
     if (-not $roles) {
         Write-Host "Error: No roles enabled for this account in this subscription" -ForegroundColor Red
-        Exit-ArcEdgeSession
+        Exit-AideArcSession
         return $false
     }
     Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
@@ -163,15 +193,28 @@ function Enter-ArcEdgeSession {
     return $true
 }
 
-function Exit-ArcEdgeSession {
+function Exit-AideArcSession {
+    <#
+    .SYNOPSIS
+        Logs out of Azure session and clears account cache.
+
+    .DESCRIPTION
+        Logs out of Azure session and clears account cache.
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Exit-AideArcSession
+    #>
     az logout
     az account clear
     $arciotSession.azSession = $null
 }
 
-function Get-ArcEdgeAzureCreds {
+function Get-AideArcAzureCreds {
     $cred = $null
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     if ($aicfg.Auth) {
         $aiauth = $aicfg.Auth
         if ($aiauth.Password -and $aiauth.ServicePrincipalId) {
@@ -187,19 +230,33 @@ function Get-ArcEdgeAzureCreds {
     return $cred
 }
 
-function Initialize-ArcEdge {
+function Initialize-AideArc {
+    <#
+    .SYNOPSIS
+        Checks and installs Azure CLI and validates the Azure configuration using the service principal credentials.
+
+    .DESCRIPTION
+        This command checks and installs Azure CLI by invoking Install-AideAzCli and validates the Azure configuration such as resource group, resource provider status using the service principal credentials..
+
+    .OUTPUTS
+        Boolean
+        True if all ok.
+
+    .EXAMPLE
+        Initialize-AideArc
+    #>
     $status = $true
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     if (! $aicfg) {
         Write-Host "Error: UserConfig not set. Use Set-AideUserConfig to set" -Foreground Red
-        return
+        return $false
     }
     Write-Host "Azure configuration:"
     Write-Host $aicfg
-    Install-ArcEdgeAzCLI
-    $spLoginSuccess = Enter-ArcEdgeSession
+    Install-AideAzCli
+    $spLoginSuccess = Enter-AideArcSession
     if (-not $spLoginSuccess) {
-        Write-Host "Error: Failed to login into Azure. Check Auth parameters. Initialize-ArcEdge failed." -ForegroundColor Red
+        Write-Host "Error: Failed to login into Azure. Check Auth parameters. Initialize-AideArc failed." -ForegroundColor Red
         return
     } else {
         $status = Test-AzureResourceGroup $aicfg.ResourceGroupName $aicfg.Location
@@ -207,10 +264,11 @@ function Initialize-ArcEdge {
         if ($status) { $status = $retval }
     }
     if ($status) {
-        Write-Host "Initialize-ArcEdge successful." -ForegroundColor Green
+        Write-Host "Initialize-AideArc successful." -ForegroundColor Green
     } else {
-        Write-Host "Initialize-ArcEdge failed." -ForegroundColor Red
+        Write-Host "Initialize-AideArc failed." -ForegroundColor Red
     }
+    return $status
 }
 function Test-AzureResourceGroup {
     Param
@@ -268,7 +326,7 @@ function Test-AzureRoles {
         [Switch]$Add
     )
     $retval = $true
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     #$reqRole = "Azure Connected Machine Onboarding"
     Write-Host "Using principalName $appId"
     Write-Host "Checking for role assignment"
@@ -291,7 +349,21 @@ function Test-AzureRoles {
     return $retval
 }
 
-function Install-ArcEdgeCmAgent {
+function Install-AideArcServer {
+    <#
+    .SYNOPSIS
+        Checks and installs connected machine agent.
+
+    .DESCRIPTION
+        This command tests if the connected machine agent is installed and installs using script from https://aka.ms/azcmagent-windows.
+        This also sets up for auto update via Microsoft Update.
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Install-AideArcServer
+    #>
     if (Test-Path -Path $azcmagentexe -PathType Leaf) {
         Write-Host "> ConnectedMachineAgent is already installed" -ForegroundColor Green
         & $azcmagentexe version
@@ -315,7 +387,22 @@ function Install-ArcEdgeCmAgent {
     Pop-Location
 }
 
-function Test-ArcEdgeCmAgent {
+function Test-AideArcServer {
+    <#
+    .SYNOPSIS
+        Tests if the connected machine agent is installed and connected to Azure Arc-enabled server.
+
+    .DESCRIPTION
+        This command tests if the connected machine agent is installed and connected to Azure Arc-enabled server.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True when connected.
+
+    .EXAMPLE
+        Test-AideArcServer
+    #>
     $retval = $false
     if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
         Write-Host "ConnectedMachineAgent is not installed" -ForegroundColor Gray
@@ -333,8 +420,23 @@ function Test-ArcEdgeCmAgent {
 
 }
 
-function Get-ArcEdgeCmInfo {
-    if (!(Test-ArcEdgeCmAgent)) {
+function Get-AideArcServerInfo {
+    <#
+    .SYNOPSIS
+        Returns Arc connection information for Arc-enabled server instance.
+
+    .DESCRIPTION
+        This command returns Arc connection information for Arc-enabled server instance from the local IMDS endpoint.
+
+    .OUTPUTS
+        Hashtable
+        Hashtable with the following keys :Name,ResourceGroupName,SubscriptionId,Location. 
+
+    .EXAMPLE
+        Get-AideArcServerInfo
+
+    #>    
+    if (!(Test-AideArcServer)) {
         return $null
     }
     $vmInfo = @{}
@@ -350,16 +452,32 @@ function Get-ArcEdgeCmInfo {
     $vmInfo.Add("Location", $response.compute.location)
     return $vmInfo
 }
-function Connect-ArcEdgeCmAgent {
-    if (!(Test-ArcEdgeCmAgent)) {
-        Install-ArcEdgeCmAgent
+function Connect-AideArcServer {
+    <#
+    .SYNOPSIS
+        Connects the machine to Azure Arc.
+
+    .DESCRIPTION
+        This command installs and connects Azure Arc Connected machine agent to Arc-enabled Server. 
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if the connection is successful.
+
+    .EXAMPLE
+        Connect-AideArcServer
+
+    #>
+    if (!(Test-AideArcServer)) {
+        Install-AideArcServer
     }
     # Check if the machine is already connected
     $agentstatus = (& $azcmagentexe show)
     if ($($agentstatus | Select-String -Pattern 'Agent Status') -like '*Disconnected') {
         Write-Host "ConnectedMachine Agent state is Disconnected. Connecting now..."
-        $aicfg = Get-ArcEdgeUserConfig
-        $creds = Get-ArcEdgeAzureCreds
+        $aicfg = Get-AideArcUserConfig
+        $creds = Get-AideArcAzureCreds
         if (!$creds) {
             Write-Host "Error: No valid credentials found. Connect not attempted." -ForegroundColor Red
             return $false
@@ -372,8 +490,8 @@ function Connect-ArcEdgeCmAgent {
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
         )
-        if (Test-ArcEdgeK8sConnection) {
-            $clustername = Get-ArcEdgeClusterName
+        if (Test-AideArcKubernetes) {
+            $clustername = Get-AideArcClusterName
             $tags = @("--tags","AKSEE=$clustername")
         }
         $tags = @("--tags","SKU=AksEdgeEssentials")
@@ -395,16 +513,32 @@ function Connect-ArcEdgeCmAgent {
     return $true
 }
 
-function Disconnect-ArcEdgeCmAgent {
-    if (! (Test-ArcEdgeCmAgent) ) {
+function Disconnect-AideArcServer {
+    <#
+    .SYNOPSIS
+        Disconnects the machine from Azure Arc.
+
+    .DESCRIPTION
+        This command disconnects from Arc-enabled Server, if connected.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if the disconnection is successful.
+
+    .EXAMPLE
+        Disconnect-AideArcServer
+
+    #>
+    if (! (Test-AideArcServer) ) {
         return $false
     }
     #check and unregister extensions
-    Remove-ArcEdgeServerExtension
+    Remove-AideArcServerExtension
     # disconnect
     Write-Host "ConnectedMachineAgent state is connected. Disonnecting now..."
     # Get creds
-    $creds = Get-ArcEdgeAzureCreds
+    $creds = Get-AideArcAzureCreds
     if ($creds) {
         $disconnectargs = @(
             "--service-principal-id", "$($creds.Username)",
@@ -423,7 +557,23 @@ function Disconnect-ArcEdgeCmAgent {
     }
     return $false
 }
-function Set-ArcEdgeCmProxy {
+function Set-AideArcCmProxy {
+    <#
+    .SYNOPSIS
+        Sets the proxy server settings for the connected machine agent.
+
+    .DESCRIPTION
+        Sets the proxy server settings for the connected machine agent, if the agent is installed.
+
+    .OUTPUTS
+        None
+
+    .PARAMETER proxyUrl
+        This proxy url to set.
+
+    .EXAMPLE
+        Set-AideArcCmProxy -proxyUrl "https://myproxy:8080"
+    #>
     Param(
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -435,8 +585,20 @@ function Set-ArcEdgeCmProxy {
     }
     & $azcmagentexe config set proxy.url $proxyUrl
 }
-function Get-ArcEdgeMIAccessToken {
-    # Return the Managed Identity access token
+function Get-AideArcServerSMI {
+    <#
+    .SYNOPSIS
+        Returns the System Managed Identity access token for the Arc-enabled Server instance.
+
+    .DESCRIPTION
+        This command the System Managed Identity access token for the Arc-enabled Server instance, queried from the local IMDS end point.
+
+    .OUTPUTS
+        String
+
+    .EXAMPLE
+        Get-AideArcServerSMI
+    #>
     $token = $null
     $apiVersion = "2020-06-01"
     $resource = "https://management.azure.com/"
@@ -459,11 +621,11 @@ function Get-ArcEdgeMIAccessToken {
     }
     return $token
 }
-function New-ArcEdgeServerExtension {
-    if (! (Test-ArcEdgeCmAgent) ) {
+function New-AideArcServerExtension {
+    if (! (Test-AideArcServer) ) {
         return
     }
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     $protectedsettings = @'
     {
         "fileUris": [ filename.ps1 ]
@@ -490,12 +652,12 @@ function New-ArcEdgeServerExtension {
     Write-Host "CustomScriptExtension created successfully"
 }
 
-function Remove-ArcEdgeServerExtension {
+function Remove-AideArcServerExtension {
 
-    if (! (Test-ArcEdgeCmAgent) ) {
+    if (! (Test-AideArcServer) ) {
         return
     }
-    $aicfg = Get-ArcEdgeUserConfig
+    $aicfg = Get-AideArcUserConfig
     $cmeargs = @(
         "--machine-name", "$($arciotMachineName)",
         "--resource-group", "$($aicfg.ResourceGroupName)"
@@ -517,39 +679,70 @@ function Remove-ArcEdgeServerExtension {
     }
 }
 #########################################
-# Arc for Kubernetes - Connected Clusters
+# Arc-enabled Kubernetes - Connected Clusters
 #########################################
 
-function Get-ArcEdgeClusterName {
+function Get-AideArcClusterName {
+    <#
+    .SYNOPSIS
+        Returns the cluster name for the deployed cluster.
+
+    .DESCRIPTION
+        This command returns the cluster name for the deployed cluster. If the user has specified Clustername in the aide-userconfig.json, the same is returned.
+        If there is no user specifcation, it returns the clustername as hostname-k8s or hostname-k3s based on the kubernetes flavour installed.
+
+    .OUTPUTS
+        String
+
+    .EXAMPLE
+        Get-AideArcClusterName
+
+    #>
     if (-not $arciotSession.ClusterName) {
-        $aicfg = Get-ArcEdgeUserConfig
+        $aicfg = Get-AideArcUserConfig
         if ($aicfg.ClusterName) {
             $arciotSession.ClusterName = $aicfg.ClusterName
         } else {
-            $clustername = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
-            if (!$clustername){
-                $clustername = hostname
-                $k3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}
-                if ($k3s) {
-                    $clustername += "-k3s"
-                } else {
-                    $clustername += "-k8s"
-                }
+            #$clustername = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+            #if (!$clustername){
+            $clustername = hostname
+            $k3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}
+            if ($k3s) {
+                $clustername += "-k3s"
+            } else {
+                $clustername += "-k8s"
             }
+           #}
             $arciotSession.ClusterName = $clustername
         }
     }
     return $arciotSession.ClusterName
 }
 
-function Test-ArcEdgeK8sConnection {
-    $retval = $false
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $retval }
+function Test-AideArcKubernetes {
+    <#
+    .SYNOPSIS
+        Tests if the running kubernetes cluster is connected to Azure Arc-enabled kubernetes.
 
-    $aicfg = Get-ArcEdgeUserConfig
+    .DESCRIPTION
+        This command tests if Arc-enabled Kubernetes is connected. It checks whether the cluster name is present in the list of arc-enabled kubernetes in the given resource group.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True when connected.
+
+    .EXAMPLE
+        Test-AideArcKubernetes
+
+    #>
+    $retval = $false
+    if ((!$arciotSession.azSession) -and (!(Enter-AideArcSession))) { return $retval }
+
+    $aicfg = Get-AideArcUserConfig
     # check if this cluster is already registered
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcEdgeClusterName
+    $arciotClusterName = Get-AideArcClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         Write-Host "$arciotClusterName is connected to Arc" -ForegroundColor Green
         $retval = $true
@@ -559,12 +752,28 @@ function Test-ArcEdgeK8sConnection {
     return $retval
 }
 
-function Connect-ArcEdgeK8s {
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $false }
-    $aicfg = Get-ArcEdgeUserConfig
+function Connect-AideArcKubernetes {
+    <#
+    .SYNOPSIS
+        Connects the running kubernetes cluster to Azure Arc.
+
+    .DESCRIPTION
+        This command connects the kubernetes cluster running on the machine (should be running control plane) to Arc-enabled Kubernetes.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if the connection is successful.
+
+    .EXAMPLE
+        Connect-AideArcKubernetes
+
+    #>    
+    if ((!$arciotSession.azSession) -and (!(Enter-AideArcSession))) { return $false }
+    $aicfg = Get-AideArcUserConfig
     # check if this cluster is already registered
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcEdgeClusterName
+    $arciotClusterName = Get-AideArcClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         Write-Host "$arciotClusterName is already connected to Arc" -ForegroundColor Green
     } else {
@@ -583,13 +792,15 @@ function Connect-ArcEdgeK8s {
             "--infrastructure","TBF"
         )
         #>
-        $tags = @("Type=AKSEdgeEssentials")
+        $tags = @("SKU=AKSEdgeEssentials")
         $modVersion = (Get-Module AksEdge).Version
         if ($modVersion) { $tags += @("Version=$modVersion") }
         $infra = Get-AideInfra
         if ($infra) { $tags += @("Infra=$infra") }
-        $hostname = hostname
-        if ($hostname) { $tags += @("Hostname=$hostname") }
+        $clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+        if ($clusterid) { $tags += @("ClusterId=$clusterid") }
+        <#$hostname = hostname
+        if ($hostname) { $tags += @("Hostname=$hostname") }#>
         $aideConfig = Get-AideUserConfig
         if ($aideConfig) {
             $isProxySet = $false
@@ -624,18 +835,18 @@ function Connect-ArcEdgeK8s {
             return $false
         }
         Write-Verbose ($result | Out-String)
-        #Update the Arc for Server tag if connected
-        if (Test-ArcEdgeCmAgent) {
-            $cmInfo = Get-ArcEdgeCmInfo
+        #Update the Arc-enabled server tag if connected
+        if (Test-AideArcServer) {
+            $cmInfo = Get-AideArcServerInfo
             $resource = "/subscriptions/$($cmInfo.SubscriptionId)/resourceGroups/$($cmInfo.ResourceGroupName)/providers/Microsoft.HybridCompute/machines/$($cmInfo.Name)"
             $result= $(az tag update --resource-id $resource --operation Merge --tags "AKSEE=$arciotClusterName")
             if ($result) {
-                Write-Host "Arc for Server tag updated with cluster id"
+                Write-Host "Arc-enabled server tag updated with cluster id"
             } else {
-                Write-Host "Error: Arc for Server tag update failed" -ForegroundColor Red
+                Write-Host "Error: Arc-enabled server tag update failed" -ForegroundColor Red
             }
         }
-        $token = Get-ArcEdgeK8sServiceToken
+        $token = Get-AideArcKubernetesServiceToken
         $proxyinfo = @{
             resourcegroup = $aicfg.ResourceGroupName
             clustername   = $arciotClusterName
@@ -648,11 +859,27 @@ function Connect-ArcEdgeK8s {
     return $true
 }
 
-function Disconnect-ArcEdgeK8s {
-    if ((!$arciotSession.azSession) -and (!(Enter-ArcEdgeSession))) { return $false }
-    $aicfg = Get-ArcEdgeUserConfig
+function Disconnect-AideArcKubernetes {
+    <#
+    .SYNOPSIS
+        Disconnects the running kubernetes cluster from Azure Arc.
+
+    .DESCRIPTION
+        This command disconnects from Arc-enabled Kubernetes,if connected.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if the disconnection is successful.
+
+    .EXAMPLE
+        Disconnect-AideArcKubernetes
+
+    #>
+    if ((!$arciotSession.azSession) -and (!(Enter-AideArcSession))) { return $false }
+    $aicfg = Get-AideArcUserConfig
     $k8slist = (az connectedk8s list -g $aicfg.ResourceGroupName --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $arciotClusterName = Get-ArcEdgeClusterName
+    $arciotClusterName = Get-AideArcClusterName
     if ($k8slist -and ($k8slist.Contains($arciotClusterName))) {
         # Get the credentials before connecting to ensure that we have the latest file.
         Write-Host "Updating kubeconfig file with Get-AksEdgeKubeConfig..."
@@ -668,7 +895,21 @@ function Disconnect-ArcEdgeK8s {
     return $true
 }
 
-function Get-ArcEdgeK8sServiceToken {
+function Get-AideArcKubernetesServiceToken {
+    <#
+    .SYNOPSIS
+        Returns the service account token of the aksedge-admin-user from the deployed cluster.
+
+    .DESCRIPTION
+        This command the service account token of the aksedge-admin-user from the deployed cluster. It also stores the same value in a servicetoken.txt file.
+
+    .OUTPUTS
+        String
+
+    .EXAMPLE
+        Get-AideArcKubernetesServiceToken
+
+    #>
     $seraccs = $(kubectl get serviceaccounts)
     if (!($seraccs | Where-Object { $_.Contains('aksedge-admin-user') })) {
         kubectl create serviceaccount aksedge-admin-user | Write-Host
@@ -680,4 +921,56 @@ function Get-ArcEdgeK8sServiceToken {
     $servicetokenfile = "$($arciotSession.WorkspacePath)\servicetoken.txt"
     Set-Content -Path $servicetokenfile -Value "$servicetoken"
     return $servicetoken
+}
+
+function Connect-AideArc {
+    <#
+    .SYNOPSIS
+        Connects the machine and the running kubernetes cluster to Azure Arc.
+
+    .DESCRIPTION
+        This command invokes Connect-AideArcServer which installs and connects Azure Arc Connected machine agent to Arc-enabled Server. 
+        Then it invokes Connect-AideArcKubernetes to connect the kubernetes cluster running on the machine (should be running control plane) to Arc-enabled Kubernetes.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if both the connection is successful and false if either one fails.
+
+    .EXAMPLE
+        Connect-AideArc
+
+    #>
+    Write-Host "Connecting Azure Arc-enabled Server.."
+    $serverStatus = Connect-AideArcServer
+    Write-Host "Connecting Azure Arc-enabled Kubernetes.."
+    $kubernetesStatus = Connect-AideArcKubernetes
+
+    return ($serverStatus -and $kubernetesStatus)
+}
+
+function Disconnect-AideArc {
+    <#
+    .SYNOPSIS
+        Disconnects the machine and the running kubernetes cluster from Azure Arc.
+
+    .DESCRIPTION
+        This command invokes Disconnect-AideArcServer which disconnects from Arc-enabled Server, if connected.
+        Then it invokes Disconnect-AideArcKubernetes to disconnect from Arc-enabled Kubernetes,if connected.
+        The inputs required are consumed from the aide-userconfig.json file.
+
+    .OUTPUTS
+        Boolean
+        True if both the disconnection is successful and false if either one fails.
+
+    .EXAMPLE
+        Disconnect-AideArc
+
+    #>
+    Write-Host "Disconnecting Azure Arc-enabled Server.."
+    $serverStatus = Disconnect-AideArcServer
+    Write-Host "Disconnecting Azure Arc-enabled Kubernetes.."
+    $kubernetesStatus = Disconnect-AideArcKubernetes
+
+    return ($serverStatus -and $kubernetesStatus)
 }

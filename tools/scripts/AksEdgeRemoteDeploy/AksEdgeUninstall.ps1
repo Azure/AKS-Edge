@@ -28,8 +28,8 @@ Write-Host "Loading AksEdgeDeploy module.."
 Import-Module AksEdgeDeploy.psd1 -Force
 Set-AideUserConfig $aksjson
 Write-Host ">> Disconnecting from Arc"
-Disconnect-ArcEdgeCmAgent
-Disconnect-ArcEdgeK8s
+Disconnect-AideArcServer
+Disconnect-AideArcKubernetes
 Write-Host ">> Removing cluster deployment"
 Remove-AideDeployment
 Write-Host ">> Removing external switches if any"

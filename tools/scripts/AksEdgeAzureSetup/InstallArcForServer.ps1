@@ -8,7 +8,7 @@ Param(
 #Requires -RunAsAdministrator
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azcmagentexe -Value "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe"
 
-function Install-ArcEdgeCmAgent {
+function Install-AideArcServer {
     if (Test-Path -Path $azcmagentexe -PathType Leaf) {
         Write-Host "> ConnectedMachineAgent is already installed" -ForegroundColor Green
         & $azcmagentexe version
@@ -32,7 +32,7 @@ function Install-ArcEdgeCmAgent {
     Pop-Location
 }
 
-function Get-ArcEdgeCmInfo {
+function Get-AideArcServerInfo {
     $vmInfo = @{}
     $apiVersion = "2020-06-01"
     $InstanceUri = $env:IMDS_ENDPOINT + "/metadata/instance?api-version=$apiVersion"
@@ -71,12 +71,12 @@ if ($jsonContent.Azure) {
 Write-Host "$aicfg"
 if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
     Write-Host "ConnectedMachineAgent is not installed. Installing now.." -ForegroundColor Gray
-    Install-ArcEdgeCmAgent
+    Install-AideArcServer
 }
 $agentstatus = (& $azcmagentexe show)
 if (!($($agentstatus | Select-String -Pattern 'Agent Status') -like '*Disconnected')) {
     Write-Host "ConnectedMachineAgent is connected." -ForegroundColor Green
-    Get-ArcEdgeCmInfo
+    Get-AideArcServerInfo
     exit 0
 }
 Write-Host "ConnectedMachineAgent is disconnected." -ForegroundColor Yellow
@@ -97,7 +97,7 @@ if ($hostSettings.ProxyEnable) {
 & $azcmagentexe connect @connectargs
 if ($LastExitCode -eq 0) {
     Write-Host "ConnectedMachineAgent connected." -ForegroundColor Green
-    Get-ArcEdgeCmInfo
+    Get-AideArcServerInfo
 } else {
     Write-Host "Error in connecting to Azure: $LastExitCode" -ForegroundColor Red
 }
