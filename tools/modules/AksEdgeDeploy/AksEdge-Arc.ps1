@@ -509,11 +509,11 @@ function Connect-AideArcServer {
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
         )
+        $tags = @("--tags","SKU=AksEdgeEssentials")
         if (Test-AideArcKubernetes) {
             $clustername = Get-AideArcClusterName
-            $tags = @("--tags","AKSEE=$clustername")
+            $tags += @("--tags","AKSEE=$clustername")
         }
-        $tags = @("--tags","SKU=AksEdgeEssentials")
         $connectargs += $tags
         $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
         if ($hostSettings.ProxyEnable) {
@@ -651,7 +651,7 @@ function New-AideArcServerExtension {
         "commandToExecute":"powershell.exe -ExecutionPolicy Unrestricted -File filename.ps1 "
     }
 '@
-
+    $arciotMachineName = hostname
     $cmebaseargs = @(
         "--machine-name", "$($arciotMachineName)",
         "--name", "CustomScriptExtension",
@@ -677,6 +677,7 @@ function Remove-AideArcServerExtension {
         return
     }
     $aicfg = Get-AideArcUserConfig
+    $arciotMachineName = hostname
     $cmeargs = @(
         "--machine-name", "$($arciotMachineName)",
         "--resource-group", "$($aicfg.ResourceGroupName)"
