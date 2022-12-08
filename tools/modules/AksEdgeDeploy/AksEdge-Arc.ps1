@@ -90,7 +90,7 @@ function Install-AideAzCli {
         Installs Azure CLI and required extensions
 
     .DESCRIPTION
-        Checks if Azure CLI is installed (az) and installs the latest version of Azure CLI from https://aka.ms/installazurecliwindows.
+        Checks if Azure CLI is installed (az) and installs the latest version of Azure CLI from "https://aka.ms/installazurecliwindows". 
         This also checks and installs the following extensions
         "connectedmachine", "connectedk8s", "customlocation", "k8s-extension"
 
@@ -355,7 +355,7 @@ function Install-AideArcServer {
         Checks and installs connected machine agent.
 
     .DESCRIPTION
-        This command tests if the connected machine agent is installed and installs using script from https://aka.ms/azcmagent-windows.
+        This command tests if the connected machine agent is installed and installs using script from "https://aka.ms/azcmagent-windows".
         This also sets up for auto update via Microsoft Update.
 
     .OUTPUTS

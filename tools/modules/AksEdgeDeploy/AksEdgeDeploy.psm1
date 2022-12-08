@@ -733,9 +733,6 @@ function Invoke-AideLinuxVmShell {
     .DESCRIPTION
         Invokes the AksEdge Linux VM Shell
 
-    .ALIASES
-        mars
-
     .OUTPUTS
         None
         Launches into the Shell
@@ -770,9 +767,6 @@ function Get-AideLinuxVmFile {
 
     .DESCRIPTION
         Invokes the AksEdge Linux VM Shell and reads file from the linux vm. This is not supported on ServerSKU.
-
-    .ALIASES
-        mars-read
 
     .OUTPUTS
         None
@@ -1298,6 +1292,22 @@ function Start-AideWorkflow {
 # Formats JSON in a nicer format than the built-in ConvertTo-Json does.
 #  https://github.com/PowerShell/PowerShell/issues/2736
 function Format-AideJson([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
+    <#
+    .SYNOPSIS
+        Pretty formats the input json.
+
+    .DESCRIPTION
+        Pretty formats the input json. Based on "https://github.com/PowerShell/PowerShell/issues/2736"
+
+    .OUTPUTS
+        String, formatted json string
+
+    .PARAMETER json
+        Input json string for formatting.
+
+    .EXAMPLE
+        Format-AideJson
+    #>
     $indent = 0;
     ($json -Split '\n' |
     ForEach-Object {
