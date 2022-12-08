@@ -538,7 +538,7 @@ function Test-AideUserConfig {
 
     $installResult = Test-AideUserConfigInstall
     $deployResult = Test-AideUserConfigDeploy
-    $arcResult = Test-ArcEdgeUserConfig
+    $arcResult = Test-AideArcUserConfig
 
     return ($installResult -and $deployResult -and $arcResult)
 

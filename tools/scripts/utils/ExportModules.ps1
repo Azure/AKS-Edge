@@ -32,6 +32,6 @@ if ($AllTools) {
         "$RootDir\tools\*.*"
     )
 }
-$zipFileName = "$ExportDir\aks-edge-utils-$suffix.zip"
+$zipFileName = "$ExportDir\aks-edge-$suffix.zip"
 Compress-Archive -Path $filesToZip -DestinationPath $zipFileName -Force
 Write-Host "$zipFileName"
