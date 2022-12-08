@@ -32,6 +32,19 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeValueSe
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallFiles -Value @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003", "AksEdgeWindows-v1.exe")
 function Get-AideHostPcInfo {
+    <#
+    .SYNOPSIS
+        Prints the relevant HostPC information on the console output.
+
+    .DESCRIPTION
+        Prints the relevant HostPC information such as OS information, available Free/Total CPU/Memory on the console output.
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Get-AideHostPcInfo
+    #>
     Test-HyperVStatus -Enable | Out-Null
     $pOS = Get-CimInstance Win32_OperatingSystem
     $UBR = (Get-ItemPropertyValue "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name UBR)
@@ -73,6 +86,19 @@ function Get-AideHostPcInfo {
     }
 }
 function Get-AideInfra {
+    <#
+    .SYNOPSIS
+        Returns a coded string for the host OS information.
+
+    .DESCRIPTION
+        Returns a coded string for the host OS information including whether its Azure VM or regular VM
+
+    .OUTPUTS
+        String
+
+    .EXAMPLE
+        Get-AideInfra
+    #>
     $replacements = [ordered]@{
         "Microsoft Windows" = "Win"
         "IoT Enterprise"    = "IoT"
@@ -98,6 +124,19 @@ function Get-AideInfra {
     return $Name
 }
 function Get-AideUserConfig {
+    <#
+    .SYNOPSIS
+        Returns the PSCustomObject of the UserConfig Json.
+
+    .DESCRIPTION
+        Returns the PSCustomObject of the UserConfig Json including the embedded AksEdge config data.
+
+    .OUTPUTS
+        PSCustomObject
+
+    .EXAMPLE
+        Get-AideUserConfig
+    #>
     if ($null -eq $aideSession.UserConfig) {
         Write-Host "Error: Aide UserConfig is not set." -ForegroundColor Red
     }
@@ -111,6 +150,20 @@ function Get-AideAksEdgeConfig {
     return $aideSession.UserConfig.AksEdgeConfig
 }
 function Read-AideUserConfig {
+    <#
+    .SYNOPSIS
+        Reads from the User Config json file and updates the PSCustomObject cache.
+
+    .DESCRIPTION
+        Reads from the User Config json file and updates the PSCustomObject cache. It also refreshes the AksEdge config data if it was read from AksEdgeConfigFile.
+
+    .OUTPUTS
+        Boolean
+        True if successfully read.
+
+    .EXAMPLE
+        Read-AideUserConfig
+    #>
     if ($aideSession.UserConfigFile) {
         $jsonContent = Get-Content "$($aideSession.UserConfigFile)" | ConvertFrom-Json
         $upgraded = UpgradeJsonFormat $jsonContent
@@ -135,9 +188,24 @@ function Read-AideUserConfig {
 }
 function Set-AideUserConfig {
     <#
+    .SYNOPSIS
+        Sets the user config PSCustomObject with either jsonFile or jsonString parameter.
+
     .DESCRIPTION
-        Check if there is a configuration file, and loads the JSON configuration
-        into a variable
+        Validates and sets the user config PSCustomObject with either jsonFile or jsonString parameter. Either one must be specified.
+
+    .OUTPUTS
+        Boolean
+        True if successfully set.
+
+    .PARAMETER jsonFile
+        File path for the json configuration file (aide-userconfig.json), based on the aide-ucschema.json schema.
+
+    .PARAMETER jsonString
+        Json herestring based on the aide-ucschema.json schema.
+
+    .EXAMPLE
+        Set-AideUserConfig -jsonFile .\aide-userconfig.json
     #>
     Param
     (
@@ -535,6 +603,20 @@ function Test-AideUserConfigDeploy {
     return ($errCnt -eq 0)
 }
 function Test-AideUserConfig {
+    <#
+    .SYNOPSIS
+        Validates the user config PSCustomObject for correctness and completeness.
+
+    .DESCRIPTION
+        Validates the user config PSCustomObject for correctness and completeness. Also validates if the required virtual switch is available.
+
+    .OUTPUTS
+        Boolean
+        True if successfull.
+
+    .EXAMPLE
+        Test-AideUserConfig
+    #>
 
     $installResult = Test-AideUserConfigInstall
     $deployResult = Test-AideUserConfigDeploy
@@ -544,6 +626,24 @@ function Test-AideUserConfig {
 
 }
 function Test-AideMsiInstall {
+    <#
+    .SYNOPSIS
+        Validates if the requested AksEdge Msi flavour is installed.
+
+    .DESCRIPTION
+        Validates if the requested AksEdge Msi flavour is installed. The Switch -Install when specified will install the Msi if not found.
+        It will also load the AksEdge module into the active PowerShell session.
+
+    .OUTPUTS
+        Boolean
+        True if successfull.
+
+    .PARAMETER Install
+        Switch parameter , to install the Msi if not found.
+
+    .EXAMPLE
+        Test-AideMsiInstall
+    #>
     Param
     (
         [Switch] $Install
@@ -595,8 +695,18 @@ function Test-HyperVStatus {
 
 function Test-AideLinuxVmRun {
     <#
+    .SYNOPSIS
+        Tests if the AksEdge Linux VM is running.
+
     .DESCRIPTION
-        Checks if the AksEdge VM is running
+        Tests if the AksEdge Linux VM is running.
+
+    .OUTPUTS
+        Boolean
+        True if the VM is running.
+
+    .EXAMPLE
+        Test-AideLinuxVmRun
     #>
     $retval = $false
     if ($aideSession.HostOS.IsServerSKU) {
@@ -616,6 +726,20 @@ New-Alias -Name mars-read -Value Get-AideLinuxVmFile
 New-Alias -Name mars-copy -Value Copy-AideLinuxVmFile
 
 function Invoke-AideLinuxVmShell {
+    <#
+    .SYNOPSIS
+        Invokes the AksEdge Linux VM Shell
+
+    .DESCRIPTION
+        Invokes the AksEdge Linux VM Shell
+
+    .OUTPUTS
+        None
+        Launches into the Shell
+
+    .EXAMPLE
+        Invoke-AideLinuxVmShell
+    #>
     if ($aideSession.HostOS.IsServerSKU) {
         Write-Host "Not supported yet"
         <#$vm = Get-VM | Where-Object { $_.Name -like '*edge' }
@@ -637,6 +761,19 @@ function Invoke-AideLinuxVmShell {
 }
 
 function Get-AideLinuxVmFile {
+    <#
+    .SYNOPSIS
+        Invokes the AksEdge Linux VM Shell and reads file from the linux vm.
+
+    .DESCRIPTION
+        Invokes the AksEdge Linux VM Shell and reads file from the linux vm. This is not supported on ServerSKU.
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Get-AideLinuxVmFile
+    #>
     if ($aideSession.HostOS.IsServerSKU) {
         Write-Host "Not supported yet"
         <#$vm = Get-VM | Where-Object { $_.Name -like '*edge' }
@@ -653,6 +790,22 @@ function Get-AideLinuxVmFile {
     }
 }
 function Copy-AideLinuxVmFile {
+    <#
+    .SYNOPSIS
+        Invokes the AksEdge Linux VM Shell and copies file to the linux vm.
+
+    .DESCRIPTION
+        Invokes the AksEdge Linux VM Shell and copies file to the linux vm. This is not supported on ServerSKU.
+
+    .ALIASES
+        mars-copy
+
+    .OUTPUTS
+        None
+
+    .EXAMPLE
+        Get-AideLinuxVmFile
+    #>
     if ($aideSession.HostOS.IsServerSKU) {
         Write-Host "Not supported yet"
         <#$vm = Get-VM | Where-Object { $_.Name -like '*edge' }
@@ -671,9 +824,20 @@ function Copy-AideLinuxVmFile {
 
 function Test-AideDeployment {
     <#
+    .SYNOPSIS
+        Checks if there is a AksEdge deployment on the machine.
+
     .DESCRIPTION
-        Checks if the AksEdge VM is deployed (checking vhdx is present)
+        Checks if there is a AksEdge deployment on the machine. It looks for the .vhdx files created for the Linux or Windows VMs.
+
+    .OUTPUTS
+        Boolean
+        True if vhdx file is found.
+
+    .EXAMPLE
+        Test-AideDeployment
     #>
+
     $VhdxPath = "C:\\Program Files\\AksEdge"
     $aideConfig = Get-AideUserConfig
     if ($aideConfig.InstallOptions.VhdxPath) {
@@ -689,8 +853,19 @@ function Test-AideDeployment {
 }
 function Install-AideMsi {
     <#
+    .SYNOPSIS
+        Checks and installs AksEdge Msi flavour specified in the aide-userconfig.json.
+
     .DESCRIPTION
-        Checks if AksEdge MSI is installed, and installs it if not
+        Checks and installs AksEdge Msi flavour specified in the aide-userconfig.json. When the AksEdgeProduct is specified, it installs the latest available version
+        using the aka.ms links. When the AksEdgeProductUrl is specified, it installs from that specific Url. The Url can also be a network file share.
+
+    .OUTPUTS
+        Boolean
+        True if installed successfully.
+
+    .EXAMPLE
+        Install-AideMsi
     #>
     #TODO : Add Force flag to uninstall and install req product
     if ($aideSession.AKSEdge.Version) {
@@ -800,9 +975,19 @@ function Expand-ArchiveLocal {
 }
 function Remove-AideMsi {
     <#
-   .DESCRIPTION
-       Checks if AksEdge MSI is installed, and removes it if installed
-   #>
+    .SYNOPSIS
+        Checks and removes the installed AksEdge Msi.
+
+    .DESCRIPTION
+        Checks and removes the installed AksEdge Msi. It also removes the AksEdge module from the active Powershell session, to avoid usage of the cached module after the msi is uninstalled.
+
+    .OUTPUTS
+        Boolean
+        True if uninstalled successfully.
+
+    .EXAMPLE
+        Remove-AideMsi
+    #>
     $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match "$aksedgeProductPrefix *" }
     if ($null -eq $aksedgeInfo) {
         Write-Host "$aksedgeProductPrefix is not installed."
@@ -819,9 +1004,18 @@ function Remove-AideMsi {
 }
 function Get-AideMsiVersion {
     <#
-   .DESCRIPTION
-       Gets AksEdge version if installed
-   #>
+    .SYNOPSIS
+        Checks and returns the AksEdge Msi version.
+
+    .DESCRIPTION
+        Checks and returns the AksEdge Msi version. This is same as the AksEdge module version. (Get-Module AksEdge -ListAvailable).Version
+
+    .OUTPUTS
+        Hashtable with Name and Version keys.
+
+    .EXAMPLE
+        Get-AideMsiVersion
+    #>
     $aksedgeInfo = Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object { $_.DisplayName -match "$aksedgeProductPrefix *" }
     $retval = $null
     if ($null -eq $aksedgeInfo) {
@@ -840,8 +1034,18 @@ function Get-AideMsiVersion {
 
 function Invoke-AideDeployment {
     <#
+    .SYNOPSIS
+        Checks the input json configuration and invokes the New-AksEdgeDeployment.
+
     .DESCRIPTION
-        Loads the configuration and tries to deploy the AksEdge VM
+        Checks the input json configuration and invokes the New-AksEdgeDeployment.
+
+    .OUTPUTS
+        Boolean
+        True if deployment is successful.
+
+    .EXAMPLE
+        Invoke-AideDeployment
     #>
     if (Test-AideDeployment) {
         Write-Host "Error: AksEdge VM already deployed" -Foreground red
@@ -867,9 +1071,40 @@ function Invoke-AideDeployment {
 }
 
 function Remove-AideDeployment {
-    Remove-AksEdgeDeployment
+    <#
+    .SYNOPSIS
+        Invokes Remove-AksEdgeDeployment to remove the deployment.
+
+    .DESCRIPTION
+        Invokes Remove-AksEdgeDeployment to remove the deployment.
+
+    .OUTPUTS
+        Boolean
+        True if deployment is successful.
+
+    .EXAMPLE
+        Remove-AideDeployment
+    #>
+    return Remove-AksEdgeDeployment
 }
 function Test-AideVmSwitch {
+    <#
+    .SYNOPSIS
+        Tests if the specified VM Switch is available and the associated net adapter is connected.
+
+    .DESCRIPTION
+        Tests if the specified VM Switch is available and the associated net adapter is connected. If the -Create flag is specified, it attempts to create a VMMS switch.
+
+    .OUTPUTS
+        Boolean
+        True if successfull.
+
+    .PARAMETER Create
+        Switch parameter , to create the switch if not found.
+
+    .EXAMPLE
+        Test-AideVmSwitch
+    #>
     Param
     (
         [Switch] $Create
@@ -911,6 +1146,20 @@ function Test-AideVmSwitch {
     return $retval
 }
 function New-AideVmSwitch {
+    <#
+    .SYNOPSIS
+        Creates the external VM Switch on the specified net adapter.
+
+    .DESCRIPTION
+        Creates the external VM Switch on the specified net adapter
+
+    .OUTPUTS
+        Boolean
+        True if successfull.
+
+    .EXAMPLE
+        New-AideVmSwitch
+    #>
     $usrCfg = Get-AideAksEdgeConfig
     $vSwitch = $usrCfg.Network.VSwitch
 
@@ -942,6 +1191,20 @@ function New-AideVmSwitch {
 }
 
 function Remove-AideVmSwitch {
+    <#
+    .SYNOPSIS
+        Removes the external VM Switch on the specified net adapter.
+
+    .DESCRIPTION
+        Removes the external VM Switch on the specified net adapter
+
+    .OUTPUTS
+        Boolean
+        True if successfull.
+
+    .EXAMPLE
+        Remove-AideVmSwitch
+    #>
     $usrCfg = Get-AideAksEdgeConfig
     $switchName = $($usrCfg.Network.VSwitch.Name)
     $aksedgeSwitch = Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue
@@ -960,6 +1223,27 @@ function Remove-AideVmSwitch {
 
 # Main function for full functional path
 function Start-AideWorkflow {
+    <#
+    .SYNOPSIS
+        Runs the end to end workflow for AksEdgeDeploy. Based on the input jsonFile/jsonString, it installs required msi, creates switch and deploys the cluster.
+
+    .DESCRIPTION
+        Runs the end to end workflow for AksEdgeDeploy. Based on the input jsonFile/jsonString, it installs required msi, creates switch and deploys the cluster.
+        This function also enables Hyper-V is it is not enabled and triggers a reboot. The function **doesnot resume** after reboot.
+
+    .OUTPUTS
+        Boolean
+        True if successfully deployed.
+
+    .PARAMETER jsonFile
+        File path for the json configuration file (aide-userconfig.json), based on the aide-ucschema.json schema.
+
+    .PARAMETER jsonString
+        Json herestring based on the aide-ucschema.json schema.
+
+    .EXAMPLE
+        Start-AideWorkflow -jsonFile .\aide-userconfig.json
+    #>
     Param
     (
         [String]$jsonFile,
@@ -1008,6 +1292,22 @@ function Start-AideWorkflow {
 # Formats JSON in a nicer format than the built-in ConvertTo-Json does.
 #  https://github.com/PowerShell/PowerShell/issues/2736
 function Format-AideJson([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
+    <#
+    .SYNOPSIS
+        Pretty formats the input json.
+
+    .DESCRIPTION
+        Pretty formats the input json. Based on "https://github.com/PowerShell/PowerShell/issues/2736"
+
+    .OUTPUTS
+        String, formatted json string
+
+    .PARAMETER json
+        Input json string for formatting.
+
+    .EXAMPLE
+        Format-AideJson
+    #>
     $indent = 0;
     ($json -Split '\n' |
     ForEach-Object {
