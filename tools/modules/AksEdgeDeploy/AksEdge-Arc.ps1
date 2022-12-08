@@ -487,7 +487,7 @@ function Connect-AideArcServer {
     if (!(Test-AideArcServer)) {
         if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
             $retval = Install-AideArcServer
-            if ($retval) { return $retval }
+            if (!$retval) { return $retval }
         }
 
     }
