@@ -6,7 +6,7 @@ param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221207.1400" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221208.0900" -Option Constant -ErrorAction SilentlyContinue
 $installDir = "C:\AksEdgeScript"
 $productName = "AKS Edge Essentials - K3s (Public Preview)"
 if ($UseK8s) {

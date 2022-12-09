@@ -6,7 +6,7 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetupTest -Value "1.0.221004.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetupTest -Value "1.0.221208.0900" -Option Constant -ErrorAction SilentlyContinue
 
 function Install-AzCli {
     #Check if Az CLI is installed. If not install it.

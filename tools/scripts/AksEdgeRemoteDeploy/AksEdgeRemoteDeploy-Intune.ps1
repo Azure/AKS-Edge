@@ -10,7 +10,7 @@ param(
     [Switch] $UseK8s
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221207.1400" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221208.0900" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
