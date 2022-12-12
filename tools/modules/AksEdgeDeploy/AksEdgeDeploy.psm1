@@ -289,6 +289,10 @@ function Save-AideUserConfig {
         Write-Verbose "Error: Aide UserConfigFile not configured"
     }
 }
+
+function Test-IsAzureVM {
+    return $aideSession.HostOS.IsAzureVM
+}
 function Get-AzureVMInfo {
     if (!$aideSession.HostOS.IsAzureVM) {
         Write-Host "Error: Host is not an Azure VM" -ForegroundColor Red

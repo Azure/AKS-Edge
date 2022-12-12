@@ -365,6 +365,7 @@ function Install-AideArcServer {
     .EXAMPLE
         Install-AideArcServer
     #>
+    if (Test-IsAzureVM) { return $false }
     if (Test-Path -Path $azcmagentexe -PathType Leaf) {
         Write-Host "> ConnectedMachineAgent is already installed" -ForegroundColor Green
         & $azcmagentexe version
@@ -484,6 +485,7 @@ function Connect-AideArcServer {
         Connect-AideArcServer
 
     #>
+    if (Test-IsAzureVM) { return $false }
     if (!(Test-AideArcServer)) {
         if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
             $retval = Install-AideArcServer
@@ -549,6 +551,7 @@ function Disconnect-AideArcServer {
         Disconnect-AideArcServer
 
     #>
+    if (Test-IsAzureVM) { return $false }
     if (! (Test-AideArcServer) ) {
         return $false
     }
@@ -618,6 +621,7 @@ function Get-AideArcServerSMI {
     .EXAMPLE
         Get-AideArcServerSMI
     #>
+    if (Test-IsAzureVM) { return $false }
     $token = $null
     $apiVersion = "2020-06-01"
     $resource = "https://management.azure.com/"
@@ -961,8 +965,13 @@ function Connect-AideArc {
         Connect-AideArc
 
     #>
-    Write-Host "Connecting Azure Arc-enabled Server.."
-    $serverStatus = Connect-AideArcServer
+    $serverStatus = $true
+    if (Test-IsAzureVM) { 
+        Write-Host "Running in Azure VM, skipping Azure Arc-enabled Server.."
+    } else {
+        Write-Host "Connecting Azure Arc-enabled Server.."
+        $serverStatus = Connect-AideArcServer
+    }
     Write-Host "Connecting Azure Arc-enabled Kubernetes.."
     $kubernetesStatus = Connect-AideArcKubernetes
 
@@ -987,8 +996,11 @@ function Disconnect-AideArc {
         Disconnect-AideArc
 
     #>
-    Write-Host "Disconnecting Azure Arc-enabled Server.."
-    $serverStatus = Disconnect-AideArcServer
+    $serverStatus = $true
+    if (-not (Test-IsAzureVM)) { 
+        Write-Host "Disconnecting Azure Arc-enabled Server.."
+        $serverStatus = Disconnect-AideArcServer
+    }
     Write-Host "Disconnecting Azure Arc-enabled Kubernetes.."
     $kubernetesStatus = Disconnect-AideArcKubernetes
 
