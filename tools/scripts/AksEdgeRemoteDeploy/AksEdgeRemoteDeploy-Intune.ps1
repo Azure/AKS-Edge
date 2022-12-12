@@ -18,10 +18,10 @@ if (! [Environment]::Is64BitProcess) {
 
 $installDir = "C:\AksEdgeScript"
 $productName = "AKS Edge Essentials - K3s (Public Preview)"
-$networkplugin = "Flannel"
+$networkplugin = "flannel"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s (Public Preview)"
-    $networkplugin = "Calico"
+    $networkplugin = "calico"
 }
 
 # Here string for the json content

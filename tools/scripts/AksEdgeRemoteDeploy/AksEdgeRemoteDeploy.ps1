@@ -10,13 +10,13 @@ if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
-
+Push-Location $PSScriptRoot
 $installDir = "C:\AksEdgeScript"
 $productName = "AKS Edge Essentials - K3s (Public Preview)"
-$networkplugin = "Flannel"
+$networkplugin = "flannel"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s (Public Preview)"
-    $networkplugin = "Calico"
+    $networkplugin = "calico"
 }
 
 # Here string for the json content
@@ -83,33 +83,27 @@ if (!(Test-Path -Path "$installDir\$zipFile")) {
     } catch {
         Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
         Stop-Transcript | Out-Null
+        Pop-Location
         exit -1
     }
 }
 
 Expand-Archive -Path $installDir\$zipFile -DestinationPath "$installDir" -Force
-# Load the modules
-$modulePath = (Get-ChildItem -Path "$installDir" -Filter AksEdgeDeploy -Recurse).FullName | Split-Path -Parent
-if (!(($env:PSModulePath).Contains($modulePath))) {
-    $env:PSModulePath = "$modulePath;$env:PSModulePath"
-}
-
-Write-Host "Loading AksEdgeDeploy module from $modulePath.." -ForegroundColor Cyan
-Import-Module AksEdgeDeploy.psd1 -Force
-$aideVersion = (Get-Module -Name AksEdgeDeploy).Version.ToString()
-Write-Host "AksEdgeRemoteDeploy version  `t: $gAksEdgeRemoteDeployVersion"
-Write-Host "AksEdgeDeploy       version  `t: $aideVersion"
-
 $aidejson = (Get-ChildItem -Path "$installDir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $jsonContent -Force
-# invoke the workflow
-$retval = Start-AideWorkflow -jsonString $jsonContent
+
+$aksedgeShell = (Get-ChildItem -Path "$installDir" -Filter AksEdgeShell.ps1 -Recurse).FullName
+. $aksedgeShell
+
+# invoke the workflow, the json file already stored above.
+$retval = Start-AideWorkflow
 # report error via Write-Error for Intune to show proper status
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
     Write-Error -Message "Deployment failed" -Category OperationStopped
     Stop-Transcript | Out-Null
+    Pop-Location
     exit -1
 }
 
@@ -120,6 +114,7 @@ if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfi
     if (!$retval) {
         Write-Error -Message "Azure login failed." -Category OperationStopped
         Stop-Transcript | Out-Null
+        Pop-Location
         exit -1
     }
     # Arc for Servers
@@ -131,6 +126,7 @@ if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfi
     } else {
         Write-Error -Message "Arc connection failed" -Category OperationStopped
         Stop-Transcript | Out-Null
+        Pop-Location
         exit -1
     }
 } else { Write-Host "No Auth info available. Skipping Arc Connection" }
@@ -139,4 +135,5 @@ $endtime = Get-Date
 $duration = ($endtime - $starttime)
 Write-Host "Duration: $($duration.Hours) hrs $($duration.Minutes) mins $($duration.Seconds) seconds"
 Stop-Transcript | Out-Null
+Pop-Location
 exit 0
