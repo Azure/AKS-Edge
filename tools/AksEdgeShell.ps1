@@ -3,7 +3,7 @@
   Validates and loads the config file and imports the bootstrap scripts
 #>
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeShellVersion -Value "1.0.221208.0900" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeShellVersion -Value "1.0.221212.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
