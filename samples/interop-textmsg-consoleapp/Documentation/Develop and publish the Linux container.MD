@@ -1,8 +1,8 @@
-# Interop Windows Console App with AKS edge Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Progress
 - [x] [Step 1 - Setup Azure Kubernetes Service Edge Essentials (AKS edge)](/docs/AKS-Lite-Deployment-Guidance.md)
-- [x] [Step 2 - Develop and publish the Linux container](./Develop%20and%20publish%20the%20Linux%20module.MD)
+- [ ] **Step 2 - Develop and publish the Linux container**
 - [ ] [Step 3 - Deploy the containers onto the AKS edge Edge Device](./DeployContainersOnAKSLiteEdgedevice.md)
 - [ ] [Step 4 - Build and run the Companion Application](./Run%20the%20Console%20Application.MD)
 ---
@@ -13,7 +13,8 @@ This section will explain how to develop and publish the Linux containers in the
 1. [Login to container registry](#LoginRegistry)  
 1. [Push your container](#PushContainer)   
 
-> **Note:** The C# solution created in the following steps is included in our sample repo. We recommned downloading the sample code and run it, however, you can create your own edge container based on this sample code. 
+    > **Note:** 
+    > The C# solution created in the following steps is included in our sample repo. We recommned downloading the sample code and run it, however, you can create your own edge container based on this sample code. 
 
 ---  
 <a name="ContainerProject"></a>  
@@ -28,7 +29,7 @@ This section will explain how to develop and publish the Linux containers in the
 
 1. Open the VS Code integrated terminal by selecting **View** > **Terminal**.
 
-1. Build the container using docker build command. For example `docker build -t aksiot.azuecr.io/edgeInterop:latest .`
+1. Build the container using docker build command. For example `docker build -t aksedgeessentials.azuecr.io/edgeinterop:latest .`
 
     ```bash
     docker build -t  <ACR login server>/<name-of-container>:<tag-name> .
