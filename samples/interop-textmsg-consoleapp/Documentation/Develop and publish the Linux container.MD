@@ -1,8 +1,8 @@
-# Interop Windows Console App with AKS edge Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Progress
 - [x] [Step 1 - Setup Azure Kubernetes Service Edge Essentials (AKS edge)](/docs/AKS-Lite-Deployment-Guidance.md)
-- [x] [Step 2 - Develop and publish the Linux container](./Develop%20and%20publish%20the%20Linux%20module.MD)
+- [ ] **Step 2 - Develop and publish the Linux container**
 - [ ] [Step 3 - Deploy the containers onto the AKS edge Edge Device](./DeployContainersOnAKSLiteEdgedevice.md)
 - [ ] [Step 4 - Build and run the Companion Application](./Run%20the%20Console%20Application.MD)
 ---
@@ -13,7 +13,8 @@ This section will explain how to develop and publish the Linux containers in the
 1. [Login to container registry](#LoginRegistry)  
 1. [Push your container](#PushContainer)   
 
-> **Note:** The C# solution created in the following steps is included in our sample repo. We recommned downloading the sample code and run it, however, you can create your own edge container based on this sample code. 
+    > **Note** 
+    > The C# solution created in the following steps is included in our sample repo. We recommned downloading the sample code and run it, however, you can create your own edge container based on this sample code. 
 
 ---  
 <a name="ContainerProject"></a>  
@@ -28,10 +29,10 @@ This section will explain how to develop and publish the Linux containers in the
 
 1. Open the VS Code integrated terminal by selecting **View** > **Terminal**.
 
-1. Build the container using docker build command. For example `docker build -t aksiot.azuecr.io/edgeInterop:latest .`
+1. Build the container using docker build command. For example `docker build -t aksedgeessentials.azuecr.io/edgeinterop:latest .`
 
     ```bash
-    docker build -t  <ACR login server>/<name-of-container>:<tag-name> .
+    docker build -t  <ACR server>/<name-of-container>:<tag-name> .
     ```
     
     Docker building should take ~1-2 minutes. If everything was successful, you the docker should be ready to push to your container registry. 
@@ -46,9 +47,9 @@ This section will explain how to develop and publish the Linux containers in the
 1. Sign in to Docker by entering the following command in the terminal. Sign in with the username, password, and login server from your Azure container registry. You can retrieve these values from the **Access keys** section of your registry in the Azure portal.
 
    ```bash
-   docker login -u <ACR username> -p <ACR password> <ACR login server>
+   docker login -u <ACR username> -p <ACR password> <ACR server>
    ```
-   You may receive a security warning recommending the use of --password-stdin. While that best practice is recommended for production scenarios, it's outside the scope of this tutorial. For more information, see the docker login reference.
+   You may receive a security warning recommending the use of `--password-stdin`. While that best practice is recommended for production scenarios, it's outside the scope of this tutorial. For more information, see the [docker login reference](https://docs.docker.com/engine/reference/commandline/login/).
 
 ---
 
@@ -62,7 +63,7 @@ In the previous section, you created and build the Linux container image. Now yo
 1. Push the container image to the Azure container registry
 
     ```bash
-    docker push <ACR login server>/<name-of-container>:<tag-name>
+    docker push <ACR server>/<name-of-container>:<tag-name>
     ```
 
 Go to [Next Step](./DeployContainersOnAKSLiteEdgedevice.md)

@@ -1,10 +1,10 @@
-# Interop Windows Console App with AKS edge Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Progress
 - [x] [Step 1 - Setup Azure Kubernetes Service Edge Essentials (AKS edge)](/docs/AKS-Lite-Deployment-Guidance.md)
 - [x] [Step 2 - Develop and publish the Linux container](./Develop%20and%20publish%20the%20Linux%20module.MD)
 - [x] [Step 3 - Deploy the containers onto the AKS edge Edge Device](./DeployContainersOnAKSLiteEdgedevice.md)
-- [x] [Step 4 - Build and run the Companion Application](./Run%20the%20Console%20Application.MD)
+- [ ] **Step 4 - Build and run the Companion Application**
 ---
 
 # Step 4: Build and run the Companion Application
@@ -12,6 +12,10 @@
 The final steps are to build and run the companion app, and start sending messages back and forth with the Linux container. 
 
 1. Open Visual Studio and select the **Companionapp.sln** solution.
+
+1. If you're seeing issues with the NuGet package restore, add NuGet package source *nuget.org* with URL *https://api.nuget.org/v3/index.json*
+
+    <img src="../Images/NuGet-Source.png" height="250"/>
 
 1. Right-click **Companionapp** project, and select _Publish_.
 
@@ -44,6 +48,8 @@ The final steps are to build and run the companion app, and start sending messag
     ```
 
 1. Once the application is running, select option _(1) Produce_ to send a message to the Linux container. If everything is correctly configured, you should receive a response from the Linux container with the original message modified. 
+
+    <img src="../Images/Run-Console.png" height="250"/>
 
 ## Feedback
 If you have problems with this sample, please post an issue in this repository.

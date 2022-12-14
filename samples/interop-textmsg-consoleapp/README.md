@@ -1,4 +1,4 @@
-# Interop Windows Console App with AKS edge Linux container
+# Interop Windows Console App with AKS Edge Linux container
 
 ## Introduction
 This sample demonstrates bidirectional communication between a Windows console application and a Linux container running inside the AKS edge cluster. 
@@ -49,13 +49,11 @@ A Windows device with the following minimum requirements:
   * Storage: At least 17 GB free after installing MSI
 
 ## Instructions
-[Step 1 - Setup Azure Kubernetes Service Edge Essentials (AKS-IoT)](/docs/AKS-Lite-Deployment-Guidance.md)
 
-[Step 2 - Develop and publish the Linux container](./Documentation/Develop%20and%20publish%20the%20Linux%20container.MD)
-
-[Step 3 - Deploy the containers onto the AKS edge Edge Device](./Documentation/DeployContainersOnAKSLiteEdgedevice.md)
-
-[Step 4 - Build and run the Companion Application](./Documentation/Run%20the%20Console%20Application.MD)
+- [Step 1 - Setup AKS Edge Essentials](./Documentation/AKS-EE-Deployment-Guidance.md)
+- [Step 2 - Develop and publish the Linux container](./Documentation/Develop%20and%20publish%20the%20Linux%20container.MD)
+- [Step 3 - Deploy the containers onto the AKS edge Edge Device](./Documentation/DeployContainersOnAKSLiteEdgedevice.md)
+- [Step 4 - Build and run the Companion Application](./Documentation/Run%20the%20Console%20Application.MD)
 
 ## Feedback
 If you have problems with this sample, please post an issue in this repository.
