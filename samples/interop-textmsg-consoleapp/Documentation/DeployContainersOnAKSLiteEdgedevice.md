@@ -84,6 +84,6 @@
     kubectl logs <edgeinterop-pod-name> -n edgeinterop
     ```
 
-It should state that the MQTT broker connected.
+    It should state that the MQTT broker connected.
 
 Go to [Next Step](./Run%20the%20Console%20Application.MD)  

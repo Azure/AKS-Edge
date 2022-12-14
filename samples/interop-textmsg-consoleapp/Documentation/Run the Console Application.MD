@@ -15,7 +15,7 @@ The final steps are to build and run the companion app, and start sending messag
 
 1. If you're seeing issues with the NuGet package restore, add NuGet package source *nuget.org* with URL *https://api.nuget.org/v3/index.json*
 
-    <img src="../Images/Nuget-Source.png" height="250"/>
+    <img src="../Images/NuGet-Source.png" height="250"/>
 
 1. Right-click **Companionapp** project, and select _Publish_.
 
