@@ -145,7 +145,7 @@ The below table provides the schema for the AksEdge Deployment Configuration jso
 
 | Parameter | Required | Type / Values | Comments |
 | --------- | -------- | --------------- | -------- |
-| AcceptEula | Mandatory | Yes |  Accept Eula |
+| AcceptEula | Mandatory | Yes |  Accept [EULA](../../../EULA.md) |
 | AcceptOptionalTelemetry | Optional | Yes |  Accept optional telemetry to be sent |
 </details>
 <details><summary>LinuxVm</summary>
