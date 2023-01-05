@@ -485,7 +485,10 @@ function Connect-AideArcServer {
         Connect-AideArcServer
 
     #>
-    if (Test-IsAzureVM) { return $false }
+    if (Test-IsAzureVM) {
+        Write-Host "Disabling WindowsAzureGuestAgent"
+        Disable-WindowsAzureGuestAgent
+    }
     if (!(Test-AideArcServer)) {
         if (!(Test-Path -Path $azcmagentexe -PathType Leaf)) {
             $retval = Install-AideArcServer
@@ -551,7 +554,7 @@ function Disconnect-AideArcServer {
         Disconnect-AideArcServer
 
     #>
-    if (Test-IsAzureVM) { return $false }
+    #if (Test-IsAzureVM) { return $false }
     if (! (Test-AideArcServer) ) {
         return $false
     }
@@ -966,12 +969,10 @@ function Connect-AideArc {
 
     #>
     $serverStatus = $true
-    if (Test-IsAzureVM) { 
-        Write-Host "Running in Azure VM, skipping Azure Arc-enabled Server.."
-    } else {
-        Write-Host "Connecting Azure Arc-enabled Server.."
-        $serverStatus = Connect-AideArcServer
-    }
+
+    Write-Host "Connecting Azure Arc-enabled Server.."
+    $serverStatus = Connect-AideArcServer
+
     Write-Host "Connecting Azure Arc-enabled Kubernetes.."
     $kubernetesStatus = Connect-AideArcKubernetes
 
@@ -997,10 +998,9 @@ function Disconnect-AideArc {
 
     #>
     $serverStatus = $true
-    if (-not (Test-IsAzureVM)) { 
-        Write-Host "Disconnecting Azure Arc-enabled Server.."
-        $serverStatus = Disconnect-AideArcServer
-    }
+    Write-Host "Disconnecting Azure Arc-enabled Server.."
+    $serverStatus = Disconnect-AideArcServer
+
     Write-Host "Disconnecting Azure Arc-enabled Kubernetes.."
     $kubernetesStatus = Disconnect-AideArcKubernetes
 
