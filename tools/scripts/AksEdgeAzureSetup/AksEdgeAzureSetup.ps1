@@ -96,6 +96,7 @@ function AssignRole([String] $roleToAssign) {
         "--role", "$roleToAssign",
         "--scope", "$rguri"
     )
+    Write-Host "Creating $roleToAssign role assignment"
     $res = (az role assignment create @roleparams ) | ConvertFrom-Json
     if (!$res) { Write-Host " Error in assigning $roleToAssign role " -ForegroundColor Red }
 }
@@ -258,8 +259,9 @@ foreach ($namespace in $namespaces) {
 $spName = $aicfg.ServicePrincipalName
 $spApp = (az ad sp list --display-name $spName | ConvertFrom-Json -ErrorAction SilentlyContinue)
 $servicePrincipal = $null
-$enableContributor = $spContributorRole
-$enableKcOnboarding = (!$spContributorRole)
+$enableContributor = $spContributorRole.IsPresent
+$enableKcOnboarding = (!$spContributorRole.IsPresent)
+$enableAcmOnboarding = (!$spContributorRole.IsPresent)
 $savePassword = $false
 
 if ($spApp -is [Array]) {$spApp = $spApp | Where-Object {$_.displayName -ieq $spName}; }
@@ -268,19 +270,20 @@ if ($spApp) { # service principal found. Check roles required
     Write-Host "$spName is already present."
     $spRoles = (az role assignment list --all --assignee $($spApp.appId)) | ConvertFrom-Json
     if ($spRoles) {
-        $enableAcmOnboarding = $true
         $spRolesRgScope = $spRoles | Where-Object {$_.scope -eq $rguri } # resource group scope
         if ($spRolesRgScope) {
             if ($spRolesRgScope.roleDefinitionName -contains 'Contributor') {
-                Write-Host "* Contributor role already enabled" -ForegroundColor Green
+                Write-Host "* Contributor role enabled" -ForegroundColor Green
                 $enableContributor = $false
                 $enableKcOnboarding = $false
                 $enableAcmOnboarding = $false
             }
             if ($spRolesRgScope.roleDefinitionName -contains 'Azure Connected Machine Onboarding') {
+                Write-Host "* Azure Connected Machine Onboarding role enabled" -ForegroundColor Green
                 $enableAcmOnboarding = $false
             }
             if ($spRolesRgScope.roleDefinitionName -contains 'Kubernetes Cluster - Azure Arc Onboarding') {
+                Write-Host "* Kubernetes Cluster - Azure Arc Onboarding role enabled" -ForegroundColor Green
                 $enableKcOnboarding = $false
             }
         }
