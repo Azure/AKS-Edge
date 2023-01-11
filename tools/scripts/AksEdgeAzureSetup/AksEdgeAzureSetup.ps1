@@ -13,6 +13,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions
     "azure-cli"        = "2.41.0"
     "azure-cli-core"   = "2.41.0"
 }
+New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
+    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
+    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
+    "canadacentral", "eastus2euap"
+)
 function Test-AzVersions {
     #Function to check if the installed az versions are greater or equal to minVersions
     $retval = $true
@@ -120,6 +126,11 @@ if ($jsonContent.Azure) {
     $aicfg = $jsonContent
 } else {
     Write-Host "Error: Incorrect json content" -ForegroundColor Red
+    exit -1
+}
+if ($arcLocations -inotcontains $($aicfg.Location)){
+    Write-Host "Error: Location $($aicfg.Location) is not supported for Azure Arc" -ForegroundColor Red
+    Write-Host "Supported Locations : $arcLocations"
     exit -1
 }
 # Install Cli

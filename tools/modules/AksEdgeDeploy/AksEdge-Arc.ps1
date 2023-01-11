@@ -31,6 +31,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azMinVersions 
     "customlocation"   = "0.1.3"
     "k8s-extension"    = "1.3.3"
 }
+New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
+    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
+    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
+    "canadacentral", "eastus2euap"
+)
 function Get-AideArcUserConfig {
     return (Get-AideUserConfig).Azure
 }
@@ -51,6 +57,11 @@ function Test-AideArcUserConfig {
     }
     if ((-not $aicfg.Auth.ServicePrincipalId) -and (-not $aicfg.Auth.Password)) {
         Write-Host "Error: Specify Auth parameters" -ForegroundColor Red
+        $retval = $false
+    }
+    if ($arcLocations -inotcontains $($aicfg.Location)){
+        Write-Host "Error: Location $($aicfg.Location) is not supported for Azure Arc" -ForegroundColor Red
+        Write-Host "Supported Locations : $arcLocations"
         $retval = $false
     }
     return $retval
@@ -245,7 +256,8 @@ function Initialize-AideArc {
     .EXAMPLE
         Initialize-AideArc
     #>
-    $status = $true
+    $status = Test-AideArcUserConfig
+    if (!$status) { return $false }
     $aicfg = Get-AideArcUserConfig
     if (! $aicfg) {
         Write-Host "Error: UserConfig not set. Use Set-AideUserConfig to set" -Foreground Red
