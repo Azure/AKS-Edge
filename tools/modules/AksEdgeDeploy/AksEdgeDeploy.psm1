@@ -313,6 +313,22 @@ function Get-AzureVMInfo {
     $vmInfo.Add("sku", $response.compute.sku)
     return $vmInfo
 }
+
+function Disable-WindowsAzureGuestAgent {
+    if (!$aideSession.HostOS.IsAzureVM) {
+        Write-Host "Error: Host is not an Azure VM" -ForegroundColor Red
+        return $null
+    }
+    $service = Get-Service WindowsAzureGuestAgent -ErrorAction SilentlyContinue
+    if ($service -and ($($service.Status) -ne 'Stopped')) {
+        Set-Service WindowsAzureGuestAgent -StartupType Disabled -Verbose
+        Stop-Service WindowsAzureGuestAgent -Force -Verbose
+        New-NetFirewallRule -Name BlockAzureIMDS -DisplayName "Block access to Azure IMDS" -Enabled True -Profile Any -Direction Outbound -Action Block -RemoteAddress 169.254.169.254
+    } else {
+        Write-Host "WindowsAzureGuestAgent is already stopped"
+    }
+}
+
 function Test-AideUserConfigNetwork {
     <#
     .DESCRIPTION
