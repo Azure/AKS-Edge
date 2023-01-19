@@ -68,14 +68,17 @@ function Get-AideHostPcInfo {
     if ((Get-CimInstance Win32_BaseBoard).Product -eq 'Virtual Machine') {
         $aideSession.HostOS.IsVM = $true
         Write-Host "Running as a virtual machine " -NoNewline
-        if (Get-Service WindowsAzureGuestAgent -ErrorAction SilentlyContinue) {
+        $guestAgent = Get-Service WindowsAzureGuestAgent -ErrorAction SilentlyContinue
+        if ($guestAgent) {
             $aideSession.HostOS.IsAzureVM = $true
             Write-Host "in Azure environment " -NoNewline
-            $vmInfo = Get-AzureVMInfo
-            Write-Host "(Name= $($vmInfo.name)" -NoNewline
-            Write-Host "vmSize= $($vmInfo.vmSize)" -NoNewline
-            Write-Host "offer= $($vmInfo.offer)" -NoNewline
-            Write-Host "sku= $($vmInfo.sku) )" -NoNewline
+            if ($guestAgent.Status -eq 'Running') {
+                $vmInfo = Get-AzureVMInfo
+                Write-Host "(Name= $($vmInfo.name)" -NoNewline
+                Write-Host "vmSize= $($vmInfo.vmSize)" -NoNewline
+                Write-Host "offer= $($vmInfo.offer)" -NoNewline
+                Write-Host "sku= $($vmInfo.sku) )" -NoNewline
+            }
         }
         if ($pCS.HypervisorPresent) {
             Write-Host "with Nested Hyper-V enabled"
