@@ -908,7 +908,7 @@ function Install-AideMsi {
     Write-Host "Installing $reqProduct from $url"
     Push-Location $env:Temp
     $argList = '/I AksEdge.msi /qn '
-    $windowsRequired = $aideConfig.DeployOptions.NodeType -ilike '*Windows'
+    $windowsRequired = $aideConfig.AksEdgeConfig.DeployOptions.NodeType -ilike '*Windows'
     if (Test-Path -Path $url) {
         Copy-Item -Path $url -Destination $msiFile
         if($windowsRequired) {
