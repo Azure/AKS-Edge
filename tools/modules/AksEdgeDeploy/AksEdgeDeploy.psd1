@@ -12,7 +12,7 @@
     RootModule        = 'AksEdgeDeploy.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.230109.1600'
+    ModuleVersion     = '1.0.230119.1200'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
