@@ -17,7 +17,7 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azcmagentexe -
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfig -Value @{
     "RPNamespaces"  = @("Microsoft.HybridCompute", "Microsoft.GuestConfiguration", "Microsoft.HybridConnectivity",
-        "Microsoft.Kubernetes", "Microsoft.KubernetesConfiguration", "Microsoft.ExtendedLocation", "Microsoft.PolicyInsights")
+        "Microsoft.Kubernetes", "Microsoft.KubernetesConfiguration", "Microsoft.ExtendedLocation")
     "ArcExtensions" = @("MicrosoftMonitoringAgent", "CustomScriptExtension")
     "ReqRoles"      = @("Azure Connected Machine Onboarding", "Kubernetes Cluster - Azure Arc Onboarding")
     "AzExtensions"  = @("connectedmachine", "connectedk8s", "customlocation", "k8s-extension")
