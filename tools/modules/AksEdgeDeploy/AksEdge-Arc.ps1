@@ -17,7 +17,7 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azcmagentexe -
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfig -Value @{
     "RPNamespaces"  = @("Microsoft.HybridCompute", "Microsoft.GuestConfiguration", "Microsoft.HybridConnectivity",
-        "Microsoft.Kubernetes", "Microsoft.KubernetesConfiguration", "Microsoft.ExtendedLocation", "Microsoft.PolicyInsights")
+        "Microsoft.Kubernetes", "Microsoft.KubernetesConfiguration", "Microsoft.ExtendedLocation")
     "ArcExtensions" = @("MicrosoftMonitoringAgent", "CustomScriptExtension")
     "ReqRoles"      = @("Azure Connected Machine Onboarding", "Kubernetes Cluster - Azure Arc Onboarding")
     "AzExtensions"  = @("connectedmachine", "connectedk8s", "customlocation", "k8s-extension")
@@ -469,7 +469,8 @@ function Get-AideArcServerInfo {
     }
     $vmInfo = @{}
     $apiVersion = "2020-06-01"
-    $InstanceUri = $env:IMDS_ENDPOINT + "/metadata/instance?api-version=$apiVersion"
+    $imdsEndpoint = [System.Environment]::GetEnvironmentVariable("IMDS_ENDPOINT","Machine")
+    $InstanceUri = $imdsEndpoint + "/metadata/instance?api-version=$apiVersion"
     $Proxy = New-Object System.Net.WebProxy
     $WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
     $WebSession.Proxy = $Proxy
@@ -640,7 +641,8 @@ function Get-AideArcServerSMI {
     $token = $null
     $apiVersion = "2020-06-01"
     $resource = "https://management.azure.com/"
-    $endpoint = "{0}?resource={1}&api-version={2}" -f $env:IDENTITY_ENDPOINT, $resource, $apiVersion
+    $idEndpoint = [System.Environment]::GetEnvironmentVariable("IDENTITY_ENDPOINT","Machine")
+    $endpoint = "{0}?resource={1}&api-version={2}" -f $idEndpoint, $resource, $apiVersion
     $secretFile = ""
     try {
         Invoke-WebRequest -Method GET -Uri $endpoint -Headers @{Metadata = 'True' } -UseBasicParsing
