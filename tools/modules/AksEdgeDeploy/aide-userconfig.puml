@@ -40,8 +40,9 @@ jsonDiagram {
         "ResourceGroupName": "String",
         "ServicePrincipalName" : "String",
         "Location" : "String",
+        "CustomLocationOID":"GUID",
         "Auth": {
-            "ServicePrincipalId" : "String",
+            "ServicePrincipalId" : "GUID",
             "Password" : "String"
         }
     }

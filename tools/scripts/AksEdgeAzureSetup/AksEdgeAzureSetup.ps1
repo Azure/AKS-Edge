@@ -8,7 +8,7 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230109.1600" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230124.1100" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
     "azure-cli"        = "2.41.0"
     "azure-cli-core"   = "2.41.0"
@@ -345,6 +345,8 @@ if ($savePassword) {
     $aicfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value @{"ServicePrincipalId" = "$($servicePrincipal.appId)"; "Password" = "$($servicePrincipal.password)"} -Force
     Write-Host "WARNING: The Service Principal password is stored in clear at $jsonFile" -ForegroundColor Yellow
 }
+$customLocationRPOID=(az ad sp list --filter "displayname eq 'Custom Locations RP'" --query "[?appDisplayName=='Custom Locations RP'].id" -o tsv)
+$jsonContent.Azure | Add-Member -MemberType NoteProperty -Name 'CustomLocationOID' -Value $customLocationRPOID -Force
 $jsonContent | ConvertTo-Json | Format-Json | Set-Content -Path "$jsonFile" -Force
 az logout
 exit 0
