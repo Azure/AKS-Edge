@@ -523,7 +523,7 @@ function Connect-AideArcServer {
             "--tenant-id", "$($aicfg.TenantId)",
             "--location", "$($aicfg.Location)",
             "--subscription-id", "$($aicfg.SubscriptionId)",
-            "--cloud", "$($arciotSession.azSession.environmentName)",
+            #"--cloud", "$($arciotSession.azSession.environmentName)",
             "--service-principal-id", "$($creds.Username)",
             "--service-principal-secret", "$($creds.Password)"
         )
@@ -833,6 +833,9 @@ function Connect-AideArcKubernetes {
             "--infrastructure","TBF"
         )
         #>
+        if ($($aicfg.CustomLocationOID)) {
+            $connectargs += @( "--custom-locations-oid", "$($aicfg.CustomLocationOID)")
+        }
         $tags = @("SKU=AKSEdgeEssentials")
         $modVersion = (Get-Module AksEdge).Version
         if ($modVersion) { $tags += @("Version=$modVersion") }
@@ -951,14 +954,7 @@ function Get-AideArcKubernetesServiceToken {
         Get-AideArcKubernetesServiceToken
 
     #>
-    $seraccs = $(kubectl get serviceaccounts)
-    if (!($seraccs | Where-Object { $_.Contains('aksedge-admin-user') })) {
-        kubectl create serviceaccount aksedge-admin-user | Write-Host
-        kubectl create clusterrolebinding aksedge-admin-user --clusterrole cluster-admin --serviceaccount default:aksedge-admin-user | Write-Host
-    }
-    $secretname = $(kubectl get serviceaccount aksedge-admin-user -o jsonpath='{$.secrets[0].name}')
-    $token = $(kubectl get secret ${secretname} -o jsonpath='{$.data.token}')
-    $servicetoken = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($token))
+    $servicetoken = Get-AksEdgeManagedServiceToken
     $servicetokenfile = "$($arciotSession.WorkspacePath)\servicetoken.txt"
     Set-Content -Path $servicetokenfile -Value "$servicetoken"
     return $servicetoken

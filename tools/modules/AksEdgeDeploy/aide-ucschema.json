@@ -56,6 +56,10 @@
                     "type": "string",
                     "description": "ServicePrincipalName to be used for creating service principal to onboard Arc-enabled Server/Kubernetes"
                 },
+                "CustomLocationOID":{
+                    "type": "string",
+                    "description": "ObjectID for the custom locations resource provider to be used for creating custom locations "
+                },
                 "Auth": {
                     "type": "object",
                     "propertires": {

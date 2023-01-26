@@ -113,8 +113,9 @@ Find below the details of the supported parameters in the json file.
 | ResourceGroupName | Mandatory | String | ResourceGroupName  |
 | ServicePrincipalName | Mandatory | String | ServicePrincipalName  |
 | Location | Mandatory | String | Location  |
-| `Auth`.ServicePrincipalId |Optional | String | Specify service principal appID to use|
-| `Auth`.Password |Optional| String | Specify the password (clear) |
+| CustomLocationOID | Optional | GUID | ObjectID for the custom location resource provider  |
+| `Auth`.ServicePrincipalId |Mandatory | GUID | Specify service principal appID to use|
+| `Auth`.Password |Mandatory| String | Specify the password (clear) |
 </details>
 </details>
 <details><summary>AksEdgeDeploy Config Visual</summary>
