@@ -63,145 +63,37 @@ Start-AideWorkflow -jsonFile 'C:\MyConfigs\aide-userconfig.json'
 
 ## AksEdgeDeploy Config Json
 
-<details><summary>AksEdgeDeploy Config Schema</summary>
 Find below the details of the supported parameters in the json file.
-<details><summary>SchemaVersion</summary>
 
-| | |
-| --------- | -------- |
-|Required | Mandatory |
-|Type / Values | 1.1 |
-|Description | Fixed value, schema version. Reserved|
-</details>
-<details><summary>Version</summary>
-
-| | |
-| --------- | -------- |
-|Required | Mandatory |
-|Type / Values | 1.0 |
-|Description | Fixed value, json instance version. Reserved|
-</details>
-<details><summary>AksEdgeProduct</summary>
-
-| | |
-| --------- | -------- |
-|Required | Mandatory |
-|Type / Values | AKS Edge Essentials - K8s <br> AKS Edge Essentials - K3s|
-|Description | Desired product K8s or K3s|
-</details>
-<details><summary>AksEdgeProductUrl</summary>
-
-| | |
-| --------- | -------- |
-|Required | Optional |
-|Type / Values | URL|
-|Description |URL to download the MSI|
-</details>
-<details><summary>AksEdgeConfig</summary>
-
-| | |
-| --------- | -------- |
-|Required | Optional |
-|Type / Values | Json object|
-|Description |Embedded json object for AKS Edge Configuration|
-</details>
-<details><summary>AksEdgeConfigFile</summary>
-
-| | |
-| --------- | -------- |
-|Required | Optional |
-|Type / Values | String |
-|Description |File path to the AKS Edge Configuration json. Either `AksEdgeConfig` or `AksEdgeConfigFile` needs to be specified.|
-</details>
-<details><summary>Azure</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- |---------------- | -------- |
-| ClusterName | Optional | String | Name of the cluster for Arc connection. Default is hostname-distribution (abc-k8s or def-k3s)|
-| SubscriptionName | Mandatory | GUID | SubscriptionName  |
-| SubscriptionId | Optional | GUID | SubscriptionId  |
-| TenantId | Optional | GUID | TenantId  |
-| ResourceGroupName | Mandatory | String | ResourceGroupName  |
-| ServicePrincipalName | Mandatory | String | ServicePrincipalName  |
-| Location | Mandatory | String | Location  |
-| CustomLocationOID | Optional | GUID | ObjectID for the custom location resource provider  |
-| `Auth`.ServicePrincipalId |Mandatory | GUID | Specify service principal appID to use|
-| `Auth`.Password |Mandatory| String | Specify the password (clear) |
-</details>
-</details>
-<details><summary>AksEdgeDeploy Config Visual</summary>
+|Node| Parameter | Required | Type / Values | Comments |
+|-| --------- | -------- |---------------- | -------- |
+|SchemaVersion| - | Mandatory | 1.1 | Fixed value, schema version. Reserved  |
+|Version| - | Mandatory | 1.0 | Fixed value, json instance version  |
+|AksEdgeProduct| - | Mandatory | AKS Edge Essentials - K8s <br> AKS Edge Essentials - K3s | Desired product K8s or K3s |
+|AksEdgeProductUrl| - | Optional | URL | URL to download the MSI  |
+|Azure | ClusterName | Optional | String | Name of the cluster for Arc connection. Default is hostname-distribution (abc-k8s or def-k3s)|
+|| SubscriptionName | Mandatory | GUID | Name of the Azure Subscription  |
+|| SubscriptionId | Optional | GUID | Azure Subscription ID  |
+|| TenantId | Optional | GUID | Azure Tenant ID  |
+|| ResourceGroupName | Mandatory | String | ResourceGroupName  |
+|| ServicePrincipalName | Mandatory | String | ServicePrincipalName  |
+|| Location | Mandatory | String | Location  |
+|| CustomLocationOID | Optional | GUID | ObjectID for the custom location resource provider  |
+|| `Auth`.ServicePrincipalId |Mandatory | GUID | Specify service principal appID to use|
+|| `Auth`.Password |Mandatory| String | Specify the password (in clear) |
+|InstallOptions| InstallPath | Optional | String |  Path to install the product  |
+|| VhdxPath | Optional | String | Path to store the vhdx files  |
+|VSwitch| Name | Optional | String | Name for the external switch, mandatory for ScalableCluster|
+|| AdapterName | Optional | String | Name for the physical adapter, mandatory for ScalableCluster|
+|AksEdgeConfigFile| Name | Optional | String | File path to the AKS Edge Configuration json. Either `AksEdgeConfig` or `AksEdgeConfigFile` needs to be specified.|
+|AksEdgeConfig| Name | Optional | Json object | Embedded json object for AKS Edge Configuration|
 
 ![AksEdgeDeploy json](AksEdgeDeploy.png)
 
-</details>
-
 ## AksEdge Config Json
 
-<details><summary>AksEdge Config Schema</summary>
-The below table provides the schema for the AksEdge Deployment Configuration json.
-<details><summary>DeployOptions</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- | --------------- | -------- |
-| SingleMachineCluster | Mandatory | Boolean | SingleMachine with internal switch  created when true |
-| NodeType | Mandatory | [Linux &#124; Windows &#124; LinuxAndWindows] | Windows only is supported in Full Kubernetes deployment |
-| NetworkPlugin | Optional | [calico &#124; flannel] | flannel is default |
-| Headless | Optional | Boolean | Headless mode |
-| TimeoutSeconds|Optional|Int| This specifies the maximum wait for a kubernetes node to reach a specified state (eg. Ready) |
-| JoinCluster|Optional| Boolean | the new deployment will join an existing remote cluster. SingleMachineCluster should be false when this is set to true |
-| ControlPlane|Optional|Boolean| This parameter indicates that the Linux node of this deployment will join an existing cluster as a node that runs the control plane |
-| ClusterJoinToken|Optional|String| The cluster join token used for joining an existing cluster |
-| DiscoveryTokenHash|Optional|String| The discovery token hash used for joining an existing cluster |
-</details>
-<details><summary>EndUser</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- | --------------- | -------- |
-| AcceptEula | Mandatory | Yes |  Accept [EULA](../../../EULA.md) |
-| AcceptOptionalTelemetry | Optional | Yes |  Accept optional telemetry to be sent |
-</details>
-<details><summary>LinuxVm</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- | --------------- | -------- |
-| CpuCount | Optional |2 | CpuCount|
-| MemoryInMB | Optional |2| MemoryInMB|
-| DataSizeInGB | Optional | 2-2000| Size in GB|
-| Ip4Address | Optional | IPv4 |  Static IP Address for the Linux Node VM |
-</details>
-
-<details><summary>WindowsVm</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- | --------------- | -------- |
-| CpuCount | Optional |2 | CpuCount|
-| MemoryInMB | Optional |2| MemoryInMB|
-| Ip4Address | Optional | IPv4 |  Static IP Address for the Windows Node VM |
-</details>
-<details><summary>Network</summary>
-
-| Parameter | Required | Type / Values | Comments |
-| --------- | -------- |---------------- | -------- |
-| `VSwitch`.Type | Optional | External |Only **External** switch supported currently. SingleMachine cluster uses Internal switch always and does not required to be specified.|
-| `VSwitch`.Name | Optional | String | Switch name to use |
-| `VSwitch`.AdapterName | Mandatory | String | NetAdapterName for VSwitch, mandatory for Full kubernetes deployment |
-| ControlPlaneEndpointIp | Optional | IPv4 |  This parameter allows defining a specific IP address to be used as the control plane endpoint IP for the deployment. If not specified, the endpoint will equal the local Linux node's IP address when creating a new cluster |
-| ServiceIPRangeSize | Optional | IPv4 |  Required for SingleMachine deployment |
-| ServiceIPRangeStart | Optional | IPv4 |  Required for Scalable deployment |
-| ServiceIPRangeEnd | Optional | IPv4 |  Required for Scalable deployment |
-| Ip4GatewayAddress | Optional | IPv4 | Static Gateway IP Address |
-| Ip4PrefixLength | Optional | [1..32] | IP PrefixLength |
-| `Proxy`.Http | Optional | String | HttpProxy link |
-| `Proxy`.Https | Optional | String | HttpsProxy link |
-| `Proxy`.No | Optional | String | No-proxy specification |
-| DnsServers | Optional | [IPv4] | Array of valid dns servers for VM |
-</details>
-</details>
-
-<details><summary>AksEdge Config Visual</summary>
-
 ![AksEdge Schema json](AksEdgeSchema.png)
-</details>
+
 
 ## AKS Edge Essentials Arc Connection
 

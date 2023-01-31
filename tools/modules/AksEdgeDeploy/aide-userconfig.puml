@@ -2,9 +2,9 @@
 <style>
 jsonDiagram {
     node {
-        FontName Segoe UI SemiBold
+        FontName Segoe UI
         FontColor blue
-        FontSize 14
+        FontSize 12
         RoundCorner 10
         LineThickness 1
         separator {
