@@ -21,8 +21,8 @@ $aideSession = @{
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProductPrefix -Value "AKS Edge Essentials"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProducts -Value @{
-    "AKS Edge Essentials - K8s (Public Preview)" = "https://aka.ms/aks-edge/k8s-msi"
-    "AKS Edge Essentials - K3s (Public Preview)" = "https://aka.ms/aks-edge/k3s-msi"
+    "AKS Edge Essentials - K8s" = "https://aka.ms/aks-edge/k8s-msi"
+    "AKS Edge Essentials - K3s" = "https://aka.ms/aks-edge/k3s-msi"
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallUrl -Value "https://aka.ms/aks-edge/windows-node-zip"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeValueSet -Value @{

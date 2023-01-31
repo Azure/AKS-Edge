@@ -13,10 +13,10 @@ if (! [Environment]::Is64BitProcess) {
 }
 Push-Location $PSScriptRoot
 $installDir = "C:\AksEdgeScript"
-$productName = "AKS Edge Essentials - K3s (Public Preview)"
+$productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
 if ($UseK8s) {
-    $productName ="AKS Edge Essentials - K8s (Public Preview)"
+    $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
 }
 
@@ -31,7 +31,7 @@ $jsonContent = @"
         "SubscriptionName": "Visual Studio Enterprise",
         "SubscriptionId": "",
         "TenantId": "",
-        "ResourceGroupName": "aksedgepreview-rg",
+        "ResourceGroupName": "aksedge-rg",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "EastUS",
         "CustomLocationOID":"",

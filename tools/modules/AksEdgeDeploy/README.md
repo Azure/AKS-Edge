@@ -16,28 +16,39 @@ The `Start-AideWorkflow` function in the modole does the following:
 
     ```json
     {
-        "SchemaVersion": "1.0",
+        "SchemaVersion": "1.1",
         "Version": "1.0",
-        "AksEdgeProduct" : "AKS Edge Essentials - K8s (Public Preview)",
+        "AksEdgeProduct" : "AKS Edge Essentials - K3s",
         "AksEdgeConfig": {
-            "DeployOptions": {
-                "SingleMachineCluster": true
+            "SchemaVersion": "1.5",
+            "Version": "1.0",
+            "DeploymentType": "SingleMachineCluster",
+            "Init": {
+                "ServiceIPRangeSize": 0
             },
-            "EndUser": {
+            "Network": {
+                "NetworkPlugin": "flannel",
+                "InternetDisabled": false
+            },
+            "User": {
                 "AcceptEula": true,
-                "AcceptOptionalTelemetry" : true
+                "AcceptOptionalTelemetry": true
             },
-            "LinuxVm": {
-                "CpuCount": 4,
-                "MemoryInMB": 4096,
-                "DataSizeinGB": 20
-            }
+            "Machines": [
+                {
+                    "LinuxNode": {
+                        "CpuCount": 4,
+                        "MemoryInMB": 4096,
+                        "DataSizeInGB": 20
+                    }
+                }
+            ]
         },
         "Azure": {
             "SubscriptionName":"Visual Studio Enterprise",
             "SubscriptionId": "",
             "TenantId":"",
-            "ResourceGroupName": "aksedgepreview-rg",
+            "ResourceGroupName": "aksedge-rg",
             "ServicePrincipalName" : "aksedge-sp",
             "Location" : "EastUS"
         }
@@ -75,7 +86,7 @@ Find below the details of the supported parameters in the json file.
 | | |
 | --------- | -------- |
 |Required | Mandatory |
-|Type / Values | AKS Edge Essentials - K8s (Public Preview) <br> AKS Edge Essentials - K3s (Public Preview)|
+|Type / Values | AKS Edge Essentials - K8s <br> AKS Edge Essentials - K3s|
 |Description | Desired product K8s or K3s|
 </details>
 <details><summary>AksEdgeProductUrl</summary>
@@ -325,7 +336,6 @@ Connect-AideArc
 | Installs Azure CLI |
 |`Initialize-AideArc`|
 | Main funtion that checks and installs required software, validates if the Auth parameters are good for Azure login  |
-| Disconnects Arc-enabled server and Arc-enabled kubernetes|
 |`Enter-AideArcSession`|
 | Logs in to Azure using the service principal credentials|
 |`Exit-AideArcSession`|
