@@ -85,8 +85,8 @@ Find below the details of the supported parameters in the json file.
 || VhdxPath | Optional | String | Path to store the vhdx files  |
 |VSwitch| Name | Optional | String | Name for the external switch, mandatory for ScalableCluster|
 || AdapterName | Optional | String | Name for the physical adapter, mandatory for ScalableCluster|
-|AksEdgeConfigFile| Name | Optional | String | File path to the AKS Edge Configuration json. Either `AksEdgeConfig` or `AksEdgeConfigFile` needs to be specified.|
-|AksEdgeConfig| Name | Optional | Json object | Embedded json object for AKS Edge Configuration|
+|AksEdgeConfigFile| - | Optional | String | File path to the AKS Edge Configuration json. Either `AksEdgeConfig` or `AksEdgeConfigFile` needs to be specified.|
+|AksEdgeConfig| - | Optional | Json object | Embedded json object for AKS Edge Configuration|
 
 ![AksEdgeDeploy json](AksEdgeDeploy.png)
 
