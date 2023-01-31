@@ -363,7 +363,12 @@ $arcdata = @{
 $ecFile = $jsonContent.AksEdgeConfigFile
 if ($ecFile) {
     $parentpath = Split-Path -Path $jsonFile -Parent
-    $ecFile = Join-Path -Path $parentpath -ChildPath $ecFile
+    if ($ecFile.Contains("\")) {
+        $ecFile = Resolve-Path -Path $ecFile
+    } else {
+        $ecFile = Join-Path -Path $parentpath -ChildPath $ecFile
+    }
+    Write-Host "Updating $ecFile with Arc information"
     if (Test-Path -Path $ecFile) {
         $edgeCfg = Get-Content $ecFile | ConvertFrom-Json
         $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
