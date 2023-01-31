@@ -25,7 +25,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion":"1.0",
+    "SchemaVersion":"1.1",
     "Version":"1.0",
     "AksEdgeProduct" : [
                 "AKS Edge Essentials - K8s (Public Preview)",
@@ -52,9 +52,14 @@ jsonDiagram {
         "VhdxPath":"String"
     }
     ,
+    "VSwitch": {
+        "Name": "String",
+        "AdapterName": "String"
+    }
+    ,
     "AksEdgeConfigFile":"String",
     "AksEdgeConfig":{
-        "ref" :"aksedge-dc.json"
+        "ref" :"aksedge-config.json"
     }
 }
 @endjson

@@ -38,27 +38,36 @@ $jsonContent = @"
         "ResourceGroupName": "aksedgepreview-rg",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "EastUS",
+        "CustomLocationOID":"",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
         }
     },
-    "AksEdgeConfig": {
-        "DeployOptions": {
-            "SingleMachineCluster": true,
-            "NodeType": "Linux",
-            "NetworkPlugin": "$networkplugin",
-            "Headless": true
+    "AksEdgeConfig":{
+        "SchemaVersion": "1.5",
+        "Version": "1.0",
+        "DeploymentType": "SingleMachineCluster",
+        "Init": {
+            "ServiceIPRangeSize": 0
         },
-        "EndUser": {
+        "Network": {
+            "NetworkPlugin": "$networkplugin",
+            "InternetDisabled": false
+        },
+        "User": {
             "AcceptEula": true,
             "AcceptOptionalTelemetry": true
         },
-        "LinuxVm": {
-            "CpuCount": 4,
-            "MemoryInMB": 4096,
-            "DataSizeinGB": 20
-        }
+        "Machines": [
+            {
+                "LinuxNode": {
+                    "CpuCount": 4,
+                    "MemoryInMB": 4096,
+                    "DataSizeInGB": 20
+                }
+            }
+        ]
     }
 }
 "@

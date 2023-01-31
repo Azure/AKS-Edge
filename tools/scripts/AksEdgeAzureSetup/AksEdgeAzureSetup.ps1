@@ -8,12 +8,12 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230124.1100" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230130.1600" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
-    "azure-cli"        = "2.41.0"
-    "azure-cli-core"   = "2.41.0"
+    "azure-cli"      = "2.41.0"
+    "azure-cli-core" = "2.41.0"
 }
-New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
     "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
     "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
@@ -128,7 +128,7 @@ if ($jsonContent.Azure) {
     Write-Host "Error: Incorrect json content" -ForegroundColor Red
     exit -1
 }
-if ($arcLocations -inotcontains $($aicfg.Location)){
+if ($arcLocations -inotcontains $($aicfg.Location)) {
     Write-Host "Error: Location $($aicfg.Location) is not supported for Azure Arc" -ForegroundColor Red
     Write-Host "Supported Locations : $arcLocations"
     exit -1
@@ -225,7 +225,7 @@ if (-not $hasRights) {
                 $hasRights = $true
             }
         }
-   }
+    }
 }
 if (-not $hasRights) {
     Write-Host "Error: You do not have sufficient privileges for this subscription $($aicfg.SubscriptionId)." -ForegroundColor Red
@@ -276,7 +276,8 @@ $enableAcmOnboarding = (!$spContributorRole.IsPresent)
 $savePassword = $false
 
 if ($spApp -is [Array]) {$spApp = $spApp | Where-Object {$_.displayName -ieq $spName}; }
-if ($spApp) { # service principal found. Check roles required
+if ($spApp) {
+    # service principal found. Check roles required
     $servicePrincipal = $spApp
     Write-Host "$spName is already present."
     $spRoles = (az role assignment list --all --assignee $($spApp.appId)) | ConvertFrom-Json
@@ -302,7 +303,8 @@ if ($spApp) { # service principal found. Check roles required
     #TODO : Check assigning multiple roles in one go.
     if ($enableContributor) {
         AssignRole -roleToAssign "Contributor"
-    } elseif ($enableAcmOnboarding) { #Check and assign the connected machine onboarding role. the kuberenetes role is assigned later.
+    } elseif ($enableAcmOnboarding) {
+        #Check and assign the connected machine onboarding role. the kuberenetes role is assigned later.
         AssignRole -roleToAssign "Azure Connected Machine Onboarding"
     }
 
@@ -345,8 +347,32 @@ if ($savePassword) {
     $aicfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value @{"ServicePrincipalId" = "$($servicePrincipal.appId)"; "Password" = "$($servicePrincipal.password)"} -Force
     Write-Host "WARNING: The Service Principal password is stored in clear at $jsonFile" -ForegroundColor Yellow
 }
-$customLocationRPOID=(az ad sp list --filter "displayname eq 'Custom Locations RP'" --query "[?appDisplayName=='Custom Locations RP'].id" -o tsv)
+$customLocationRPOID = (az ad sp list --filter "displayname eq 'Custom Locations RP'" --query "[?appDisplayName=='Custom Locations RP'].id" -o tsv)
 $jsonContent.Azure | Add-Member -MemberType NoteProperty -Name 'CustomLocationOID' -Value $customLocationRPOID -Force
+
+#Adding Arc config as per AKSEdge schema
+$arcdata = @{
+    Location          = $aicfg.Location
+    ResourceGroupName = $aicfg.ResourceGroupName
+    SubscriptionId    = $aicfg.SubscriptionId
+    TenantId          = $aicfg.TenantId
+    ClientId          = $aicfg.Auth.ServicePrincipalId
+    ClientSecret      = $aicfg.Auth.Password
+    ClusterName       = ""
+}
+$ecFile = $jsonContent.AksEdgeConfigFile
+if ($ecFile) {
+    $parentpath = Split-Path -Path $jsonFile -Parent
+    $ecFile = Join-Path -Path $parentpath -ChildPath $ecFile
+    if (Test-Path -Path $ecFile) {
+        $edgeCfg = Get-Content $ecFile | ConvertFrom-Json
+        $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
+        $edgeCfg | ConvertTo-Json -Depth 4 | Format-Json | Set-Content -Path "$ecFile" -Force
+    }
+} else {
+    $jsonContent | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
+}
+
 $jsonContent | ConvertTo-Json | Format-Json | Set-Content -Path "$jsonFile" -Force
 az logout
 exit 0
