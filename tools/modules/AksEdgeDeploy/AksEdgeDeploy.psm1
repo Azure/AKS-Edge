@@ -926,7 +926,7 @@ function Remove-AideDeployment {
     .EXAMPLE
         Remove-AideDeployment
     #>
-    return Remove-AksEdgeDeployment $args
+    return Remove-AksEdgeDeployment -Force
 }
 function Test-AideVmSwitch {
     <#
