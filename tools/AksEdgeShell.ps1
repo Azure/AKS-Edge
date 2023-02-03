@@ -3,7 +3,7 @@
   Validates and loads the config file and imports the bootstrap scripts
 #>
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeShellVersion -Value "1.0.230130.1600" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeShellVersion -Value "1.0.230203.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -42,7 +42,7 @@ $feature = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V
 if ($feature.State -ne "Enabled") {
     Write-Host "Hyper-V is disabled." -ForegroundColor Red
     if ($retval) {
-        Write-Host "Running Install-AksEdgeHostFeatures" -ForegroundColor Cyan
+        Write-Host "Running Install-AksEdgeHostFeatures (may reboot to enable Hyper-V)" -ForegroundColor Cyan
         if (!(Install-AksEdgeHostFeatures)) { return $false }
     }
 } else {

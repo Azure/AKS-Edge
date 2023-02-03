@@ -6,7 +6,7 @@ param(
     [Switch] $UseMain
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221212.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230203.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -80,8 +80,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/0.7.22335.1024.zip"
-$zipFile = "0.7.22335.1024.zip"
+$url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/1.0.266.0.zip"
+$zipFile = "1.0.266.0.zip"
 if ($UseMain) {
     $url = "https://github.com/Azure/AKS-Edge/archive/main.zip"
     $zipFile = "main-$starttimeString.zip"

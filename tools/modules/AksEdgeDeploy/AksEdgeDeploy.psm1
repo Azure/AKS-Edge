@@ -1117,8 +1117,9 @@ function Start-AideWorkflow {
     # Check PC prequisites (Hyper-V, AksEdge)
     if (!(Test-AideMsiInstall -Install)) { return $false }
     # Install required host features - can result in reboot.
+    
     Write-Host "Running Install-AksEdgeHostFeatures" -ForegroundColor Cyan
-    if (!(Install-AksEdgeHostFeatures)) { return $false }
+    if (!(Install-AksEdgeHostFeatures -Confirm:$false)) { return $false }
 
     # Check if AksEdge is deployed already and bail out
     if (Test-AideDeployment) {
