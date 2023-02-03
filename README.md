@@ -6,6 +6,9 @@ This repository is offered for tracking features and issues with the Azure Kuber
 
 Support through issues on this repository is provided on a **best-effort basis** for issues that are reproducible following our **Bug Guidance** below. To receive urgent support you must file a support request through official Azure support channels as urgent support is explicitly out of scope of this repository's objectives.
 
+> [!IMPORTANT]
+> 02/03/2023 -  Public preview has been refreshed! Try out our new bits.(Release Candidate for GA) (version 1.0.266.0).
+
 ## Important Links
 
 - AKS Edge Essentials Overview: https://aka.ms/aks-edge/overview

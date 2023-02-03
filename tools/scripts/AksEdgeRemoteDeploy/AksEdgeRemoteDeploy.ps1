@@ -2,10 +2,11 @@
   Sample script to deploy AksEdge via Intune
 #>
 param(
-    [Switch] $UseK8s
+    [Switch] $UseK8s,
+    [Switch] $UseMain
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.221212.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230203.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -33,27 +34,36 @@ $jsonContent = @"
         "ResourceGroupName": "aksedgepreview-rg",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "EastUS",
+        "CustomLocationOID":"",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
         }
     },
-    "AksEdgeConfig": {
-        "DeployOptions": {
-            "SingleMachineCluster": true,
-            "NodeType": "Linux",
-            "NetworkPlugin": "$networkplugin",
-            "Headless": true
+    "AksEdgeConfig":{
+        "SchemaVersion": "1.5",
+        "Version": "1.0",
+        "DeploymentType": "SingleMachineCluster",
+        "Init": {
+            "ServiceIPRangeSize": 0
         },
-        "EndUser": {
+        "Network": {
+            "NetworkPlugin": "$networkplugin",
+            "InternetDisabled": false
+        },
+        "User": {
             "AcceptEula": true,
             "AcceptOptionalTelemetry": true
         },
-        "LinuxVm": {
-            "CpuCount": 4,
-            "MemoryInMB": 4096,
-            "DataSizeinGB": 20
-        }
+        "Machines": [
+            {
+                "LinuxNode": {
+                    "CpuCount": 4,
+                    "MemoryInMB": 4096,
+                    "DataSizeInGB": 20
+                }
+            }
+        ]
     }
 }
 "@
@@ -64,13 +74,18 @@ $jsonContent = @"
 
 #Download the AutoDeploy script
 $starttime = Get-Date
-$transcriptFile = "$PSScriptRoot\aksedgedlog-$($starttime.ToString("yyMMdd-HHmm")).txt"
+$starttimeString = $($starttime.ToString("yyMMdd-HHmm"))
+$transcriptFile = "$PSScriptRoot\aksedgedlog-$starttimeString.txt"
 Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/0.7.22335.1024.zip"
-$zipFile = "0.7.22335.1024.zip"
+$url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/1.0.266.0.zip"
+$zipFile = "1.0.266.0.zip"
+if ($UseMain) {
+    $url = "https://github.com/Azure/AKS-Edge/archive/main.zip"
+    $zipFile = "main-$starttimeString.zip"
+}
 
 if (-not (Test-Path -Path $installDir)) {
     Write-Host "Creating $installDir..."
