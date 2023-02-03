@@ -18,7 +18,7 @@ The `Start-AideWorkflow` function in the modole does the following:
     {
         "SchemaVersion": "1.1",
         "Version": "1.0",
-        "AksEdgeProduct" : "AKS Edge Essentials - K3s",
+        "AksEdgeProduct" : "AKS Edge Essentials - K8s (Public Preview)",
         "AksEdgeConfig": {
             "SchemaVersion": "1.5",
             "Version": "1.0",
@@ -48,7 +48,7 @@ The `Start-AideWorkflow` function in the modole does the following:
             "SubscriptionName":"Visual Studio Enterprise",
             "SubscriptionId": "",
             "TenantId":"",
-            "ResourceGroupName": "aksedge-rg",
+            "ResourceGroupName": "aksedgepreview-rg",
             "ServicePrincipalName" : "aksedge-sp",
             "Location" : "EastUS"
         }

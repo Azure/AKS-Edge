@@ -2,23 +2,19 @@
 <style>
 jsonDiagram {
     node {
-        FontName Segoe UI
-        FontColor blue
         FontSize 14
         RoundCorner 10
-        LineThickness 1
+        LineThickness 0.5
         separator {
             LineThickness 0.25
-            LineColor black
         }
     }
     arrow {
-        LineColor blue
-        LineThickness 1
-        LineStyle 2;5
+        LineThickness 0.5
+        LineStyle 2;6
     }
     highlight {
-        BackgroundColor Blue
+        BackgroundColor black
         FontColor White
     }
 }
@@ -28,7 +24,7 @@ jsonDiagram {
     "SchemaVersion": "1.5",
     "Version": "1.0",
     "DeploymentType": [
-            "**SingleMachineCluster**",
+            "SingleMachineCluster",
             "ScalableCluster",
             "<color:gray>CapiCluster(Reserved)"
     ],
@@ -36,7 +32,7 @@ jsonDiagram {
         "ServiceIPRangeStart": "ipv4",
         "ServiceIPRangeSize": {
             "type": "integer",
-            "minimum" : 0,
+            "minimum" : 1,
             "maximum" : 127
         }
     },
@@ -82,17 +78,15 @@ jsonDiagram {
             "AdapterName":"string",
             "Mtu":"integer"
         },
-        "LinuxNode":"<NodeType>",
-        "WindowsNode":"<NodeType>",
-        "<NodeType>":{
+        "LinuxNode":{
             "CpuCount": {
                 "type": "integer",
-                "default": 2,
+                "default": 4,
                 "minimum": 2
             },
             "MemoryInMB": {
                 "type": "integer",
-                "default": 2048,
+                "default": 4096,
                 "multipleOf": 2,
                 "minimum": 2048
             },
@@ -102,12 +96,32 @@ jsonDiagram {
             },
             "TimeoutSeconds": {
                 "type": "int",
-                "default": 900
+                "default": 300
             },
             "Ip4Address": "ipv4",
             "MacAddress": "string",
             "Mtu": "integer",
-            "ControlPlane" : "<color:gray>Reserved"
+            "ControlPlane" : false
+        },
+        "WindowsNode":{
+            "CpuCount": {
+                "type": "integer",
+                "default": 2,
+                "minimum": 2
+            },
+            "MemoryInMB": {
+                "type": "integer",
+                "default": 4096,
+                "multipleOf": 2,
+                "minimum": 2048
+            },
+            "TimeoutSeconds": {
+                "type": "int",
+                "default": 900
+            },
+            "Ip4Address": "ipv4",
+            "MacAddress": "string",
+            "Mtu": "integer"
         }
     }]
 }

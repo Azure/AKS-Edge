@@ -2,23 +2,19 @@
 <style>
 jsonDiagram {
     node {
-        FontName Segoe UI
-        FontColor blue
         FontSize 12
         RoundCorner 10
-        LineThickness 1
+        LineThickness 0.5
         separator {
             LineThickness 0.25
-            LineColor black
         }
     }
     arrow {
-        LineColor blue
-        LineThickness 1
-        LineStyle 2;5
+        LineThickness 0.5
+        LineStyle 2;6
     }
     highlight {
-        BackgroundColor Blue
+        BackgroundColor black
         FontColor White
     }
 }
@@ -28,8 +24,8 @@ jsonDiagram {
     "SchemaVersion":"1.1",
     "Version":"1.0",
     "AksEdgeProduct" : [
-                "AKS Edge Essentials - K8s",
-                "AKS Edge Essentials - K3s"
+                "AKS Edge Essentials - K8s (Public Preview)",
+                "AKS Edge Essentials - K3s (Public Preview)"
             ],
     "AksEdgeProductUrl" : "URL",
     "Azure":{
