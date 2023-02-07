@@ -20,12 +20,11 @@ if ([string]::IsNullOrEmpty($version))
 if ($version.Contains("K8s"))
 { 
     Write-Host "    AKS K8s version found" -ForegroundColor Cyan
-    
+    $IsK8s = $true
 }
 elseif ($version.Contains("K3s"))
 { 
     Write-Host "    AKS K3s version found" -ForegroundColor Cyan
-    $IsK8s = $false
 }
 else
 {
