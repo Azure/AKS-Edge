@@ -10,17 +10,26 @@ param(
 )
 
 Write-Host "1. Checking AKS dependencies" -ForegroundColor Green
-$IsK3s = (kubectl get nodes) | Where-Object { $_ -match "k3s"}
-$IsK8s =(kubectl get nodes) | Where-Object { $_ -match "v1.24.3"}
-if ($IsK3s) {
-    Write-Host "    AKS K3s version found" -ForegroundColor Cyan
+$IsK8s = $false
+$version = (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like 'AKS Edge Essentials*'}).DisplayName
+if ([string]::IsNullOrEmpty($version))
+{
+    throw $("AKS Edge is not installed on this device")
 }
-elseif ($IsK8s) {
+
+if ($version.Contains("K8s"))
+{ 
     Write-Host "    AKS K8s version found" -ForegroundColor Cyan
+    
 }
- else {
-    Write-Host "No AKS K3s/K8s version found - Please install and try again" -ForegroundColor Red
-    exit -1
+elseif ($version.Contains("K3s"))
+{ 
+    Write-Host "    AKS K3s version found" -ForegroundColor Cyan
+    $IsK8s = $false
+}
+else
+{
+    throw $("AKS Edge verison not supported")
 }
 
 Write-Host "2. Downloading shim verison $shimVersion" -ForegroundColor green
@@ -91,7 +100,7 @@ Invoke-AksEdgeNodeCommand -NodeType Linux "sudo rm /home/aksedge-user/config.tom
 Remove-Item -Path ".\config.toml"
 
 Write-Host "7. Adding new runwasi directory to  PATH variable" -ForegroundColor green
-$currentPath = Invoke-AksEdgeNodeCommand 'echo $PATH'
+$currentPath = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 $newPath = "PATH=" + $currentPath + ":/var/lib/bin"
 Write-Host "    Current PATH=$currentPath - New $newPath" -ForegroundColor Cyan
 $kubeService = "k3s"
