@@ -28,7 +28,7 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 6. Deploy a Wasm workload to your cluster with the specified runtime class name matching the "wasmtime-spin" runtime class from previous step.
 
     ```powershell
-    kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.0/spin_workload.yaml
+    kubectl apply -f https://raw.githubusercontent.com/fcabrera23/AKS-Edge/wasm-enablement/samples/wasm/workload.yaml
     ```
 
 7. Check that the pods are deployed and running
@@ -37,13 +37,14 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
     kubectl get pods
     ```
 
-    If everything was correctly configured, you should see three wasm pods running. If pods are not running, use kubectl describe pods <name-of-pod> to get further troubleshooting information.
+    If everything was correctly configured, you should see four wasm pods running. If pods are not running, use kubectl describe pods <name-of-pod> to get further troubleshooting information.
 
     ```bash
-    NAME                        READY   STATUS    RESTARTS   AGE
-    wasm-spin-cf6589674-l66pm   1/1     Running   0          6s
-    wasm-spin-cf6589674-mmlgf   1/1     Running   0          6s
-    wasm-spin-cf6589674-zm6pf   1/1     Running   0          6s
+   NAME                           READY   STATUS    RESTARTS   AGE
+    wasm-slight-66849b8575-5l2zv   1/1     Running   0          12s
+    wasm-spin-bd6d84876-4bcs5      1/1     Running   0          12s
+    wasm-spin-bd6d84876-fpmh2      1/1     Running   0          12s
+    wasm-spin-bd6d84876-v8r9j      1/1     Running   0          12s
     ```
 
 8. Get the wasm-spin service IP address and port
@@ -55,18 +56,25 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
     You should see something similar to the following. Check the line "wasm-spin" and get the IP address and port.
 
     ```bash
-    NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-    kubernetes   ClusterIP   10.43.0.1       <none>        443/TCP   13h
-    wasm-spin    ClusterIP   10.43.176.163   <none>        80/TCP    12h
+    NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+    kubernetes    ClusterIP   10.96.0.1        <none>        443/TCP   7m34s
+    wasm-slight   ClusterIP   10.106.231.151   <none>        80/TCP    36s
+    wasm-spin     ClusterIP   10.111.233.120   <none>        80/TCP    36s
     ```
 
 9. Finally, check that the wasm Hello World sample is running correctly
 
     ```powershell
-    Invoke-AksEdgeNodeCommand "curl -v http://<wasm-spin-ip-address>:<wasm-spin-port>/hello"
+    Invoke-AksEdgeNodeCommand -NodeType Linux -command "curl -v http://<wasm-spin/slight-ip-address>:<wasm-spin/slight-port>/hello"
     ```
 
-    If everything is running correctly, you should see the following output
+    If everything is running correctly, you should see the following output when using Slight
+
+    ```bash
+    hello
+    ```
+
+    Or the following when using Spin
 
     ```bash
     Hello world from Spin!

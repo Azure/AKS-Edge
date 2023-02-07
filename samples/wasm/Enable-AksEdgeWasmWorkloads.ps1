@@ -23,10 +23,10 @@ elseif ($IsK8s) {
     exit -1
 }
 
-Write-Host "Downloading shim verison $shimVersion" -ForegroundColor green
+Write-Host "2. Downloading shim verison $shimVersion" -ForegroundColor green
 Invoke-AksEdgeNodeCommand "wget -O /home/aksedge-user/containerd-wasm-shim.tar.gz https://github.com/deislabs/containerd-wasm-shims/releases/download/$shimVersion/containerd-wasm-shims-v1-linux-x86_64.tar.gz"
 
-Write-Host "Unpacking and moving shim to appropiate folder" -ForegroundColor green
+Write-Host "3. Unpacking and moving shim to appropiate folder" -ForegroundColor green
 Invoke-AksEdgeNodeCommand "tar -xvf /home/aksedge-user/containerd-wasm-shim.tar.gz && sudo mkdir /var/lib/bin" | Out-Null
 
 if($shimOption -eq "both")
@@ -40,7 +40,7 @@ else
 }
 
 
-Write-Host "Copying required files" -ForegroundColor green
+Write-Host "4. Copying required files" -ForegroundColor green
 if($IsK8s)
 {
     Invoke-AksEdgeNodeCommand -NodeType Linux "sudo cp /etc/containerd/config.toml /home/aksedge-user/config.toml"
@@ -53,7 +53,7 @@ else
 Invoke-AksEdgeNodeCommand -NodeType Linux "sudo chown -R aksedge-user /home/aksedge-user/config.toml"
 Copy-AksEdgeNodeFile -NodeType Linux -FromFile "/home/aksedge-user/config.toml" -ToFile ".\config.toml"
 
-Write-Host "Configuring containerd config files to support runwasi runtime" -ForegroundColor green
+Write-Host "5. Configuring containerd config files to support runwasi runtime" -ForegroundColor green
 
 
 if($shimOption -eq "both")
@@ -85,36 +85,36 @@ else
     Invoke-AksEdgeNodeCommand -NodeType Linux "sudo cp /home/aksedge-user/config.toml /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl"
 }
 
-Write-Host "Cleaning unnecessary files" -ForegroundColor green
+Write-Host "6. Cleaning unnecessary files" -ForegroundColor green
 
 Invoke-AksEdgeNodeCommand -NodeType Linux "sudo rm /home/aksedge-user/config.toml"
 Remove-Item -Path ".\config.toml"
 
-Write-Host "Adding new runwasi directory to  PATH variable" -ForegroundColor green
+Write-Host "7. Adding new runwasi directory to  PATH variable" -ForegroundColor green
 $currentPath = Invoke-AksEdgeNodeCommand 'echo $PATH'
 $newPath = "PATH=" + $currentPath + ":/var/lib/bin"
-Write-Host "Current PATH=$currentPath - New $newPath" -ForegroundColor green
-
+Write-Host "    Current PATH=$currentPath - New $newPath" -ForegroundColor Cyan
 $kubeService = "k3s"
 if($IsK8s)
 {
     $kubeService = "containerd"
 }
-Write-Host "Configuring $kubeService service with new configuration" -ForegroundColor green
 
+Write-Host "8. Configuring $kubeService service with new configuration" -ForegroundColor green
 Invoke-AksEdgeNodeCommand -NodeType Linux "sudo cp /etc/systemd/system/$kubeService.service.d/override.conf /home/aksedge-user/override.conf"
 Invoke-AksEdgeNodeCommand -NodeType Linux "sudo chown -R aksedge-user /home/aksedge-user/override.conf"
 Copy-AksEdgeNodeFile -NodeType Linux -FromFile "/home/aksedge-user/override.conf" -ToFile ".\override.conf"
-
 $command = "Environment=""$newPath"""
 Add-Content -Path ".\override.conf" $command  
 Copy-AksEdgeNodeFile -NodeType Linux -FromFile ".\override.conf" -ToFile "/home/aksedge-user/override.conf" -PushFile
+Invoke-AksEdgeNodeCommand -NodeType Linux "sudo cp /home/aksedge-user/override.conf /etc/systemd/system/$kubeService.service.d/override.conf"
 
+Write-Host "9. Cleaning unnecessary files" -ForegroundColor green
 Invoke-AksEdgeNodeCommand -NodeType Linux "sudo rm /home/aksedge-user/override.conf"
 Remove-Item -Path ".\override.conf"
 
-Invoke-AksEdgeNodeCommand -NodeType Linux "sudo cp /home/aksedge-user/override.conf /etc/systemd/system/$kubeService.service.d/override.conf"
+Write-Host "10. Reloading and restarting services" -ForegroundColor green
 Invoke-AksEdgeNodeCommand "sudo systemctl daemon-reload"
 Invoke-AksEdgeNodeCommand "sudo systemctl restart $kubeService"
 
-Write-Host "Configuration finished - You can now deploy WASM workloads using kubectl interface" -ForegroundColor green
+Write-Host "11. Configuration finished - You can now deploy WASM workloads using kubectl interface" -ForegroundColor green
