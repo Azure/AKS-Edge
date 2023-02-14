@@ -15,6 +15,8 @@ spec:
         app: nfs-client-provisioner
     spec:
       serviceAccountName: nfs-client-provisioner
+      nodeSelector:
+        "kubernetes.io/os": linux
       containers:
         - name: nfs-client-provisioner
           image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2

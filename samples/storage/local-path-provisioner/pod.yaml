@@ -4,6 +4,8 @@ metadata:
   name: volume-test
   namespace: default
 spec:
+  nodeSelector:
+    "kubernetes.io/os": linux
   containers:
   - name: volume-test
     image: nginx:stable-alpine
