@@ -8,7 +8,7 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230130.1600" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230217.1200" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
     "azure-cli"      = "2.41.0"
     "azure-cli-core" = "2.41.0"
@@ -57,18 +57,7 @@ function Install-AzCli {
         #az config set auto-upgrade.enable=yes
     }
     Write-Host "> Azure CLI installed" -ForegroundColor Green
-    <# Dont need extensions here.
-    $extlist = (az extension list --query [].name | ConvertFrom-Json -ErrorAction SilentlyContinue)
-    $reqExts = @("connectedmachine", "connectedk8s", "customlocation")
-    foreach ($ext in $reqExts) {
-        if ($extlist -and $extlist.Contains($ext)) {
-            Write-Host "> az extension $ext installed" -ForegroundColor Green
-        } else {
-            Write-Host "Installing az extension $ext"
-            az extension add --name $ext
-        }
-    }
-    #>
+
     if (-not (Test-AzVersions)) {
         Write-Host "> Required Az versions are not installed. Attempting az upgrade. This may take a while."
         az upgrade --all --yes
@@ -372,12 +361,12 @@ if ($ecFile) {
     if (Test-Path -Path $ecFile) {
         $edgeCfg = Get-Content $ecFile | ConvertFrom-Json
         $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
-        $edgeCfg | ConvertTo-Json -Depth 4 | Format-Json | Set-Content -Path "$ecFile" -Force
+        $edgeCfg | ConvertTo-Json -Depth 5 | Format-Json | Set-Content -Path "$ecFile" -Force
     }
 } else {
     $jsonContent | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
 }
 
-$jsonContent | ConvertTo-Json | Format-Json | Set-Content -Path "$jsonFile" -Force
+$jsonContent | ConvertTo-Json -Depth 5 | Format-Json | Set-Content -Path "$jsonFile" -Force
 az logout
 exit 0
