@@ -162,7 +162,7 @@ if ($skipAzureArc) {
     Write-Host ">> skipping step 3" -ForegroundColor Yellow
 } else {
     $aksedgeazuresetup = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
-    . $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
+    & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
     if ($_ -eq -1) {
         Write-Host "Error in configuring Azure Cloud for Arc connection"
@@ -174,10 +174,8 @@ if ($skipAzureArc) {
 
 # Download, install and deploy AKS EE 
 Write-Host "Step 4: Download, install and deploy AKS Edge Essentials"
-Read-AideUserConfig | Out-Null
-
-# invoke the workflow, the json file already stored above.
-$retval = Start-AideWorkflow
+# invoke the workflow, the json file already updated above.
+$retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
