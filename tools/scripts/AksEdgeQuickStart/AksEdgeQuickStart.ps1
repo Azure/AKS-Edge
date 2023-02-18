@@ -65,7 +65,7 @@ $aideuserConfig = @"
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
         "ResourceGroupName": "aksedge-rg",
-        "ServicePrincipalName": "aksedgeess-sp",
+        "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
         "CustomLocationOID":"",
         "Auth":{
