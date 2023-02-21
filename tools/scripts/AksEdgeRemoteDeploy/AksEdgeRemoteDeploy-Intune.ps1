@@ -11,7 +11,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230218.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230221.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
