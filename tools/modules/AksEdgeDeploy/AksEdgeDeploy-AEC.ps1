@@ -360,6 +360,17 @@ function Connect-AideArcKubernetes {
     $usrCfg = Get-AideUserConfig
     $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json )
     $retVal = Connect-AksEdgeArc -JsonConfigString $json
+    if ($retVal -eq "OK") {
+        $serverinfo = Get-AideArcServerInfo
+        if ($serverinfo.Status -eq "Connected") {
+            #Arc for server is already connected. So try updating tags
+            $serverid = "/subscriptions/$($serverinfo.SubscriptionId)/resourceGroups/$($serverinfo.ResourceGroupName)/providers/Microsoft.HybridCompute/machines/$($serverinfo.Name)"
+            $clustername = Get-AideArcClusterName
+            $tag = @{ AKSEE="$clustername" }
+            $result = Update-AzTag -ResourceId $serverid -Tag $tag -Operation Merge
+            Write-Verbose $result
+        }
+    }
     return ($retVal -eq "OK")
 }
 function Disconnect-AideArcKubernetes {
