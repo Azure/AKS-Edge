@@ -366,10 +366,12 @@ function Disconnect-AideArcKubernetes {
     $usrCfg = Get-AideUserConfig
     $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json )
     $retVal = Disconnect-AksEdgeArc -JsonConfigString $json
-    #patch to remove azure-arc-release namespace
-    $namespaces = (kubectl get namespaces -o custom-columns=NAME:.metadata.name --no-headers)
-    if ($namespaces.Contains("azure-arc-release")) {
-        kubectl delete namespace azure-arc-release
+    if ($retVal -eq "OK") {
+        #patch to remove azure-arc-release namespace
+        $namespaces = (kubectl get namespaces -o custom-columns=NAME:.metadata.name --no-headers)
+        if ($namespaces.Contains("azure-arc-release")) {
+            kubectl delete namespace azure-arc-release
+        }
     }
     return ($retVal -eq "OK")
 }
