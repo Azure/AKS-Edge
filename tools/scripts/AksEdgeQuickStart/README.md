@@ -67,7 +67,7 @@ AksEdgeQuickStart enables you to quickly bootstrap your machine with installatio
     .\AksEdgeAzureSetup.ps1 -jsonFile $aidejson -spContributorRole -spCredReset
     ```
 
-   - Note that this will prompt for an interactive login session to create the required resource group, service principal account in the azure subscription.
+   - Note that this will prompt for an interactive login session to create the required resource group(`aksedge-rg`), service principal account (`aksedge-sp`) in the azure subscription.
 
 4. Downloads the AKS Edge Essentials MSI, installs it and deploys `SingleMachineCluster` using the `Start-AideWorkflow` function.
    - This function invokes `Install-AksEdgeHostFeatures` that installs all the required OS features and policy settings on the host machine. A restart will be triggered when the Hyper-V feature is enabled and when this occurs, the script needs to be re-run to continue further.
