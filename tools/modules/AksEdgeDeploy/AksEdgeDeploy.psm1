@@ -84,7 +84,9 @@ function Get-AideHostPcInfo {
     }
     $nwadapters = Get-NetAdapter -Physical
     if ($nwadapters) {
-        Write-Host "Network Adapters`t: $($nwadapters.Name -join ",")"
+        Write-Host "Network Adapters`t: " -NoNewline
+        foreach ($nw in $nwadapters) { Write-Host "$($nw.Name)($($nw.Status))," -NoNewline }
+        Write-Host ""
     } else { Write-Host "Network Adapters`t: None" -ForegroundColor Red }
     $vpn = Get-VpnConnection
     if ($vpn) {
