@@ -82,6 +82,14 @@ function Get-AideHostPcInfo {
             Write-Host "without Nested Hyper-V" -ForegroundColor Red
         }
     }
+    $nwadapters = Get-NetAdapter -Physical
+    if ($nwadapters) {
+        Write-Host "Network Adapters`t: $($nwadapters.Name -join ",")"
+    } else { Write-Host "Network Adapters`t: None" -ForegroundColor Red }
+    $vpn = Get-VpnConnection
+    if ($vpn) {
+        Write-Host "VPN Profile`t`t: $($vpn.ConnectionStatus)"
+    } else { Write-Host "VPN Profile`t`t: None" }
 }
 function Get-AideInfra {
     <#
