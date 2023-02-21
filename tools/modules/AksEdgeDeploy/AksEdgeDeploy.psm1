@@ -8,7 +8,8 @@ if (! [Environment]::Is64BitProcess) {
     exit -1
 }
 # dot source the arc module
-. $PSScriptRoot\AksEdge-Arc.ps1
+. $PSScriptRoot\AksEdgeDeploy-AES.ps1
+. $PSScriptRoot\AksEdgeDeploy-AEC.ps1
 
 #Hashtable to store session information
 $aideSession = @{
@@ -21,15 +22,10 @@ $aideSession = @{
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProductPrefix -Value "AKS Edge Essentials"
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProducts -Value @{
-    "AKS Edge Essentials - K8s (Public Preview)" = "https://aka.ms/aks-edge/k8s-msi"
-    "AKS Edge Essentials - K3s (Public Preview)" = "https://aka.ms/aks-edge/k3s-msi"
+    "AKS Edge Essentials - K8s" = "https://aka.ms/aks-edge/k8s-msi"
+    "AKS Edge Essentials - K3s" = "https://aka.ms/aks-edge/k3s-msi"
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallUrl -Value "https://aka.ms/aks-edge/windows-node-zip"
-New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeValueSet -Value @{
-    NodeType      = @("Linux", "LinuxAndWindows", "Windows")
-    NetworkPlugin = @("calico", "flannel")
-}
-
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallFiles -Value @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003", "AksEdgeWindows-v1.exe")
 function Get-AideHostPcInfo {
     <#
@@ -260,28 +256,27 @@ function UpgradeJsonFormat {
         $azCfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value $newAuth -Force
         $retval = $true
     }
-    #Upgrade from pre-public preview format to public preview format
-    if ($jsonObj.DeployOptions) {
-        $fieldsToCopy = @("DeployOptions", "LinuxVm", "WindowsVm", "Network", "EndUser")
-        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value @{"SchemaVersion" = "1.1"; "Version" = "1.0"} -Force
-        $edgeConfig = [PSCustomObject]$jsonObj.AksEdgeConfig
-        foreach ($field in $fieldsToCopy) {
-            if ($jsonObj.$field) {
-                $edgeConfig | Add-Member -MemberType NoteProperty -Name $field -Value $jsonObj.$field -Force
-                $jsonObj.PSObject.properties.remove($field)
-            }
-        }
-        $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $edgeConfig -Force
-        $retval = $true
+    $arcdata = @{
+        Location          = $azCfg.Location
+        ResourceGroupName = $azCfg.ResourceGroupName
+        SubscriptionId    = $azCfg.SubscriptionId
+        TenantId          = $azCfg.TenantId
+        ClientId          = $azCfg.Auth.ServicePrincipalId
+        ClientSecret      = $azCfg.Auth.Password
+    }
+    if ($azCfg.ClusterName) {
+        $arcdata += @{ClusterName = $azCfg.ClusterName}
     }
     #upgrade from public preview format to GA format
     $edgeCfg = $jsonObj.AksEdgeConfig
-    if ($jsonObj.AksEdgeConfigFile) {
-        if (Test-Path -Path $jsonObj.AksEdgeConfigFile) {
-            $edgeCfg = Get-Content $jsonObj.AksEdgeConfigFile | ConvertFrom-Json
+    if ($edgeCfg.SchemaVersion -eq '1.5') {
+        if (($azCfg.Auth.Password) -and ([string]::IsNullOrEmpty($($edgeCfg.Arc.ClientSecret)))) {
+            #Copy over the Azure parameters to Arc section
+            $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
+            $retval = $true
         }
+        return $retval 
     }
-    if ($edgeCfg.SchemaVersion -eq '1.5') { return $retval }
     $clustertype = "ScalableCluster"
     if ($edgeCfg.DeployOptions.SingleMachineCluster) {
         $clustertype = "SingleMachineCluster"
@@ -300,17 +295,6 @@ function UpgradeJsonFormat {
         $newEdgeConfig.Init.ServiceIPRangeSize = ($endip.Split(".")[3]) - ($startip.Split(".")[3])
     }
     #arc section
-    $arcdata = @{
-        Location          = $azCfg.Location
-        ResourceGroupName = $azCfg.ResourceGroupName
-        SubscriptionId    = $azCfg.SubscriptionId
-        TenantId          = $azCfg.TenantId
-        ClientId          = $azCfg.Auth.ServicePrincipalId
-        ClientSecret      = $azCfg.Auth.Password
-    }
-    if ($azCfg.ClusterName) {
-        $arcdata += @{ClusterName = $azCfg.ClusterName}
-    }
     $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
     #network section
     $edgeCfgNW = $edgeCfg.Network
@@ -397,7 +381,7 @@ function Get-AzureVMInfo {
 function Disable-WindowsAzureGuestAgent {
     if (!$aideSession.HostOS.IsAzureVM) {
         Write-Host "Error: Host is not an Azure VM" -ForegroundColor Red
-        return $null
+        return
     }
     $service = Get-Service WindowsAzureGuestAgent -ErrorAction SilentlyContinue
     if ($service -and ($($service.Status) -ne 'Stopped')) {

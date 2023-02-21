@@ -18,7 +18,7 @@ The `Start-AideWorkflow` function in the modole does the following:
     {
         "SchemaVersion": "1.1",
         "Version": "1.0",
-        "AksEdgeProduct" : "AKS Edge Essentials - K8s (Public Preview)",
+        "AksEdgeProduct" : "AKS Edge Essentials - K3s",
         "AksEdgeConfig": {
             "SchemaVersion": "1.5",
             "Version": "1.0",
@@ -45,10 +45,10 @@ The `Start-AideWorkflow` function in the modole does the following:
             ]
         },
         "Azure": {
-            "SubscriptionName":"Visual Studio Enterprise",
+            "SubscriptionName":"",
             "SubscriptionId": "",
             "TenantId":"",
-            "ResourceGroupName": "aksedgepreview-rg",
+            "ResourceGroupName": "aksedge-rg",
             "ServicePrincipalName" : "aksedge-sp",
             "Location" : "EastUS"
         }
@@ -224,8 +224,6 @@ Connect-AideArc
 
 | |
 |:------------ |
-|`Install-AideAzCli` |
-| Installs Azure CLI |
 |`Initialize-AideArc`|
 | Main funtion that checks and installs required software, validates if the Auth parameters are good for Azure login  |
 |`Enter-AideArcSession`|

@@ -3,7 +3,7 @@
   Validates and loads the config file and imports the bootstrap scripts
 #>
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeShellVersion -Value "1.0.230203.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeShellVersion -Value "1.0.230217.1200" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -12,12 +12,6 @@ if (! [Environment]::Is64BitProcess) {
 $aksjson = "$PSScriptRoot\aide-userconfig.json"
 $aksjson = (Resolve-Path -Path $aksjson).Path
 Push-Location $PSScriptRoot
-$aksedgemodule = (Get-Module -Name AksIot -ListAvailable)
-if ($aksedgemodule -and $aksedgemodule.Version.Minor -lt 7) {
-    Write-Host "Older version of AKS edge found. Please uninstall.Press any key to exit." -ForegroundColor Red
-    pause
-    return
-}
 
 $modulePath = Split-Path -Path $((Get-ChildItem $PSScriptRoot -recurse -Filter AksEdgeDeploy).FullName) -Parent
 if (!(($env:PSModulePath).Contains($modulePath))) {
