@@ -24,8 +24,8 @@ jsonDiagram {
     "SchemaVersion":"1.1",
     "Version":"1.0",
     "AksEdgeProduct" : [
-                "AKS Edge Essentials - K8s (Public Preview)",
-                "AKS Edge Essentials - K3s (Public Preview)"
+                "AKS Edge Essentials - K8s",
+                "AKS Edge Essentials - K3s"
             ],
     "AksEdgeProductUrl" : "URL",
     "Azure":{

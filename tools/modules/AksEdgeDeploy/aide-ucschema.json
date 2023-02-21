@@ -16,8 +16,8 @@
         },
         "AksEdgeProduct": {
             "enum": [
-                "AKS Edge Essentials - K8s (Public Preview)",
-                "AKS Edge Essentials - K3s (Public Preview)"
+                "AKS Edge Essentials - K8s",
+                "AKS Edge Essentials - K3s"
             ],
             "description": "Product name"
         },

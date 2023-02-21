@@ -5,10 +5,11 @@ param(
     [String] $SubscriptionId,
     [String] $TenantId,
     [String] $Location,
-    [Switch] $UseK8s
+    [Switch] $UseK8s,
+    [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230217.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230221.1200" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
@@ -45,11 +46,10 @@ if ($skipAzureArc) {
 }
 
 $installDir = $((Get-Location).Path)
-$productName = "AKS Edge Essentials - K3s (Public Preview)"
-$tag = "1.0.358.0"
+$productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
 if ($UseK8s) {
-    $productName ="AKS Edge Essentials - K8s (Public Preview)"
+    $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
 }
 
@@ -111,7 +111,6 @@ if (-not (Test-Path -Path $installDir)) {
     Write-Host "Creating $installDir..."
     New-Item -Path "$installDir" -ItemType Directory | Out-Null
 }
-Push-Location $installDir
 
 $starttime = Get-Date
 $starttimeString = $($starttime.ToString("yyMMdd-HHmm"))
@@ -121,9 +120,17 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
+$fork ="Azure"
+$branch="main"
+$url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
+$zipFile = "AKS-Edge-$branch.zip"
+$workdir = "$installDir\AKS-Edge-$branch"
+if (-Not [string]::IsNullOrEmpty($Tag)) {
+    $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$Tag.zip"
+    $zipFile = "$Tag.zip"
+    $workdir = "$installDir\AKS-Edge-$tag"
+}
 Write-Host "Step 1 : Azure/AKS-Edge repo setup"
-$url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$tag.zip"
-$zipFile = "$tag.zip"
 
 if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
@@ -135,36 +142,31 @@ if (!(Test-Path -Path "$installDir\$zipFile")) {
         exit -1
     }
 }
-if (!(Test-Path -Path "$installDir\AKS-Edge-$tag")) {
+if (!(Test-Path -Path "$workdir")) {
     Expand-Archive -Path $installDir\$zipFile -DestinationPath "$installDir" -Force
 }
 
-$aidejson = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter aide-userconfig.json -Recurse).FullName
+$aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $aideuserConfig -Force
-$aksedgejson = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter aksedge-config.json -Recurse).FullName
+$aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 
-
-$aksedgeShell = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter AksEdgeShell.ps1 -Recurse).FullName
+$aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
 
-# Install Azure CLI
-Write-Host "Step 2 : Install Azure CLI for Azure setup"
-if ($skipAzureArc) {
-    Write-Host ">> skipping step 2" -ForegroundColor Yellow
-} else {
-    Install-AideAzCli
-}
-
 # Setup Azure 
-Write-Host "Step 3: Setup Azure Cloud for Arc connections"
-if ($skipAzureArc) {
-    Write-Host ">> skipping step 3" -ForegroundColor Yellow
+Write-Host "Step 2: Setup Azure Cloud for Arc connections"
+$azcfg = (Get-AideUserConfig).Azure
+if ($azcfg.Auth.Password) {
+   Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
+   $skipAzureArc = $false
+} elseif ($skipAzureArc) {
+    Write-Host ">> skipping step 2" -ForegroundColor Yellow
 } else {
     $aksedgeazuresetup = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
-    if ($_ -eq -1) {
+    if ($LastExitCode -eq -1) {
         Write-Host "Error in configuring Azure Cloud for Arc connection"
         Stop-Transcript | Out-Null
         Pop-Location
@@ -173,7 +175,7 @@ if ($skipAzureArc) {
 }
 
 # Download, install and deploy AKS EE 
-Write-Host "Step 4: Download, install and deploy AKS Edge Essentials"
+Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
@@ -185,33 +187,23 @@ if ($retval) {
     exit -1
 }
 
-Write-Host "Step 5: Connect to Arc"
+Write-Host "Step 4: Connect to Arc"
 if ($skipAzureArc) {
-    Write-Host ">> skipping step 5" -ForegroundColor Yellow
+    Write-Host ">> skipping step 4" -ForegroundColor Yellow
 } else {
-    $azConfig = (Get-AideUserConfig).Azure
-    if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfig.TenantId){
-        #we have ServicePrincipalId, Password and TenantId
-        Write-Host ">Login using az cli"
-        $retval = Enter-AideArcSession
-        if (!$retval) {
-            Write-Error -Message "Azure login failed." -Category OperationStopped
-            Stop-Transcript | Out-Null
-            Pop-Location
-            exit -1
-        }
+    Write-Host "Installing required Az Powershell modules"
+    $arcstatus = Initialize-AideArc
+    if ($arcstatus) {
         Write-Host ">Connecting to Azure Arc"
-        $retval = Connect-AideArc
-        Exit-AideArcSession
-        if ($retval) {
-            Write-Host "Arc connection successful. "
+        if (Connect-AideArc) {
+            Write-Host "Azure Arc connections successful."
         } else {
-            Write-Error -Message "Arc connection failed" -Category OperationStopped
+            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
             Stop-Transcript | Out-Null
             Pop-Location
             exit -1
         }
-    } else { Write-Host "No Auth info available. Skipping Arc Connection" }
+    } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
 }
 
 $endtime = Get-Date
