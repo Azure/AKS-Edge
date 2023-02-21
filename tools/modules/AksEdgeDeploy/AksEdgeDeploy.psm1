@@ -639,10 +639,12 @@ function Invoke-AideLinuxVmShell {
         Invoke-AideLinuxVmShell
     #>
     if ($aideSession.HostOS.IsServerSKU) {
-        Write-Host "Not supported yet"
-        <#$vm = Get-VM | Where-Object { $_.Name -like '*edge' }
-        if ($vm -and ($vm.State -ieq 'Running')) {
-            $retval = $true }#>
+        $env:WSSD_CONFIG_PATH="c:\programdata\aksedge\protected\.wssd\cloudconfig"
+        $LinuxVmTag="9f0ea5f3-5769-47e3-b504-2afacd1fef0f"
+        $IdLine = & 'C:\Program Files\aksedge\nodectl' compute vm list --query "[?tags.keys(@).contains(@,'$LinuxVmTag')]" | Select-String -Pattern "ledge-id:"
+        $Id = ($IdLine -split ":")[1].Trim()
+        Write-Host "Linux VM's VsockId = $Id"
+        & ssh.exe -o ProxyCommand="C:\Program Files\AksEdge\vsocknc.exe %h %p" -i C:\ProgramData\AksEdge\protected\.sshkey\id_ecdsa "aksedge-user@$Id"
     } else {
         $retval = (hcsdiag list) | ConvertFrom-String -Delimiter "," -PropertyNames Type, State, Id, Name
         $wssd = $retval | Where-Object { $_.Name.Trim() -ieq 'wssdagent' } | Select-Object -Last 1
