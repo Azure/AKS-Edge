@@ -9,7 +9,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230221.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230222.1000" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
@@ -163,7 +163,7 @@ if ($azcfg.Auth.Password) {
 } elseif ($skipAzureArc) {
     Write-Host ">> skipping step 2" -ForegroundColor Yellow
 } else {
-    $aksedgeazuresetup = (Get-ChildItem -Path "$installDir\AKS-Edge-$tag" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
+    $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
     if ($LastExitCode -eq -1) {
