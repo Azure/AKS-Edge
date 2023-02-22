@@ -284,6 +284,12 @@ function Test-ArcEdgeAzModules {
     }
     else { Write-Host "PSGallery is trusted" -ForegroundColor Green }
 
+    $pkgproviders = Get-PackageProvider
+    if ($pkgproviders.Name -notcontains "NuGet"){
+        Write-Host "Installing NuGet"
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    } else { Write-Host "NuGet found" -ForegroundColor Green }
+
     Write-Host "Checking Helm"
     $helmRoot = "$env:USERPROFILE\.Azure\helm"
     $helmDir = "$helmRoot\windows-amd64"
