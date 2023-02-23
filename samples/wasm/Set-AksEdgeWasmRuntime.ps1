@@ -30,25 +30,26 @@ param(
 
 Write-Host "1. Checking AKS Edge Essentials dependencies" -ForegroundColor Green
 $IsK8s = $false
-$version = (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like 'AKS Edge Essentials*'}).DisplayName
-if ([string]::IsNullOrEmpty($version))
+$productName = (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like 'AKS Edge Essentials*'}).DisplayName
+if ([string]::IsNullOrEmpty($productName))
 {
     Write-Host "AKS Edge Essentials is not installed on this device" -ForegroundColor Red
-    return
+    exit -1
 }
 
-if ($version.Contains("K8s"))
+if ($productName.Contains("K8s"))
 { 
     Write-Host "    K8s version found" -ForegroundColor Cyan
     $IsK8s = $true
 }
-elseif ($version.Contains("K3s"))
+elseif ($productName.Contains("K3s"))
 { 
     Write-Host "    K3s version found" -ForegroundColor Cyan
 }
 else
 {
-    throw $("AKS Edge Essentials verison not supported")
+    Write-Host "AKS Edge Essentials verison not supported" -ForegroundColor Red
+    exit -1
 }
 
 if ($enable.IsPresent)

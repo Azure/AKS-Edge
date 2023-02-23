@@ -19,7 +19,8 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 1. Move to an appropriate working directory
 1. Download [Set-AksEdgeWasmRuntime.ps1](./Set-AksEdgeWasmRuntimes.ps1)
     ```powershell
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/wasm-enablement/samples/wasm/Set-AksEdgeWasmRuntimes.ps1" -OutFile ".\Set-AksEdgeWasmRuntimes.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/Set-AksEdgeWasmRuntimes.ps1" -OutFile ".\Set-AksEdgeWasmRuntimes.ps1"
+    Unblock-File -Path ".\Set-AksEdgeWasmRuntimes.ps1"
     ```
 4. Run the `Set-AksEdgeWasmRuntime` cmdlet to enable the *containerd-wasm-shim*. By default, version **v0.3.3** is used.
 
@@ -51,13 +52,13 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 6. Deploy Wasm workloads to your cluster using the *wasmtime-spin* and *wasmtime-slight* runtime classes deployed in the previous step.
 
     ```powershell
-    kubectl apply -f https://raw.githubusercontent.com/Azure/AKS-Edge/wasm-enablement/samples/wasm/workload.yaml
+    kubectl apply -f https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/workload.yaml
     ```
 
 7. Check that the pods are deployed and running
 
     ```powershell
-    kubectl get pods
+    kubectl get pods -n wasm
     ```
 
     If everything was correctly configured, you should see four wasm pods running. If pods are not running, use kubectl describe pods <name-of-pod> to get further troubleshooting information.
@@ -73,7 +74,7 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 8. Get the wasm-spin service IP address and port
 
     ```powershell
-    kubectl get services
+    kubectl get services -n wasm
     ```
 
     You should see something similar to the following. Check the line "wasm-spin" and get the IP address and port.
@@ -110,7 +111,7 @@ Once you're finished with WASM workloads, clean up your workspace by running the
 1. Open an elevated PowerShell session  
 1. Delete all resources
     ```powershell
-    kubectl delete -f https://raw.githubusercontent.com/Azure/AKS-Edge/wasm-enablement/samples/wasm/workload.yaml
+    kubectl delete -f https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/workload.yaml
     kubectl delete -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.3/runtime.yaml
     .\Set-AksEdgeWasmRuntime.ps1
     ```
