@@ -18,12 +18,14 @@ AksEdgeQuickStart enables you to quickly bootstrap your machine with installatio
 
 ## Run the script
 
-- Download the [AksEdgeQuickStart.ps1](https://raw.githubusercontent.com/Azure/AKS-Edge/main/tools/scripts/AksEdgeQuickStart/AksEdgeQuickStart.ps1), **right-click** and **save link as** to a working folder.
 - Open an elevated powershell prompt and change directory to your working folder.
-- Depending on the policy setup on your machine, you may require to unblock the file before running.
-
+- Download the `AksEdgeQuickStart.ps1` script. Depending on the policy setup on your machine, you may require to unblock the file before running.
+  
     ```powershell
+    $url = "https://raw.githubusercontent.com/Azure/AKS-Edge/main/tools/scripts/AksEdgeQuickStart/AksEdgeQuickStart.ps1"
+    Invoke-WebRequest -Uri $url -OutFile .\AksEdgeQuickStart.ps1
     Unblock-File .\AksEdgeQuickStart.ps1
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
     ```
 
 - Run the script with required parameters
