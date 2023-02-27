@@ -345,6 +345,9 @@ function Test-ArcEdgeAzModules {
                 Write-Host "- $($mod.Name) - $installedVersion. Req: $($mod.Version)"
                 $errCnt += 1
             }
+        } else {
+            Write-Host "- $($mod.Name) not found."
+            $errCnt += 1 
         }
         if ($Install) {
             Write-Host "Installing [$($mod.Name)-$($mod.Version) $($mod.Flags)].."
