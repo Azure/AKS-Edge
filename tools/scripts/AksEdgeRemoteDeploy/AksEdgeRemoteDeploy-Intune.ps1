@@ -7,88 +7,101 @@
 #>
 param(
     [Switch] $RunToComplete,
-    [Switch] $UseK8s
+    [Switch] $UseK8s,
+    [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230203.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230221.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
 
 $installDir = "C:\AksEdgeScript"
-$productName = "AKS Edge Essentials - K3s (Public Preview)"
+$productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
 if ($UseK8s) {
-    $productName ="AKS Edge Essentials - K8s (Public Preview)"
+    $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
 }
 
 # Here string for the json content
-$jsonContent = @"
+$aideuserConfig = @"
 {
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "",
     "Azure": {
-        "SubscriptionName": "Visual Studio Enterprise",
+        "SubscriptionName": "",
         "SubscriptionId": "",
         "TenantId": "",
-        "ResourceGroupName": "aksedgepreview-rg",
+        "ResourceGroupName": "aksedge-rg",
         "ServicePrincipalName": "aksedge-sp",
-        "Location": "EastUS",
+        "Location": "",
         "CustomLocationOID":"",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
         }
     },
-    "AksEdgeConfig":{
-        "SchemaVersion": "1.5",
-        "Version": "1.0",
-        "DeploymentType": "SingleMachineCluster",
-        "Init": {
-            "ServiceIPRangeSize": 0
-        },
-        "Network": {
-            "NetworkPlugin": "$networkplugin",
-            "InternetDisabled": false
-        },
-        "User": {
-            "AcceptEula": true,
-            "AcceptOptionalTelemetry": true
-        },
-        "Machines": [
-            {
-                "LinuxNode": {
-                    "CpuCount": 4,
-                    "MemoryInMB": 4096,
-                    "DataSizeInGB": 20
-                }
+    "AksEdgeConfigFile": "aksedge-config.json"
+}
+"@
+$aksedgeConfig = @"
+{
+    "SchemaVersion": "1.5",
+    "Version": "1.0",
+    "DeploymentType": "SingleMachineCluster",
+    "Init": {
+        "ServiceIPRangeSize": 0
+    },
+    "Network": {
+        "NetworkPlugin": "$networkplugin",
+        "InternetDisabled": false
+    },
+    "User": {
+        "AcceptEula": true,
+        "AcceptOptionalTelemetry": true
+    },
+    "Machines": [
+        {
+            "LinuxNode": {
+                "CpuCount": 4,
+                "MemoryInMB": 4096,
+                "DataSizeInGB": 20
             }
-        ]
-    }
+        }
+    ]
 }
 "@
 
 function Import-AksEdgeModule {
     if (Get-Command New-AksEdgeDeployment -ErrorAction SilentlyContinue) { return }
     # Load the modules
-    $aksedgeShell = (Get-ChildItem -Path "$installDir" -Filter AksEdgeShell.ps1 -Recurse).FullName
+    $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
     . $aksedgeShell
 }
 ###
 # Main
 ###
-
-#Download the AutoDeploy script
-Set-ExecutionPolicy Bypass -Scope Process -Force
-
 if (-not (Test-Path -Path $installDir)) {
     Write-Host "Creating $installDir..."
     New-Item -Path "$installDir" -ItemType Directory | Out-Null
 }
+
+Set-ExecutionPolicy Bypass -Scope Process -Force
+# Download the AksEdgeDeploy modules from Azure/AksEdge
+
+$url = "https://github.com/Azure/AKS-Edge/archive/main.zip"
+$zipFile = "main-$starttimeString.zip"
+$workdir = "$installDir\AKS-Edge-main"
+if (-Not [string]::IsNullOrEmpty($Tag)) {
+    $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$Tag.zip"
+    $zipFile = "$Tag.zip"
+    $workdir = "$installDir\AKS-Edge-$tag"
+}
+
 $loop = $RunToComplete
 do {
     $step = Get-ItemPropertyValue -Path HKLM:\SOFTWARE\AksEdgeScript -Name InstallStep -ErrorAction SilentlyContinue
@@ -131,20 +144,20 @@ do {
             $transcriptFile = "$installDir\aksedgedlog-init-$($starttime.ToString("yyMMdd-HHmm")).txt"
             Start-Transcript -Path $transcriptFile
             # Download the AksEdgeDeploy modules from Azure/AksEdge
-            $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/1.0.266.0.zip"
-            $zipFile = "1.0.266.0.zip"
             if (!(Test-Path -Path "$installDir\$zipFile")) {
                 try {
                     Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
                 } catch {
-                    Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
+		    Write-Error -Message "Error: Downloading Aide Powershell Modules from $installDir\$zipFile failed" -Category OperationStopped
                     Stop-Transcript | Out-Null
                     exit -1
                 }
             }
             Expand-Archive -Path $installDir\$zipFile -DestinationPath "$installDir" -Force
-            $aksjson = (Get-ChildItem -Path "$installDir" -Filter aide-userconfig.json -Recurse).FullName
-            $jsonContent | Set-Content -Path $aksjson -Force
+            $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
+            Set-Content -Path $aidejson -Value $aideuserConfig -Force
+	    $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
+	    Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
             Set-ItemProperty -Path HKLM:\SOFTWARE\AksEdgeScript -Name InstallStep -Value "DownloadDone"
             New-ItemProperty -Path HKLM:\SOFTWARE\AksEdgeScript -Name DownloadDone -PropertyType DWord -Value 1 | Out-Null
             $endtime = Get-Date
@@ -159,7 +172,7 @@ do {
             Start-Transcript -Path $transcriptFile
             Import-AksEdgeModule
             if (!(Test-AideMsiInstall -Install)) {
-                Write-Host "Error: Install stage failed" -ForegroundColor Red
+		Write-Error -Message "Error: Test-AideMsiInstall -Install failed" -Category OperationStopped
                 Stop-Transcript | Out-Null
                 exit -1
             }
@@ -176,17 +189,23 @@ do {
             $transcriptFile = "$installDir\aksedgedlog-install-$($starttime.ToString("yyMMdd-HHmm")).txt"
             Start-Transcript -Path $transcriptFile
             Import-AksEdgeModule
+	    Write-Host "Running Install-AksEdgeHostFeatures" -ForegroundColor Cyan
+            if (!(Install-AksEdgeHostFeatures -Confirm:$false)) { 
+		Write-Error -Message "Error: Install-AksEdgeHostFeatures failed" -Category OperationStopped
+                Stop-Transcript | Out-Null
+                exit -1
+	    }
             if (Test-AideDeployment) {
                 Write-Host "AKS edge VM is already deployed." -ForegroundColor Yellow
             } else {
                 if (!(Test-AideVmSwitch -Create)) { 
-                    Write-Host "Error: switch creation failed" -ForegroundColor Red
+		    Write-Error -Message "Error: Switch creation failed" -Category OperationStopped
                     Stop-Transcript | Out-Null
                     exit -1
                 } #create switch if specified
                 # We are here.. all is good so far. Validate and deploy aksedge
                 if (!(Invoke-AideDeployment)) {
-                    Write-Host "Error: deployment failed" -ForegroundColor Red
+		    Write-Error -Message "Error: Invoke-AideDeployment failed" -Category OperationStopped
                     Stop-Transcript | Out-Null
                     exit -1
                 }
@@ -204,26 +223,18 @@ do {
             $transcriptFile = "$installDir\aksedgedlog-deploy-$($starttime.ToString("yyMMdd-HHmm")).txt"
             Start-Transcript -Path $transcriptFile
             Import-AksEdgeModule
-            $azConfig = (Get-AideUserConfig).Azure
-            if ($azConfig.Auth.ServicePrincipalId -and $azConfig.Auth.Password -and $azConfig.TenantId){
-                #we have ServicePrincipalId, Password and TenantId
-                $retval = Enter-AideArcSession
-                if (!$retval) {
-                    Write-Error -Message "Azure login failed." -Category OperationStopped
-                    Stop-Transcript | Out-Null
-                    exit -1
-                }
+            $status = Initialize-AideArc
+            if ($status){
                 Write-Host "Connecting to Azure Arc"
                 $retval = Connect-AideArc
-                Exit-AideArcSession
                 if ($retval) {
-                    Write-Host "Arc connection successful. "
+                    Write-Host "Azure Arc connections successful."
                 } else {
-                    Write-Error -Message "Arc connection failed" -Category OperationStopped
+                    Write-Error -Message "Azure Arc connections failed" -Category OperationStopped
                     Stop-Transcript | Out-Null
                     exit -1
                 }
-            } else { Write-Host "No Auth info available. Skipping Arc Connection" }
+            } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
             Set-ItemProperty -Path HKLM:\SOFTWARE\AksEdgeScript -Name InstallStep -Value "AllDone"
             New-ItemProperty -Path HKLM:\SOFTWARE\AksEdgeScript -Name AllDone -PropertyType DWord -Value 1 | Out-Null
             $endtime = Get-Date

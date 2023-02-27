@@ -12,7 +12,7 @@
     RootModule        = 'AksEdgeDeploy.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.230203.1200'
+    ModuleVersion     = '1.0.230222.1500'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -72,7 +72,7 @@
     FunctionsToExport = 'Get-AideUserConfig', 'Read-AideUserConfig', 'Set-AideUserConfig', 'Test-AideUserConfig', 'Start-AideWorkflow', 'New-AideVmSwitch',
     'Test-AideVmSwitch', 'Remove-AideVmSwitch', 'Invoke-AideDeployment', 'Test-AideDeployment', 'Remove-AideDeployment', 'Test-AideLinuxVmRun', 'Get-AideMsiVersion',
     'Install-AideMsi', 'Test-AideMsiInstall', 'Remove-AideMsi', 'Get-AideHostPcInfo', 'Invoke-AideLinuxVmShell', 'Get-AideLinuxVmFile', 
-    'Format-AideJson', 'Install-AideAzCli', 'Install-AideArcServer', 'Test-AideArcServer', 'Connect-AideArcServer', 'Disconnect-AideArcServer', 
+    'Format-AideJson', 'Install-AideArcServer', 'Test-AideArcServer', 'Connect-AideArcServer', 'Disconnect-AideArcServer', 
     'Get-AideArcServerInfo', 'Enter-AideArcSession', 'Exit-AideArcSession', 'Initialize-AideArc', 'Test-AideArcKubernetes', 'Connect-AideArcKubernetes', 'Disconnect-AideArcKubernetes', 
     'Get-AideArcKubernetesServiceToken', 'Get-AideArcServerSMI', 'Get-AideArcClusterName','Get-AideInfra','Connect-AideArc','Disconnect-AideArc'
 
@@ -83,7 +83,7 @@
     # VariablesToExport = @()
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport   = @('mars', 'mars-read')
+    AliasesToExport   = @('mars')
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()

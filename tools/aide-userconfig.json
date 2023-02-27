@@ -1,7 +1,7 @@
 {
     "SchemaVersion": "1.1",
     "Version": "1.0",
-    "AksEdgeProduct": "AKS Edge Essentials - K3s (Public Preview)",
+    "AksEdgeProduct": "AKS Edge Essentials - K3s",
     "AksEdgeProductUrl": "",
     "InstallOptions": {
         "InstallPath": "",

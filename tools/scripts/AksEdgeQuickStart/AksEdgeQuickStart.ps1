@@ -1,18 +1,51 @@
 <#
-  Sample script to deploy AksEdge via Intune
+  QuickStart script for setting up Azure for AKS Edge Essentials and deploying the same on the Windows device
 #>
 param(
+    [String] $SubscriptionId,
+    [String] $TenantId,
+    [String] $Location,
     [Switch] $UseK8s,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230221.1000" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230224.1500" -Option Constant -ErrorAction SilentlyContinue
+
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
+    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
+    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
+    "canadacentral", "eastus2euap"
+)
+
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
-Push-Location $PSScriptRoot
-$installDir = "C:\AksEdgeScript"
+#Validate inputs
+$skipAzureArc = $false
+if ([string]::IsNullOrEmpty($SubscriptionId)) {
+    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($TenantId)) {
+    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($Location)) {
+    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+} elseif ($arcLocations -inotcontains $Location) {
+    Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
+    Write-Host "Supported Locations : $arcLocations"
+    exit -1
+}
+
+if ($skipAzureArc) {
+    Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
+}
+
+$installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
 if ($UseK8s) {
@@ -29,11 +62,11 @@ $aideuserConfig = @"
     "AksEdgeProductUrl": "",
     "Azure": {
         "SubscriptionName": "",
-        "SubscriptionId": "",
-        "TenantId": "",
+        "SubscriptionId": "$SubscriptionId",
+        "TenantId": "$TenantId",
         "ResourceGroupName": "aksedge-rg",
         "ServicePrincipalName": "aksedge-sp",
-        "Location": "",
+        "Location": "$Location",
         "CustomLocationOID":"",
         "Auth":{
             "ServicePrincipalId":"",
@@ -49,7 +82,7 @@ $aksedgeConfig = @"
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
-        "ServiceIPRangeSize": 0
+        "ServiceIPRangeSize": 10
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
@@ -81,15 +114,17 @@ if (-not (Test-Path -Path $installDir)) {
 
 $starttime = Get-Date
 $starttimeString = $($starttime.ToString("yyMMdd-HHmm"))
-$transcriptFile = "$PSScriptRoot\aksedgedlog-$starttimeString.txt"
+$transcriptFile = "$installDir\aksedgedlog-$starttimeString.txt"
+
 Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-
-$url = "https://github.com/Azure/AKS-Edge/archive/main.zip"
-$zipFile = "main-$starttimeString.zip"
-$workdir = "$installDir\AKS-Edge-main"
+$fork ="Azure"
+$branch="main"
+$url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
+$zipFile = "AKS-Edge-$branch.zip"
+$workdir = "$installDir\AKS-Edge-$branch"
 if (-Not [string]::IsNullOrEmpty($Tag)) {
     $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$Tag.zip"
     $zipFile = "$Tag.zip"
@@ -119,11 +154,30 @@ Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
 
+# Setup Azure 
+Write-Host "Step 2: Setup Azure Cloud for Arc connections"
+$azcfg = (Get-AideUserConfig).Azure
+if ($azcfg.Auth.Password) {
+   Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
+   $skipAzureArc = $false
+} elseif ($skipAzureArc) {
+    Write-Host ">> skipping step 2" -ForegroundColor Yellow
+} else {
+    $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
+    & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
+
+    if ($LastExitCode -eq -1) {
+        Write-Host "Error in configuring Azure Cloud for Arc connection"
+        Stop-Transcript | Out-Null
+        Pop-Location
+        exit -1
+    }
+}
+
 # Download, install and deploy AKS EE 
-Write-Host "Step 2: Download, install and deploy AKS Edge Essentials"
+Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
-# report error via Write-Error for Intune to show proper status
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
@@ -133,19 +187,24 @@ if ($retval) {
     exit -1
 }
 
-Write-Host "Step 3: Connect to Arc"
-$status = Initialize-AideArc
-if ($status){
-    Write-Host "Connecting to Azure Arc"
-    if (Connect-AideArc) {
-        Write-Host "Azure Arc connections successful."
-    } else {
-        Write-Error -Message "Azure Arc connections failed" -Category OperationStopped
-        Stop-Transcript | Out-Null
-        Pop-Location
-        exit -1
-    }
-} else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
+Write-Host "Step 4: Connect to Arc"
+if ($skipAzureArc) {
+    Write-Host ">> skipping step 4" -ForegroundColor Yellow
+} else {
+    Write-Host "Installing required Az Powershell modules"
+    $arcstatus = Initialize-AideArc
+    if ($arcstatus) {
+        Write-Host ">Connecting to Azure Arc"
+        if (Connect-AideArc) {
+            Write-Host "Azure Arc connections successful."
+        } else {
+            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
+            Stop-Transcript | Out-Null
+            Pop-Location
+            exit -1
+        }
+    } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
+}
 
 $endtime = Get-Date
 $duration = ($endtime - $starttime)
