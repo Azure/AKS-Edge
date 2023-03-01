@@ -19,10 +19,10 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 1. Move to an appropriate working directory
 1. Download [Set-AksEdgeWasmRuntime.ps1](./Set-AksEdgeWasmRuntimes.ps1)
     ```powershell
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/Set-AksEdgeWasmRuntimes.ps1" -OutFile ".\Set-AksEdgeWasmRuntimes.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/Set-AksEdgeWasmRuntime.ps1" -OutFile ".\Set-AksEdgeWasmRuntimes.ps1"
     Unblock-File -Path ".\Set-AksEdgeWasmRuntimes.ps1"
     ```
-4. Run the `Set-AksEdgeWasmRuntime` cmdlet to enable the *containerd-wasm-shim*. By default, version **v0.3.3** is used.
+4. Run the `Set-AksEdgeWasmRuntime` cmdlet to enable the *containerd-wasm-shim*. By default, version **v0.4.0** is used.
 
     ```powershell
     .\Set-AksEdgeWasmRuntime.ps1 -enable
@@ -38,7 +38,7 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 5. Apply the *runtime.yaml* to create the *wasmtime-slight* and *wasmtime-spin* rumtime classes.
 
     ```powershell
-    kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.3/runtime.yaml
+    kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.4.0/runtime.yaml
     ```
     
     If everything was correctly created, you should see the two runtime classes.
@@ -112,7 +112,7 @@ Once you're finished with WASM workloads, clean up your workspace by running the
 1. Delete all resources
     ```powershell
     kubectl delete -f https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/workload.yaml
-    kubectl delete -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.3/runtime.yaml
+    kubectl delete -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.4.0/runtime.yaml
     .\Set-AksEdgeWasmRuntime.ps1
     ```
 
