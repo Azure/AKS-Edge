@@ -19,8 +19,9 @@ Check [AKS Edge Essentials requirements and support matrix](https://learn.micros
 1. Move to an appropriate working directory
 1. Download [Set-AksEdgeWasmRuntime.ps1](./Set-AksEdgeWasmRuntimes.ps1)
     ```powershell
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/Set-AksEdgeWasmRuntime.ps1" -OutFile ".\Set-AksEdgeWasmRuntimes.ps1"
-    Unblock-File -Path ".\Set-AksEdgeWasmRuntimes.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/AKS-Edge/preview/samples/wasm/Set-AksEdgeWasmRuntime.ps1" -OutFile ".\Set-AksEdgeWasmRuntime.ps1"
+    Unblock-File -Path ".\Set-AksEdgeWasmRuntime.ps1"
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
     ```
 4. Run the `Set-AksEdgeWasmRuntime` cmdlet to enable the *containerd-wasm-shim*. By default, version **v0.4.0** is used.
 
