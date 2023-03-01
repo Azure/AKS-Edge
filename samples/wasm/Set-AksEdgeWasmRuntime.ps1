@@ -23,7 +23,7 @@
 
 param(
     [Switch] $enable,
-    [string] $shimVersion = "v0.3.3",
+    [string] $shimVersion = "v0.4.0",
     [ValidateSet("spin", "slight", "both")]
     [string] $shimOption = "both"
 )
