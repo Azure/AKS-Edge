@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-inference
+  template:
+    metadata:
+      labels:
+        app: wasm-inference
+    spec:
+      runtimeClassName: wasmtime-slight
+      containers:
+        - name: wasm-inference
+          image: docker pull winiotsaleskit.azurecr.io/wasm-inference:latest
+          command: ["/"]
+          env:
+          - name: BASE_X1
+            value: "200"
+          - name: BASE_Y1
+            value: "200"
+          - name: BASE_X2
+            value: "400"
+          - name: BASE_Y2
+            value: "400"
+          ports:
+          - containerPort: 3000
+            name: http_server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasm-inference-svc
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3000
+  selector:
+    app: wasm-inference
