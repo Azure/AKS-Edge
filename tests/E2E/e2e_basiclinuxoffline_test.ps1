@@ -1,6 +1,4 @@
 #Requires -RunAsAdministrator
-
-$AksEdgeProductUrl = "https://aka.ms/aks-edge/k3s-msi"
 function Setup-BasicLinuxNodeOffline {
     param(
         [string]
@@ -18,7 +16,9 @@ function Setup-BasicLinuxNodeOffline {
     # Get Aide UserConfig
     $AideUserConfigObject = Get-Content $AideUserConfigPath | ConvertFrom-Json
 
-    $AideUserConfigObject.AksEdgeProductUrl = $AksEdgeProductUrl
+    # $AideUserConfigObject.AksEdgeProductUrl = $AksEdgeProductUrl
+
+    $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
 
     $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
 

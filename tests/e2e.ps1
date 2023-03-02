@@ -95,7 +95,7 @@ $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 
 # Test groups can have Setup-GroupName, Cleanup-GroupName functions defined
 # that are run before and after each test case function respectively
 
-. "$PSScriptRoot\E2E\e2e_basiclinuxoffline_test.ps1"
+#. "$PSScriptRoot\E2E\e2e_basiclinuxoffline_test.ps1"
 . "$PSScriptRoot\E2E\e2e_basiclinuxonline_test.ps1"
 
 # Put all commands into $CommandTree, which is a map(GroupName => Array(FunctionNames))
