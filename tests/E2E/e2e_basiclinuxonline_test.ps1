@@ -22,12 +22,12 @@ function Setup-BasicLinuxNodeOnline {
 
     $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
 
-    $AideUserConfigObject.Azure.SubscriptionID = "cd80ddb4-f99c-479e-9db2-bc519645d595"
-    $AideUserConfigObject.Azure.TenantId = "bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd"
-    $AideUserConfigObject.Azure.ResourceGroupName = "aksedgepreview-rg"
-    $AideUserConfigObject.Azure.ServicePrincipalName = "aide-script-testing-sp"
-    $AideUserConfigObject.Azure.Auth.ServicePrincipalId = "5421e59d-d027-4d28-a6a6-2d904576c997"
-    $AideUserConfigObject.Azure.Auth.Password = "8LO8Q~iWSTgI.rZnfoII.C2mHg4EQuxoqhZY7bE7"
+    $AideUserConfigObject.Azure.SubscriptionID = ""
+    $AideUserConfigObject.Azure.TenantId = ""
+    $AideUserConfigObject.Azure.ResourceGroupName = ""
+    $AideUserConfigObject.Azure.ServicePrincipalName = ""
+    $AideUserConfigObject.Azure.Auth.ServicePrincipalId = ""
+    $AideUserConfigObject.Azure.Auth.Password = ""
     $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
     # Get AksEdge UserConfig
     # $AksEdgeConfig = Get-Content $AideUserConfig.AksEdgeConfigFile | ConvertFrom-Json
@@ -76,12 +76,12 @@ function Cleanup-BasicLinuxNodeOnline {
     $AideUserConfigObject = Get-Content $AideUserConfigPath | ConvertFrom-Json
 
     $AideUserConfigObject.AksEdgeConfigFile = "\\..\\..\\tools\\aksedge-config.json"
-    $AideUserConfigObject.Azure.SubscriptionID = "cd80ddb4-f99c-479e-9db2-bc519645d595"
-    $AideUserConfigObject.Azure.TenantId = "bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd"
-    $AideUserConfigObject.Azure.ResourceGroupName = "aksedgepreview-rg"
-    $AideUserConfigObject.Azure.ServicePrincipalName = "aksedge-test-sp"
-    $AideUserConfigObject.Azure.Auth.ServicePrincipalId = "b7a2833e-10e9-4757-9b34-2b672b33dee2"
-    $AideUserConfigObject.Azure.Auth.Password = "G0-8Q~0g8eDRteTjmGUVrI_hLdNEiV2BtnAcJaSy"
+    $AideUserConfigObject.Azure.SubscriptionID = ""
+    $AideUserConfigObject.Azure.TenantId = ""
+    $AideUserConfigObject.Azure.ResourceGroupName = ""
+    $AideUserConfigObject.Azure.ServicePrincipalName = ""
+    $AideUserConfigObject.Azure.Auth.ServicePrincipalId = ""
+    $AideUserConfigObject.Azure.Auth.Password = ""
 
     $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
     Set-AideUserConfig -jsonString $AideUserConfig
