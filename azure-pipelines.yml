@@ -95,6 +95,6 @@ jobs:
 
           & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -LogFile $LogFile -JsonTestParameters $AideUserConfig
           
-          Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
-          Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
+          #Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
+          #Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
         displayName: 'Run e2e.ps1'
