@@ -82,9 +82,7 @@ jobs:
                   'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
                   }
               }         
-          ls $(Agent.BuildDirectory)
-          ls $(Agent.BuildDirectory)\self
-          ls $(Agent.BuildDirectory)
+          ls "$(Agent.BuildDirectory)\self"
           #$JsonParameters = '$(JSON_PARAMETERS)'
           $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
           $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
