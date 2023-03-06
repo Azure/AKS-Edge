@@ -12,6 +12,7 @@ resources:
       type: github
       endpoint: AksEdge-GithubConnection
       name: Azure/AKS-Edge
+      ref: $(Build.SourceBranch)
 
 jobs:
   - job: aidescript_e2e_test
