@@ -83,8 +83,8 @@ jobs:
                   }
               }         
           ls $(Agent.BuildDirectory)
-          ls $(Agent.BuildDirectory\self)
-          ls $(Agent.BuildDirectory\s)
+          ls $(Agent.BuildDirectory)\self
+          ls $(Agent.BuildDirectory)
           #$JsonParameters = '$(JSON_PARAMETERS)'
           $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
           $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
