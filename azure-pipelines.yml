@@ -67,7 +67,7 @@ jobs:
       - powershell: |
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
           $LogFile = "e2e_junit.xml"
-          $JsonParameters = @{
+          $AzureConfig = @{
               'Azure' = @{ 
                   'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
                   'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
@@ -81,14 +81,20 @@ jobs:
                       }
                   'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
                   }
-              }          
+              }         
+          ls $(Agent.BuildDirectory)
+          ls $(Agent.BuildDirectory\self)
+          ls $(Agent.BuildDirectory\s)
           #$JsonParameters = '$(JSON_PARAMETERS)'
-          $JsonTestParameters = $JsonParameters | ConvertTo-Json
+          $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
+          $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
+          $AideUserConfigObject.Azure = $AzureConfig
+          $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
 
           Write-Host "Executing tests from $TestPath, results at $LogFile"
           Get-ChildItem -Path $TestPath
 
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -LogFile $LogFile -JsonTestParameters $JsonTestParameters 
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -LogFile $LogFile -JsonTestParameters $AideUserConfig
           
           Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
           Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
