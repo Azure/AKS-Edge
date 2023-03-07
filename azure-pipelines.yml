@@ -1,0 +1,104 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+
+trigger: none
+
+resources:
+  repositories:
+    - repository: AksEdge
+      type: github
+      endpoint: AksEdge-GithubConnection
+      name: Azure/AKS-Edge
+      ref: $(Build.SourceBranch)
+
+jobs:
+  - job: aidescript_e2e_test
+    displayName: Run E2E Aide Test Script
+    pool: 1es-aksiot-windows-x64-ltsc-2021-test-pool
+    timeoutInMinutes: 60
+    
+    steps:
+      - checkout: AksEdge
+        path: self
+        clean: true
+        fetchDepth: 1
+      
+      - powershell: |
+          $CheckInstaller = Get-WmiObject -Class Win32_Product | where Name -match "AKS Edge Essentials - (K8s|K3s)"
+          $Module = Get-Module -ListAvailable -Name AksEdge
+          if ($CheckInstaller -ne $Null -Or $Module -ne $Null)
+          {
+            Write-Error "AksEdge is already installed on this agent"
+            Exit 1
+          }
+          Write-Host "AksEdge is not installed on this agent"
+
+          $freememInMB = ((Get-CimInstance -Class Win32_OperatingSystem).FreePhysicalMemory / 1024)
+          $freememInMBRounded = [Math]::Round($freememInMB)
+          if ($freememInMbRounded -lt 4096)
+          {
+            Write-Error "The host does not have enough resources to install and run AksEdge"
+            Exit 1
+          }
+          Write-Host "The host has $freememInMBRounded free memory, AksEdge can be installed on it"
+
+          $PSConfiguration = Get-ExecutionPolicy
+          if ($PSConfiguration -ne "Bypass" -and $PSConfiguration -ne "Unrestricted")
+          {
+            Write-Error "The host current powershell configuration is $PSConfiguration, expected configuration is Bypass or Unrestricted"
+            Exit 1
+          }
+          Write-Host "The host current powershell configuration is $PSConfiguration"
+
+          $SSHCheck = (Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*').State
+          $HyperVHyperVisor = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-Hypervisor -Online).State
+          $HyperV = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V -Online).State
+          $HyperVMngPowershell = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-Management-PowerShell -Online).State
+          if ($SSHCheck -ne "Installed" -Or $HyperVHyperVisor -ne "Enabled" -Or $HyperV -ne "Enabled" -Or $HyperVMngPowershell -ne "Enabled")
+          {
+            Write-Error "Not all software modules are installed, the software modules that are needed are: OpenSSH.Client, Microsoft-Hyper-V-Hypervisor, Microsoft-Hyper-V, Microsoft-Hyper-V-Management-PowerShell."
+            Exit 1
+          }
+          Write-Host "All the software modules are installed: OpenSSH.Client, Microsoft-Hyper-V-Hypervisor, Microsoft-Hyper-V, Microsoft-Hyper-V-Management-PowerShell."
+        displayName: 'Validating agent state'
+
+      - powershell: |
+          $TestPath = "$(Agent.BuildDirectory)\self\tests"
+          $AzureConfig = @{
+              'Azure' = @{ 
+                  'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
+                  'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
+                  'TenantId' = 'bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd' 
+                  'ResourceGroupName' = 'aksedgepreview-rg' 
+                  'ServicePrincipalName' = 'aide-script-testing-sp'
+                  'Location' = 'EastUS'
+                  'Auth' = @{ 
+                      'Password' = '8LO8Q~iWSTgI.rZnfoII.C2mHg4EQuxoqhZY7bE7'
+                      'ServicePrincipalId' = '5421e59d-d027-4d28-a6a6-2d904576c997' 
+                      }
+                  'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
+                  }
+              }         
+          ls "$(Agent.BuildDirectory)\self"
+          #$JsonParameters = '$(JSON_PARAMETERS)'
+          $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
+          $AideUserConfigObject.AksEdgeConfigFile = ".\..\tools\aksedge-config.json"
+          $AideUserConfigObject.Azure = $AzureConfig.Azure
+          $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
+
+          Write-Host $($AideUserConfig | Format-List | Out-String)
+
+          Write-Host "Executing tests from $TestPath, results at $LogFile"
+          Get-ChildItem -Path $TestPath
+
+          Write-Host "$TestPath\e2e.ps1"
+          Test-Path "$TestPath\e2e.ps1"
+
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $AideUserConfig
+          
+          #Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
+          #Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
+        displayName: 'Run e2e.ps1'
