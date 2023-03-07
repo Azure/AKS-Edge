@@ -85,8 +85,8 @@ jobs:
           ls "$(Agent.BuildDirectory)\self"
           #$JsonParameters = '$(JSON_PARAMETERS)'
           $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
-          $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
-          $AideUserConfigObject.Azure = $AzureConfig
+          $AideUserConfigObject.AksEdgeConfigFile = ".\..\tools\aksedge-config.json"
+          $AideUserConfigObject.Azure = $AzureConfig.Azure
           $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
 
           Write-Host $($AideUserConfig | Format-List | Out-String)
