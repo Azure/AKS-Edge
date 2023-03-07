@@ -1,9 +1,6 @@
 #Requires -RunAsAdministrator
 function Setup-BasicLinuxNodeOffline {
     param(
-        [string]
-        $AideUserConfigPath,
-        
         # Test Parameters
         [String]
         $JsonTestParameters,
@@ -14,15 +11,8 @@ function Setup-BasicLinuxNodeOffline {
     )
 
     # Get Aide UserConfig
-    $AideUserConfigObject = Get-Content $AideUserConfigPath | ConvertFrom-Json
 
-    # $AideUserConfigObject.AksEdgeProductUrl = $AksEdgeProductUrl
-
-    $AideUserConfigObject.AksEdgeConfigFile = ".\\..\\tools\\aksedge-config.json"
-
-    $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
-
-    $retval = Start-AideWorkflow -jsonString $AideUserConfig
+    $retval = Start-AideWorkflow -jsonString $JsonTestParameters
 
     if($retval) {
         Write-Host "Deployment Successful"
@@ -33,9 +23,6 @@ function Setup-BasicLinuxNodeOffline {
 
 function Cleanup-BasicLinuxNodeOffline {
     param(
-        [string]
-        $AideUserConfigPath,
-
         # Test Parameters
         [String]
         $JsonTestParameters,
