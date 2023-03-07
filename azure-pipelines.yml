@@ -68,36 +68,34 @@ jobs:
       - powershell: |
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
           $AzureConfig = @{
-              'Azure' = @{ 
-                  'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
-                  'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
-                  'TenantId' = 'bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd' 
-                  'ResourceGroupName' = 'aksedgepreview-rg' 
-                  'ServicePrincipalName' = 'aide-script-testing-sp'
-                  'Location' = 'EastUS'
-                  'Auth' = @{ 
-                      'Password' = '8LO8Q~iWSTgI.rZnfoII.C2mHg4EQuxoqhZY7bE7'
-                      'ServicePrincipalId' = '5421e59d-d027-4d28-a6a6-2d904576c997' 
-                      }
-                  'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
-                  }
-              }         
+                'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
+                'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
+                'TenantId' = 'bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd' 
+                'ResourceGroupName' = 'aksedgepreview-rg' 
+                'ServicePrincipalName' = 'aide-script-testing-sp'
+                'Location' = 'EastUS'
+                'Auth' = @{ 
+                    'Password' = '8LO8Q~iWSTgI.rZnfoII.C2mHg4EQuxoqhZY7bE7'
+                    'ServicePrincipalId' = '5421e59d-d027-4d28-a6a6-2d904576c997' 
+                    }
+                'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
+                }
           ls "$(Agent.BuildDirectory)\self"
           #$JsonParameters = '$(JSON_PARAMETERS)'
           $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
           $AideUserConfigObject.AksEdgeConfigFile = ".\..\tools\aksedge-config.json"
-          $AideUserConfigObject.Azure = $AzureConfig.Azure
-          $AideUserConfig = $AideUserConfigObject | ConvertTo-Json
+          $AideUserConfigObject.Azure = $AzureConfig
+          $JsonTestParameters = $AideUserConfigObject | ConvertTo-Json
 
-          Write-Host $($AideUserConfig | Format-List | Out-String)
+          Write-Host $($JsonTestParameters | Format-List | Out-String)
 
-          Write-Host "Executing tests from $TestPath, results at $LogFile"
+          Write-Host "Executing tests from $TestPath"
           Get-ChildItem -Path $TestPath
 
           Write-Host "$TestPath\e2e.ps1"
           Test-Path "$TestPath\e2e.ps1"
 
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $AideUserConfig
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $JsonTestParameters
           
           #Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
           #Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
