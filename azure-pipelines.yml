@@ -95,6 +95,7 @@ jobs:
           Get-ChildItem -Path $TestPath
 
           Write-Host "$TestPath\e2e.ps1"
+          Test-Path "$TestPath\e2e.ps1"
 
           & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $AideUserConfig
           
