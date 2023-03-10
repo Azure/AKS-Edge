@@ -95,7 +95,7 @@ jobs:
           Write-Host "$TestPath\e2e.ps1"
           Test-Path "$TestPath\e2e.ps1"
 
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $JsonTestParameters
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $JsonTestParameters -All
           
           #Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
           #Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
