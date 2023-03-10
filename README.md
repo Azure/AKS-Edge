@@ -10,7 +10,7 @@ Support through issues on this repository is provided on a **best-effort basis**
 
 ## Important Links
 
-- AKS Edge Essential GA Announcement: https://aka.ms/aks-edge/ga-blog
+- AKS Edge Essentials GA Announcement: https://aka.ms/aks-edge/ga-blog
 - AKS Edge Essentials Overview: https://aka.ms/aks-edge/overview
 - AKS Edge Essentials Quickstart: https://aka.ms/aks-edge/quickstart
 - AKS Edge Essentials Release Notes: https://aka.ms/aks-edge/releases
