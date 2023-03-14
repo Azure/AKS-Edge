@@ -67,6 +67,7 @@ jobs:
 
       - powershell: |
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
+          cd $TestPath
           $AzureConfig = @{
                 'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
                 'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
@@ -95,6 +96,6 @@ jobs:
           Write-Host "$TestPath\e2e.ps1"
           Test-Path "$TestPath\e2e.ps1"
 
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $JsonTestParameters -All
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "e2e.ps1" -JsonTestParameters $JsonTestParameters -All
           
         displayName: 'Run e2e.ps1'
