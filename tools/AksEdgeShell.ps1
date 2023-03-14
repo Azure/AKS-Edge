@@ -3,6 +3,7 @@
   Validates and loads the config file and imports the bootstrap scripts
 #>
 #Requires -RunAsAdministrator
+Write-Host "testing aksedgeshell"
 New-Variable -Name gAksEdgeShellVersion -Value "1.0.230221.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
