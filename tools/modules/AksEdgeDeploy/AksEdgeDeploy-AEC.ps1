@@ -259,7 +259,7 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcEdgeInstall
     "PSModules" = @(
         @{Name="Az.Resources"; Version="6.4.1"; Flags="-AllowClobber"},
         @{Name="Az.Accounts"; Version="2.11.2"; Flags="-AllowClobber"}, 
-        @{Name="Az.ConnectedKubernetes"; Version="0.8.0"; Flags="-AllowClobber"}
+        @{Name="Az.ConnectedKubernetes"; Version="0.9.0"; Flags="-AllowClobber"}
         )
     "Urls" = @{
         helm = "https://k8connecthelm.azureedge.net/helm/helm-v3.6.3-windows-amd64.zip"
@@ -287,7 +287,7 @@ function Test-ArcEdgeAzModules {
     $pkgproviders = Get-PackageProvider
     if ($pkgproviders.Name -notcontains "NuGet"){
         Write-Host "Installing NuGet"
-        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false
     } else { Write-Host "NuGet found" -ForegroundColor Green }
 
     Write-Host "Checking Helm"
@@ -295,7 +295,7 @@ function Test-ArcEdgeAzModules {
     $helmDir = "$helmRoot\windows-amd64"
     if (!(($env:Path).Contains($helmDir))) {
         $env:Path = "$helmDir;$env:Path"
-	[Environment]::SetEnvironmentVariable('Path', $env:Path)
+	    [Environment]::SetEnvironmentVariable('Path', $env:Path,"Machine")
     }
     $cmd = Get-Command helm -ErrorAction SilentlyContinue
     if ($null -eq $cmd)
@@ -375,7 +375,7 @@ function Connect-AideArcKubernetes {
             #Arc for server is already connected. So try updating tags
             $serverid = "/subscriptions/$($serverinfo.SubscriptionId)/resourceGroups/$($serverinfo.ResourceGroupName)/providers/Microsoft.HybridCompute/machines/$($serverinfo.Name)"
             $clustername = Get-AideArcClusterName
-            $tag = @{ AKSEE="$clustername" }
+            $tag = @{ "AKSEE"="$clustername" }
             $result = Update-AzTag -ResourceId $serverid -Tag $tag -Operation Merge
             Write-Verbose $result
         }
@@ -386,12 +386,5 @@ function Disconnect-AideArcKubernetes {
     $usrCfg = Get-AideUserConfig
     $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json )
     $retVal = Disconnect-AksEdgeArc -JsonConfigString $json
-    if ($retVal -eq "OK") {
-        #patch to remove azure-arc-release namespace
-        $namespaces = (kubectl get namespaces -o custom-columns=NAME:.metadata.name --no-headers)
-        if ($namespaces.Contains("azure-arc-release")) {
-            kubectl delete namespace azure-arc-release
-        }
-    }
     return ($retVal -eq "OK")
 }
