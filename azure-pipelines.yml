@@ -96,6 +96,10 @@ jobs:
           Write-Host "$TestPath\e2e.ps1"
           Test-Path "$TestPath\e2e.ps1"
 
+          Set-PSDebug -Trace 1
+
           & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "e2e.ps1" -JsonTestParameters $JsonTestParameters -All
+          
+          Set-PSDebug -Trace 0
           
         displayName: 'Run e2e.ps1'
