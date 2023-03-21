@@ -24,7 +24,7 @@ The `Start-AideWorkflow` function in the modole does the following:
             "Version": "1.0",
             "DeploymentType": "SingleMachineCluster",
             "Init": {
-                "ServiceIPRangeSize": 0
+                "ServiceIPRangeSize": 10
             },
             "Network": {
                 "NetworkPlugin": "flannel",
