@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.5",
+    "SchemaVersion": "1.6",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -98,6 +98,15 @@ jsonDiagram {
                 "type": "int",
                 "default": 300
             },
+            "TpmPassthrough": false,
+            "SecondaryNetworks": [
+                {
+                    "VMSwitchName" : "string",
+                    "Ip4Address": "ipv4",
+                    "Ip4GatewayAddress": "ipv4",
+                    "Ip4PrefixLength": "integer"
+                }
+            ],
             "Ip4Address": "ipv4",
             "MacAddress": "string",
             "Mtu": "integer",

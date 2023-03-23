@@ -8,7 +8,7 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230217.1200" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230321.1200" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
     "azure-cli"      = "2.41.0"
     "azure-cli-core" = "2.41.0"
@@ -361,12 +361,12 @@ if ($ecFile) {
     if (Test-Path -Path $ecFile) {
         $edgeCfg = Get-Content $ecFile | ConvertFrom-Json
         $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
-        $edgeCfg | ConvertTo-Json -Depth 5 | Format-Json | Set-Content -Path "$ecFile" -Force
+        $edgeCfg | ConvertTo-Json -Depth 6 | Format-Json | Set-Content -Path "$ecFile" -Force
     }
 } else {
     $jsonContent | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
 }
 
-$jsonContent | ConvertTo-Json -Depth 5 | Format-Json | Set-Content -Path "$jsonFile" -Force
+$jsonContent | ConvertTo-Json -Depth 6 | Format-Json | Set-Content -Path "$jsonFile" -Force
 az logout
 exit 0
