@@ -279,7 +279,8 @@ function UpgradeJsonFormat {
     }
     #upgrade from public preview format to GA format
     $edgeCfg = $jsonObj.AksEdgeConfig
-    if ($edgeCfg.SchemaVersion -eq '1.5') {
+    $newVersions = @("1.5","1.6")
+    if ($newVersions -contains $edgeCfg.SchemaVersion) {
         if (($azCfg.Auth.Password) -and ([string]::IsNullOrEmpty($($edgeCfg.Arc.ClientSecret)))) {
             #Copy over the Azure parameters to Arc section
             $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
@@ -355,9 +356,9 @@ function Save-AideUserConfig {
         $ObjToSave = $aideSession.UserConfig
         if ($aideSession.ReadFromFile) {
             #we dont expect programatic changes to the aide-userconfig. Only in AksEdgeConfig
-            $ObjToSave.AksEdgeConfig | ConvertTo-Json -Depth 4 | Format-AideJson | Set-Content -Path "$($ObjToSave.AksEdgeConfigFile)" -Force
+            $ObjToSave.AksEdgeConfig | ConvertTo-Json -Depth 6 | Format-AideJson | Set-Content -Path "$($ObjToSave.AksEdgeConfigFile)" -Force
         } else {
-            $ObjToSave | ConvertTo-Json -Depth 4 | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
+            $ObjToSave | ConvertTo-Json -Depth 6 | Format-AideJson | Set-Content -Path "$($aideSession.UserConfigFile)" -Force
         }
     } else {
         Write-Verbose "Error: Aide UserConfigFile not configured"
@@ -431,7 +432,7 @@ function Test-AideUserConfigNetwork {
             }
         }
     }
-    $retval = Test-AksEdgeNetworkParameters -JsonConfigString ($akseeCfg | ConvertTo-Json -Depth 4)
+    $retval = Test-AksEdgeNetworkParameters -JsonConfigString ($akseeCfg | ConvertTo-Json -Depth 6)
     return ($retval -and ($errCnt -eq 0))
 }
 
@@ -890,7 +891,7 @@ function Invoke-AideDeployment {
     }
     if (-not (Test-AideUserConfigDeploy)) { return $false }
     $akseeCfg = Get-AideAksEdgeConfig
-    $aksedgeDeployParams = $akseeCfg | ConvertTo-Json -Depth 4
+    $aksedgeDeployParams = $akseeCfg | ConvertTo-Json -Depth 6
     Write-Verbose "AksEdge VM deployment parameters for New-AksEdgeDeployment..."
     Write-Verbose "$aksedgeDeployParams"
     Write-Host "Starting AksEdge VM deployment..."
@@ -1123,7 +1124,7 @@ function Start-AideWorkflow {
     } else {
         if (!(Test-AideVmSwitch -Create)) { return $false } #create switch if specified
         # We are here.. all is good so far. Validate and deploy aksedge
-        if (!(Invoke-AideDeployment)) { return $false }
+        return Invoke-AideDeployment
     }
     return $true
 }

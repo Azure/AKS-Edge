@@ -261,9 +261,6 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcEdgeInstall
         @{Name="Az.Accounts"; Version="2.11.2"; Flags="-AllowClobber"}, 
         @{Name="Az.ConnectedKubernetes"; Version="0.9.0"; Flags="-AllowClobber"}
         )
-    "Urls" = @{
-        helm = "https://k8connecthelm.azureedge.net/helm/helm-v3.6.3-windows-amd64.zip"
-    }
 }
 function Test-ArcEdgeAzModules {
     Param
@@ -289,48 +286,6 @@ function Test-ArcEdgeAzModules {
         Write-Host "Installing NuGet"
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false
     } else { Write-Host "NuGet found" -ForegroundColor Green }
-
-    Write-Host "Checking Helm"
-    $helmRoot = "$env:USERPROFILE\.Azure\helm"
-    $helmDir = "$helmRoot\windows-amd64"
-    if (!(($env:Path).Contains($helmDir))) {
-        $env:Path = "$helmDir;$env:Path"
-	    [Environment]::SetEnvironmentVariable('Path', $env:Path,"Machine")
-    }
-    $cmd = Get-Command helm -ErrorAction SilentlyContinue
-    if ($null -eq $cmd)
-    {
-        Write-Host "- Helm not found. A helm version of at least 3.0 but less than 3.7 is required."
-        $installHelm = $true
-        $errCnt += 1
-    } else {
-        $version = helm version --template='{{.Version}}'
-        $version = ($version -split 'v')[1]
-        if (([version]$version -lt [version]"3.0.0") -Or ([version]$version -ge [version]"3.7.0"))
-        {
-            Write-Host "- Found $version. A helm version of at least 3.0 but less than 3.7 is required."
-            $installHelm = $true
-            $errCnt += 1
-        } else {
-            Write-Host "* Found helm version $version" -ForegroundColor Green
-        }    
-    }
-    if ($installHelm -and $Install) {
-        $url = $arcEdgeInstallConfig.Urls.helm
-        $outFile = "$env:TEMP\helm.zip"
-        Write-Host "Installing helm from $url"
-        try {
-            Invoke-WebRequest -Uri $url -TimeoutSec 30 -OutFile $outFile
-            if (Test-Path $outFile) {
-                Expand-Archive -Path $outFile -DestinationPath $helmRoot -Force
-                $errCnt -=1
-            } else {
-                Write-Host "Download failed. Try again or install helm manually from $url"
-            }
-        } catch {
-            Write-Host "Error : Failed to install helm. try again or install helm manually from $url"
-        }
-    }
 
     Write-Host "Checking Az Powershell modules....."
     $reqmods = $arcEdgeInstallConfig.PSModules
