@@ -82,6 +82,7 @@ jobs:
       - powershell: |
           $LogFile = 'e2e_junit.xml'
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
+          cd $TestPath
           $AzureConfig = @{
                 'SubscriptionName' = 'AKS-Edge Essentials Test' 
                 'SubscriptionId' = 'f9cb372a-8903-4370-9ce0-3042e3bb2cc8'
