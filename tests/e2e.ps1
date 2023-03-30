@@ -82,7 +82,6 @@ $JsonTestParameters = Get-Content -Raw $AideModulePath\aide-userconfig.json
 
 $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
-Write-Host "test aksedgeshell end"
 
 # Import all test modules here.
 #

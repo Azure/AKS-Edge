@@ -19,12 +19,7 @@ jobs:
         path: self
         clean: true
         fetchDepth: 1
-      
-      - checkout: CBL-Mariner-BVT
-        path: CBL-Mariner-BVT
-        clean: true
-        fetchDepth: 1
-      
+        
       - powershell: |
           $CheckInstaller = Get-WmiObject -Class Win32_Product | where Name -match "AKS Edge Essentials - (K8s|K3s)"
           $Module = Get-Module -ListAvailable -Name AksEdge
