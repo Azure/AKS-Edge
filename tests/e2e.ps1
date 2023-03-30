@@ -39,10 +39,6 @@ param(
     $TestVar,
 
     [String]
-    # Parameters for VM sanity tests
-    $JsonTestParameters,
-
-    [String]
     # Log results into this file (JUnit format)
     $LogFile
 )
@@ -81,6 +77,8 @@ function Assert-Equal
 }
 
 $AideModulePath = "$PSScriptRoot\..\tools"
+
+$JsonTestParameters = Get-Content -Raw $AideModulePath\aide-userconfig.json
 
 $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell

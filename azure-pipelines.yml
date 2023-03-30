@@ -1,9 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-
 trigger: none
 
 resources:
@@ -23,6 +17,11 @@ jobs:
     steps:
       - checkout: AksEdge
         path: self
+        clean: true
+        fetchDepth: 1
+      
+      - checkout: CBL-Mariner-BVT
+        path: CBL-Mariner-BVT
         clean: true
         fetchDepth: 1
       
@@ -64,39 +63,54 @@ jobs:
           }
           Write-Host "All the software modules are installed: OpenSSH.Client, Microsoft-Hyper-V-Hypervisor, Microsoft-Hyper-V, Microsoft-Hyper-V-Management-PowerShell."
         displayName: 'Validating agent state'
+      
+      - powershell: |
+          Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force
+          $modules = Get-Module -ListAvailable
+          Write-Host "Modules available are"
+          Write-Host $modules
+          $psgallery = Get-PSRepository | Where-Object { $_.Name -like "PSGallery" }
+          if ($psgallery.InstallationPolicy -ine "Trusted") {
+              # Do this always as by default PSGallery is untrusted. 
+              # See alternate means to force install rather than making this trusted.
+              Write-Host "Setting PSGallery as Trusted Source"
+              Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
+          }
+          else { Write-Host "PSGallery is trusted" -ForegroundColor Green }
+        displayName: 'Enabling PS Reposiotory access to install required module'
 
       - powershell: |
+          $LogFile = 'e2e_junit.xml'
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
           $AzureConfig = @{
-                'SubscriptionName' = 'Visual Studio Enterprise Subscription' 
-                'SubscriptionId' = 'cd80ddb4-f99c-479e-9db2-bc519645d595'
-                'TenantId' = 'bb71f4b3-c8c4-47ff-8df8-763e2fdb9ccd' 
-                'ResourceGroupName' = 'aksedgepreview-rg' 
+                'SubscriptionName' = 'AKS-Edge Essentials Test' 
+                'SubscriptionId' = 'f9cb372a-8903-4370-9ce0-3042e3bb2cc8'
+                'TenantId' = '72f988bf-86f1-41af-91ab-2d7cd011db47' 
+                'ResourceGroupName' = 'aide-script-testing' 
                 'ServicePrincipalName' = 'aide-script-testing-sp'
                 'Location' = 'EastUS'
-                'Auth' = @{ 
-                    'Password' = '8LO8Q~iWSTgI.rZnfoII.C2mHg4EQuxoqhZY7bE7'
-                    'ServicePrincipalId' = '5421e59d-d027-4d28-a6a6-2d904576c997' 
-                    }
-                'CustomLocationOID' = '6e9469b1-41ab-4685-99a2-94131bd48267' 
+                'Auth' = @{
+                    'Password' = "$(Password)"
+                    'ServicePrincipalId' = "$(ServicePrincipalId)"
                 }
-          ls "$(Agent.BuildDirectory)\self"
-          #$JsonParameters = '$(JSON_PARAMETERS)'
-          $AideUserConfigObject = Get-Content "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
-          $AideUserConfigObject.AksEdgeConfigFile = ".\..\tools\aksedge-config.json"
-          $AideUserConfigObject.Azure = $AzureConfig
-          $JsonTestParameters = $AideUserConfigObject | ConvertTo-Json
+                'CustomLocationOID' = '51dfe1e8-70c6-4de5-a08e-e18aff23d815' 
+                }
+          $JsonTestParameters = Get-Content -Raw "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json" | ConvertFrom-Json
+          $JsonTestParameters.AksEdgeConfigFile = "$(Agent.BuildDirectory)\self\tools\aksedge-config.json"
 
-          Write-Host $($JsonTestParameters | Format-List | Out-String)
+          $JsonTestParameters.Azure = New-Object psobject -Property $AzureConfig
+          $JsonTestParameters | ConvertTo-Json | Out-File "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json"
 
-          Write-Host "Executing tests from $TestPath"
+          Write-Host "Executing tests from $TestPath, Results at $LogFile"
           Get-ChildItem -Path $TestPath
-
-          Write-Host "$TestPath\e2e.ps1"
-          Test-Path "$TestPath\e2e.ps1"
-
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -JsonTestParameters $JsonTestParameters
-          
-          #Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
-          #Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$(E2E_GROUP_NAME)-Logs.zip"
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -All -LogFile $LogFile
+          Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
+          Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$E2E-Logs.zip"
         displayName: 'Run e2e.ps1'
+        
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: '$(Build.ArtifactStagingDirectory)/e2e_junit.xml'
+          testRunTitle: 'AideScripts E2E Test Pass'
+        displayName: 'Publish E2E Test Results'
