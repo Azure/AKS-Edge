@@ -22,7 +22,7 @@ Bug reports filed on this repository should follow the default issue template th
 
 1. **Be reproducible outside of the current cluster**
 
-    If you file an issue requiring direct access to your cluster and/or Azure resources, you will be redirected to open an Azure support ticket. Microsoft employees may not ask for personal / subscription information on Github. 
+    If you file an issue requiring direct access to your cluster and/or Azure resources, you will be redirected to open an Azure support ticket. Microsoft employees may not ask for personal / subscription information on GitHub. 
 
 1. **Contain the following information**
     1. **A good title**: Clear, relevant, and descriptive - so that a general idea of the problem can be grasped immediately
