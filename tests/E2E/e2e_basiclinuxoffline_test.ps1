@@ -41,7 +41,7 @@ function Cleanup-BasicLinuxNodeOffline {
     }
 }
 
-function E2etest-BasicLinuxNodeOffline-TestOfflineClusterScenario {
+function E2etest-BasicLinuxNodeOffline-TestOfflineClusterNodesReady {
 
     param(
     
@@ -73,5 +73,43 @@ function E2etest-BasicLinuxNodeOffline-TestOfflineClusterScenario {
     foreach ( $NODE in $result )
     {
         Assert-Equal $NODE.STATUS 'Ready'
+    }
+}
+
+function E2etest-BasicLinuxNodeOffline-TestOfflineClusterPodsReady
+{
+    param
+    (
+        [String]
+        # Test Parameter
+        $JsonTestParameters,
+
+        [HashTable]
+        # Optional parameters from the commandline
+        $TestVar
+    )
+
+    Write-Host "Running kubectl"
+
+    Get-AksEdgeKubeConfig -Confirm:$false
+    $kubectloutput = & 'c:\program files\AksEdge\kubectl\kubectl.exe' get pods --all-namespaces
+    $result = $($kubectloutput -split '\r?\n' -replace '\s+', ';' | ConvertFrom-Csv -Delimiter ';')
+    Write-Host "`n Kube pods output: $kubectloutput"
+
+    Write-Host "Kubernetes pods STATUS:"
+    foreach ( $POD in $result )
+    {
+        Write-Host "NAME: $($POD.NAME) READY: $($POD.READY) STATUS: $($POD.STATUS)"
+    }
+
+    # Verify if we get any pods output from kubectl
+    $condition = [string]::IsNullOrEmpty($result.NAME)
+    Assert-Equal $condition $false
+
+    foreach ( $POD in $result )
+    {
+        # Verify if all the pods are Ready
+        $ReadyValues = $POD.READY.Split("/")
+        Assert-Equal $ReadyValues[0] $ReadyValues[1]
     }
 }

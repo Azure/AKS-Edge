@@ -75,7 +75,7 @@ function Cleanup-BasicLinuxNodeOnline {
     }
 }
 
-function E2etest-BasicLinuxNodeOnline-TestOnlineClusterScenario {
+function E2etest-BasicLinuxNodeOnline-TestOnlineClusterPodsReady {
 
     param(
         # Test Parameters
