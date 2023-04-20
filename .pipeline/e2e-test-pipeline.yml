@@ -1,0 +1,27 @@
+# E2E pipeline for AKS Iot
+
+trigger: none
+
+
+# Reference the MSI pipelines
+
+parameters:
+- name: TestGroup
+  displayName: Test Group to execute
+  type: string
+  default: LinuxOffline
+  values:
+  - LinuxOffline
+  - LinuxOnline
+  - LinuxAndWindows
+  - All
+jobs:
+  - template: templates/matrix_generator.yml
+    parameters:
+      TestGroup: ${{ parameters.TestGroup }}
+  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxOffline')) }}:
+    - template: templates/e2e-linuxoffline.yml
+  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxOnline')) }}:
+    - template: templates/e2e-linuxonline.yml
+  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxAndWindows')) }}:
+    - template: templates/e2e-linuxandwindows.yml
