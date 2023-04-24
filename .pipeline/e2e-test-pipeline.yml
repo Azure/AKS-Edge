@@ -16,7 +16,7 @@ parameters:
   - LinuxAndWindows
   - All
 jobs:
-  - template: templates/matrix_generator.yml
+  - template: templates/matrix-generator.yml
     parameters:
       TestGroup: ${{ parameters.TestGroup }}
   - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxOffline')) }}:
