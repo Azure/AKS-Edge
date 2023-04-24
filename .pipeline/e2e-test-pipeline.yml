@@ -2,6 +2,14 @@
 
 trigger: none
 
+resources:
+  repositories:
+    - repository: AksEdge
+      type: github
+      endpoint: AksEdge-GithubConnection
+      name: Azure/AKS-Edge
+      ref: $(Build.SourceBranch)
+
 
 # Reference the MSI pipelines
 
