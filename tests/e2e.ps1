@@ -99,6 +99,7 @@ $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 
 
 . "$PSScriptRoot\E2E\e2e_basiclinuxoffline_test.ps1"
 . "$PSScriptRoot\E2E\e2e_basiclinuxonline_test.ps1"
+. "$PSScriptRoot\E2E\e2e_basiclinuxandwindowsoffline_test.ps1"
 
 # Put all commands into $CommandTree, which is a map(GroupName => Array(FunctionNames))
 $AllCommands = Get-Command -Verb 'E2eTest'
