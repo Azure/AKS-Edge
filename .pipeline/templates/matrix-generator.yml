@@ -18,22 +18,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install jq -y
 
-      LinuxNodeOnline = 'false'
-      LinuxNodeOffline = 'false'
-      LinuxAndWindows = 'false'
+      LinuxNodeOnline='false'
+      LinuxNodeOffline='false'
+      LinuxAndWindows='false'
 
       echo "${{parameters.TestGroup}}"
 
       if [ "${{ parameters.TestGroup }}" == "All" ]; then
-          LinuxNodeOnline = 'true'
-          LinuxNodeOffline = 'true'
-          LinuxAndWindows = 'true'
+          LinuxNodeOnline='true'
+          LinuxNodeOffline='true'
+          LinuxAndWindows='true'
       elif [ "${{ parameters.TestGroup }}" == "LinuxOffline" ]; then
-          LinuxNodeOffline = 'true'
+          LinuxNodeOffline='true'
       elif [ "${{ parameters.TestGroup }}" == "LinuxOnline" ]; then
-          LinuxNodeOnline = 'true'
+          LinuxNodeOnline='true'
       elif [ "${{ parameters.TestGroup }}" == "LinuxAndWindows" ]; then
-          LinuxAndWindows = 'true'
+          LinuxAndWindows='true'
       fi
 
       echo "LinuxOffline: $LinuxNodeOffline"
