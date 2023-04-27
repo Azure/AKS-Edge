@@ -1,6 +1,6 @@
 jobs:
   - job: aidescript_e2e_test_linuxonline
-    displayName: Run E2E Aide Test Script
+    displayName: Run E2E Linux Online Test Suite
     dependsOn:
       - mtrxgenerator
     pool: 1es-aksiot-windows-x64-ltsc-2021-test-pool

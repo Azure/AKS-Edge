@@ -27,9 +27,9 @@ jobs:
   - template: templates/matrix-generator.yml
     parameters:
       TestGroup: ${{ parameters.TestGroup }}
-  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxOffline')) }}:
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxOffline')) }}:
     - template: templates/e2e-linuxoffline.yml
-  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxOnline')) }}:
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxOnline')) }}:
     - template: templates/e2e-linuxonline.yml
-  - ${{ if or( eq(parameters.TestGroup, 'all'), eq(parameters.TestGroup, 'LinuxAndWindows')) }}:
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxAndWindows')) }}:
     - template: templates/e2e-linuxandwindows.yml
