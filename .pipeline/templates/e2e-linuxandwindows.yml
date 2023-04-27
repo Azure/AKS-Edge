@@ -77,7 +77,7 @@ jobs:
             }
 
           $AksEdgeConfigFilePath = "$(Agent.BuildDirectory)\self\tools\aksedge-config.json"
-          $AksEdgeConfig = $AksEdgeConfigFilePath | ConvertFrom-Json
+          $AksEdgeConfig = Get-Content -Raw $AksEdgeConfigFilePath | ConvertFrom-Json
           Add-Member -InputObject $AksEdgeConfig.Machines[0] -MemberType NoteProperty -Name WindowsNode -Value $WindowsConfig
           $AksEdgeConfig | ConvertTo-Json | Out-File $AksEdgeConfigFilePath
 
