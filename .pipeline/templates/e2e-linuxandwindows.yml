@@ -5,7 +5,7 @@ jobs:
     displayName: Run E2E Aide Test Script
     pool: 1es-aksiot-windows-x64-ltsc-2021-test-pool
     timeoutInMinutes: 60
-    condition: eq(dependencies.mtrxgenerator.outputs[mtrx.LinuxAndWindows], 'true')
+    condition: eq(dependencies.mtrxgenerator.outputs['mtrx.LinuxAndWindows'], 'true')
     
     steps:
       - checkout: AksEdge
@@ -70,29 +70,27 @@ jobs:
       - powershell: |
           $LogFile = 'e2e_junit.xml'
           $TestPath = "$(Agent.BuildDirectory)\self\tests"
-          $WindowsConfig = @{ 
-                "WindowsNode" = @{
-                  "CpuCount"= 4
-                  "MemoryInMB"= 4096
-                  "DataSizeInGB"= 20
-                }                
+          $WindowsConfig = [PSCustomObject]@{ 
+              "CpuCount"= 4
+              "MemoryInMB"= 4096
+              "DataSizeInGB"= 20
             }
 
           $AksEdgeConfigFilePath = "$(Agent.BuildDirectory)\self\tools\aksedge-config.json"
           $AksEdgeConfig = $AksEdgeConfigFilePath | ConvertFrom-Json
-          $AksEdgeConfig.Machine.Add(New-Object psobject -Property $WindowsConfig)
+          Add-Member -InputObject $AksEdgeConfig.Machines[0] -MemberType NoteProperty -Name WindowsNode -Value $WindowsConfig
           $AksEdgeConfig | ConvertTo-Json | Out-File $AksEdgeConfigFilePath
 
           $JsonConfigFilePath = "$(Agent.BuildDirectory)\self\tools\aide-userconfig.json"
           
           $JsonTestParameters = Get-Content -Raw $JsonConfigFilePath | ConvertFrom-Json
-          $JsonTestParameters.AksEdgeConfigFile = "$(Agent.BuildDirectory)\self\tools\aksedge-config.json"
+          $JsonTestParameters.AksEdgeConfigFile = $AksEdgeConfigFilePath
 
           $JsonTestParameters | ConvertTo-Json | Out-File $JsonConfigFilePath
 
           Write-Host "Executing tests from $TestPath, Results at $LogFile"
           Get-ChildItem -Path $TestPath
-          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -All -LogFile $LogFile -JsonConfigFilePath $JsonConfigFilePath
+          & c:\windows\system32\windowspowershell\v1.0\powershell.exe -File "$TestPath\e2e.ps1" -LogFile $LogFile -JsonConfigFilePath $JsonConfigFilePath -IncludeGroup BasicLinuxAndWindowsNode
           Copy-Item -Path $LogFile -Destination "$(Build.ArtifactStagingDirectory)\e2e_junit.xml"
           Copy-Item -Path $TestPath\Logs-*.zip -Destination "$(Build.ArtifactStagingDirectory)\$E2E-Logs.zip"
         displayName: 'Run e2e.ps1'
