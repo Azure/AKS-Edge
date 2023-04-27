@@ -22,6 +22,8 @@ jobs:
       LinuxNodeOffline = 'false'
       LinuxAndWindows = 'false'
 
+      echo "${{parameters.TestGroup}}"
+
       if [ "${{ parameters.TestGroup }}" == "All" ]; then
           LinuxNodeOnline = 'true'
           LinuxNodeOffline = 'true'
