@@ -1,7 +1,7 @@
 
 Import-Module "$PSScriptRoot\utils.ps1"
 
-function Setup-BasicLinuxAndWindowsNode {
+function Setup-BasicLinuxAndWindowsNodeOffline {
     param(
         # Test Parameters
         [String]
@@ -23,7 +23,7 @@ function Setup-BasicLinuxAndWindowsNode {
     }
 }
 
-function Cleanup-BasicLinuxAndWindowsNode {
+function Cleanup-BasicLinuxAndWindowsNodeOffline {
     param(
         # Test Parameters
         [String]
