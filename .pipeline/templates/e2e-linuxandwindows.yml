@@ -86,7 +86,7 @@ jobs:
           $JsonTestParameters = Get-Content -Raw $JsonConfigFilePath | ConvertFrom-Json
           $JsonTestParameters.AksEdgeConfigFile = $AksEdgeConfigFilePath
 
-          $JsonTestParameters | ConvertTo-Json | Out-File $JsonConfigFilePath
+          $JsonTestParameters | ConvertTo-Json -Depth 4 | Out-File $JsonConfigFilePath
 
           Write-Host "Executing tests from $TestPath, Results at $LogFile"
           Get-ChildItem -Path $TestPath
