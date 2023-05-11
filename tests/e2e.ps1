@@ -34,6 +34,10 @@ param(
     # For the test run, run all tests except those matching these tests
     $ExcludeTest,
 
+    [String]
+    #Path of the JSON Configuration file
+    $JsonConfigFilePath,
+
     [HashTable]
     # Pass variables into tests
     $TestVar,
@@ -78,7 +82,7 @@ function Assert-Equal
 
 $AideModulePath = "$PSScriptRoot\..\tools"
 
-$JsonTestParameters = Get-Content -Raw $AideModulePath\aide-userconfig.json
+$JsonTestParameters = Get-Content -Raw $JsonConfigFilePath
 
 $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
@@ -95,6 +99,7 @@ $aksedgeShell = (Get-ChildItem -Path "$AideModulePath" -Filter AksEdgeShell.ps1 
 
 . "$PSScriptRoot\E2E\e2e_basiclinuxoffline_test.ps1"
 . "$PSScriptRoot\E2E\e2e_basiclinuxonline_test.ps1"
+. "$PSScriptRoot\E2E\e2e_basiclinuxandwindowsoffline_test.ps1"
 
 # Put all commands into $CommandTree, which is a map(GroupName => Array(FunctionNames))
 $AllCommands = Get-Command -Verb 'E2eTest'

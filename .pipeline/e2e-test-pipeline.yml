@@ -1,0 +1,35 @@
+# E2E pipeline for AKS Iot
+
+trigger: none
+
+resources:
+  repositories:
+    - repository: AksEdge
+      type: github
+      endpoint: AksEdge-GithubConnection
+      name: Azure/AKS-Edge
+      ref: $(Build.SourceBranch)
+
+
+# Reference the MSI pipelines
+
+parameters:
+- name: TestGroup
+  displayName: Test Group to execute
+  type: string
+  default: LinuxOffline
+  values:
+  - LinuxOffline
+  - LinuxOnline
+  - LinuxAndWindows
+  - All
+jobs:
+  - template: templates/matrix-generator.yml
+    parameters:
+      TestGroup: ${{ parameters.TestGroup }}
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxOffline')) }}:
+    - template: templates/e2e-linuxoffline.yml
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxOnline')) }}:
+    - template: templates/e2e-linuxonline.yml
+  - ${{ if or( eq(parameters.TestGroup, 'All'), eq(parameters.TestGroup, 'LinuxAndWindows')) }}:
+    - template: templates/e2e-linuxandwindows.yml

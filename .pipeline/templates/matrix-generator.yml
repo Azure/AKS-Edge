@@ -1,0 +1,45 @@
+# Template for the matrix generator
+
+parameters:
+- name: TestGroup
+  displayName: Test Group to execute
+
+jobs:
+- job: mtrxgenerator
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+  - bash: |
+      # Use the json file to get the values of params passed to the MSI pipeline
+      # Install jq
+        sudo apt-get update
+        sudo apt-get install jq -y
+
+      LinuxNodeOnline='false'
+      LinuxNodeOffline='false'
+      LinuxAndWindows='false'
+
+      if [ "${{ parameters.TestGroup }}" == "All" ]; then
+          LinuxNodeOnline='true'
+          LinuxNodeOffline='true'
+          LinuxAndWindows='true'
+      elif [ "${{ parameters.TestGroup }}" == "LinuxOffline" ]; then
+          LinuxNodeOffline='true'
+      elif [ "${{ parameters.TestGroup }}" == "LinuxOnline" ]; then
+          LinuxNodeOnline='true'
+      elif [ "${{ parameters.TestGroup }}" == "LinuxAndWindows" ]; then
+          LinuxAndWindows='true'
+      fi
+
+      echo "LinuxOffline: $LinuxNodeOffline"
+      echo "LinuxOnline: $LinuxNodeOnline"
+      echo "LinuxAndWindows: $LinuxAndWindows"
+      
+      echo "##vso[task.setVariable variable=LinuxNodeOffline;isOutput=true]$LinuxNodeOffline"
+      echo "##vso[task.setVariable variable=LinuxNodeOnline;isOutput=true]$LinuxNodeOnline"
+      echo "##vso[task.setVariable variable=LinuxAndWindows;isOutput=true]$LinuxAndWindows"
+      
+    name: mtrx
