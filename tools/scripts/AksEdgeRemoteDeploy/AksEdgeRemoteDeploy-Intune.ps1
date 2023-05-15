@@ -1,9 +1,23 @@
 <#
-  Sample script to deploy AksEdge via Intune
-  In Intune, set the following for the return values
-  -1 : Retry
-   2 : Hard reboot
-   0 : Success
+    .SYNOPSIS
+        Sample script to deploy AksEdge via Intune
+
+    .DESCRIPTION
+        PowerShell script to deply AKS Edge Essentials using Intune
+        In Intune, set the following for the return values
+            -1 : Retry
+            2 : Hard reboot
+            0 : Success
+
+    .PARAMETER RunToComplete
+        Retry continuously until deployment is completed
+
+    .PARAMETER UseK8s
+        Use K8s distribution if present - If not, use default K3S
+    
+    .PARAMETER Tag
+        Release Tag of AKS Edge Essentials release artifacts
+        For more information, check https://github.com/Azure/AKS-Edge/releases
 #>
 param(
     [Switch] $RunToComplete,
@@ -11,7 +25,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230321.1000" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230515.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1

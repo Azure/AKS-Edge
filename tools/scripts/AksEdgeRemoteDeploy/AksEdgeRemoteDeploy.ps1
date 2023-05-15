@@ -1,12 +1,28 @@
 <#
-  Sample script to deploy AksEdge via Intune
+    .SYNOPSIS
+        Sample script to deploy AksEdge via Arc for Servers
+
+    .DESCRIPTION
+        PowerShell script to deply AKS Edge Essentials using Arc for Server remote PowerShell script extension.
+        For more information, check https://learn.microsoft.com/azure/azure-arc/servers/manage-vm-extensions-powershell    
+
+    .PARAMETER UseK8s
+        Use K8s distribution if present - If not, use default K3S
+    
+    .PARAMETER Tag
+        Release Tag of AKS Edge Essentials release artifacts
+        For more information, check https://github.com/Azure/AKS-Edge/releases
+    
+    .PARAMETER GetManagedServiceToken
+        Get the Managed Service Token of the AKS Edge Essentials cluster and print it out in the logs.
 #>
 param(
     [Switch] $UseK8s,
-    [string] $Tag
+    [string] $Tag,
+    [Switch] $GetManagedServiceToken
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230321.1000" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.230515.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -146,6 +162,12 @@ if ($status){
         exit -1
     }
 } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
+
+if ($GetManagedServiceToken.IsPresent)
+{
+    Write-Host "Step 4: Get AKS Edge managed service token"
+    Get-AksEdgeManagedServiceToken
+}
 
 $endtime = Get-Date
 $duration = ($endtime - $starttime)
