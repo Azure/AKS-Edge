@@ -639,7 +639,8 @@ function Invoke-AideLinuxVmShell {
     .EXAMPLE
         Invoke-AideLinuxVmShell
     #>
-    if ($aideSession.HostOS.IsServerSKU) {
+    $provider = (Get-ItemPropertyValue "HKLM:\SOFTWARE\Microsoft\AksEdge" -Name wssdProvider)
+    if ($provider -ne 'hcs') {
         $env:WSSD_CONFIG_PATH="c:\programdata\aksedge\protected\.wssd\cloudconfig"
         $LinuxVmTag="9f0ea5f3-5769-47e3-b504-2afacd1fef0f"
         $IdLine = & 'C:\Program Files\aksedge\nodectl' compute vm list --query "[?tags.keys(@).contains(@,'$LinuxVmTag')]" | Select-String -Pattern "ledge-id:"
