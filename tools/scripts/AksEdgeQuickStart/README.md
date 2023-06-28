@@ -74,4 +74,4 @@ AksEdgeQuickStart enables you to quickly bootstrap your machine with installatio
 4. Downloads the AKS Edge Essentials MSI, installs it and deploys `SingleMachineCluster` using the `Start-AideWorkflow` function.
    - This function invokes `Install-AksEdgeHostFeatures` that installs all the required OS features and policy settings on the host machine. A restart will be triggered when the Hyper-V feature is enabled and when this occurs, the script needs to be re-run to continue further.
 5. Finally, using the Azure credentials created in step 2, the host machine and the cluster are connected to Arc using `Connect-AideArc` function.
-   - Note that the required Az Powershell modules and the required `helm` binary are installed using `Initialise-AideArc` function.
+   - Note that the required Az Powershell modules are installed using `Initialise-AideArc` function.
