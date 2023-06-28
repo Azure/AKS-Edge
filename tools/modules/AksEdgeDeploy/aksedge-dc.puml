@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.6",
+    "SchemaVersion": "1.8",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -48,7 +48,11 @@ jsonDiagram {
     },
     "User": {
         "AcceptEula": true,
-        "AcceptOptionalTelemetry": true
+        "AcceptOptionalTelemetry": true,
+        "<color:gray>VolumeLicense":{
+            "<color:gray>EnrollmentId":"<color:gray>string",
+            "<color:gray>PartNumber":"<color:gray>string"
+        }
     },
     "Network": {
         "ControlPlaneEndpointIp": "ipv4",
@@ -66,6 +70,7 @@ jsonDiagram {
         "DnsServers": [["ipv4"]],
         "InternetDisabled": false,
         "SkipAddressFreeCheck":false,
+        "SkipDnsCheck":false,
         "Proxy": {
             "Http":"string",
             "Https":"string",
