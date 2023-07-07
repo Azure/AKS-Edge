@@ -279,8 +279,8 @@ function UpgradeJsonFormat {
     }
     #upgrade from public preview format to GA format
     $edgeCfg = $jsonObj.AksEdgeConfig
-    $newVersions = @("1.5","1.6")
-    if ($newVersions -contains $edgeCfg.SchemaVersion) {
+
+    if ($edgeCfg.SchemaVersion -gt "1.4") {
         if (($azCfg.Auth.Password) -and ([string]::IsNullOrEmpty($($edgeCfg.Arc.ClientSecret)))) {
             #Copy over the Azure parameters to Arc section
             $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
