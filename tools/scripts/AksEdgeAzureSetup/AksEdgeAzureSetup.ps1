@@ -186,12 +186,12 @@ Write-Host "User Principal Name : $($userinfo.userPrincipalName)"
 Write-Host "Looking for Azure RBAC roles"
 $adminroles = (az role assignment list --all --assignee $userinfo.userPrincipalName --include-inherited) | ConvertFrom-Json
 if ($adminroles) {
-    $reqRoles = @("Owner", "Contributor")
+    $reqRoles = "Owner"
     Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
     foreach ($role in $adminroles) {
         Write-Host "$($role.roleDefinitionName) for scope $($role.scope)" -ForegroundColor Cyan
         if ($($role.scope) -eq "/subscriptions/$($aicfg.SubscriptionId)") {
-            if ( $reqRoles -contains $($role.roleDefinitionName)) {
+            if ( $reqRoles -eq $($role.roleDefinitionName)) {
                 Write-Host "* You have sufficient privileges" -ForegroundColor Green
                 $hasRights = $true
             }
@@ -217,7 +217,7 @@ if (-not $hasRights) {
     }
 }
 if (-not $hasRights) {
-    Write-Host "Error: You do not have sufficient privileges for this subscription $($aicfg.SubscriptionId)." -ForegroundColor Red
+    Write-Host "Error: You do not have sufficient privileges for this subscription $($aicfg.SubscriptionId). Please refer to 'https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-steps#privileged-administrator-roles' for more details." -ForegroundColor Red
     az logout
     exit -1
 }
