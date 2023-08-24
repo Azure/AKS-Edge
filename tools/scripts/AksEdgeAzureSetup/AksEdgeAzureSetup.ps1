@@ -186,15 +186,12 @@ Write-Host "User Principal Name : $($userinfo.userPrincipalName)"
 Write-Host "Looking for Azure RBAC roles"
 $adminroles = (az role assignment list --all --assignee $userinfo.userPrincipalName --include-inherited) | ConvertFrom-Json
 if ($adminroles) {
-    $reqRoles = "Owner"
     Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
     foreach ($role in $adminroles) {
         Write-Host "$($role.roleDefinitionName) for scope $($role.scope)" -ForegroundColor Cyan
-        if ($($role.scope) -eq "/subscriptions/$($aicfg.SubscriptionId)") {
-            if ( $reqRoles -eq $($role.roleDefinitionName)) {
-                Write-Host "* You have sufficient privileges" -ForegroundColor Green
-                $hasRights = $true
-            }
+        if (($($role.scope) -eq "/subscriptions/$($aicfg.SubscriptionId)") -and ($role.roleDefinitionName -match 'Owner')) {
+            Write-Host "* You have sufficient privileges" -ForegroundColor Green
+            $hasRights = $true
         }
     }
 }
