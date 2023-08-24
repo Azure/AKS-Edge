@@ -75,7 +75,6 @@ Write-Host "Logged in $($session.name) subscription as $($session.user.name) ($(
 $rgname = $aicfg.ResourceGroupName
 $rguri = "/subscriptions/$($aicfg.SubscriptionId)/resourceGroups/$rgname"
 $roles = (az role assignment list --all --assignee $($session.user.name)) | ConvertFrom-Json
-$reqRoles = "Owner"
 $onbRoles = @("Azure Connected Machine Onboarding","Kubernetes Cluster - Azure Arc Onboarding")
 $rolecnt = 0
 if ($roles) {
@@ -84,7 +83,7 @@ if ($roles) {
         $roledef = $($role.roleDefinitionName)
         Write-Host "$roledef for scope $($role.scope)" -ForegroundColor Cyan
         if ($($role.scope) -eq $rguri) {
-            if ($reqRoles -eq $roledef ){
+            if ($roledef -match 'Owner'){
                 $reqRoleFound = $true
             } elseif ($onbRoles -contains $roledef) {
                 $rolecnt +=1
