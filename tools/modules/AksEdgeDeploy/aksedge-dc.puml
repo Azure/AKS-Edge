@@ -67,7 +67,7 @@ jsonDiagram {
             "minimum": 1,
             "maximum": 31
         },
-        "Ip4AddressPrefix":""string",
+        "Ip4AddressPrefix":"string",
         "DnsServers": [["ipv4"]],
         "InternetDisabled": false,
         "SkipAddressFreeCheck":false,
