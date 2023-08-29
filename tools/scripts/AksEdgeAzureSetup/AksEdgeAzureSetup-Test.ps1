@@ -75,7 +75,6 @@ Write-Host "Logged in $($session.name) subscription as $($session.user.name) ($(
 $rgname = $aicfg.ResourceGroupName
 $rguri = "/subscriptions/$($aicfg.SubscriptionId)/resourceGroups/$rgname"
 $roles = (az role assignment list --all --assignee $($session.user.name)) | ConvertFrom-Json
-$reqRoles = @("Owner","Contributor")
 $onbRoles = @("Azure Connected Machine Onboarding","Kubernetes Cluster - Azure Arc Onboarding")
 $rolecnt = 0
 if ($roles) {
@@ -84,7 +83,7 @@ if ($roles) {
         $roledef = $($role.roleDefinitionName)
         Write-Host "$roledef for scope $($role.scope)" -ForegroundColor Cyan
         if ($($role.scope) -eq $rguri) {
-            if ($reqRoles -contains $roledef ){
+            if ($roledef -match 'Owner'){
                 $reqRoleFound = $true
             } elseif ($onbRoles -contains $roledef) {
                 $rolecnt +=1
@@ -96,7 +95,7 @@ if ($roles) {
 if ($reqRoleFound){
     Write-Host "* You have sufficient privileges" -ForegroundColor Green
 } else {
-    Write-Host "x You do not have sufficient privileges for this service principal" -ForegroundColor Red
+    Write-Host "x You do not have sufficient privileges for this service principal. Please refer to 'https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-steps#privileged-administrator-roles' for more details." -ForegroundColor Red
 }
 # Resource group
 Write-Host "Checking $rgname..."
