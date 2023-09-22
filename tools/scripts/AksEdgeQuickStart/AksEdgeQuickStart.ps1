@@ -78,7 +78,7 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.8",
+    "SchemaVersion": "1.9",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {

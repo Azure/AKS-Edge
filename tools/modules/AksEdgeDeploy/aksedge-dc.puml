@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.8",
+    "SchemaVersion": "1.9",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -99,6 +99,13 @@ jsonDiagram {
             "DataSizeInGB": {
                 "type": "integer",
                 "default": 10
+            },
+            "LogSizeInGB": {
+                "type": "integer",
+                "default": 1,
+                "minimum" : 1,
+                "maximum" : 10,
+                "$comment": "Log partition size in GB. Maximum log partition size capped at 10GB with minimum and default at 1GB. Only used for Linux nodes so far"
             },
             "TimeoutSeconds": {
                 "type": "int",
