@@ -12,7 +12,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230922.1300" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
@@ -109,13 +109,13 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="Azure"
-$branch="main"
+$fork ="angop95"
+$branch="users/angop/addAioSpecificScript"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"
 if (-Not [string]::IsNullOrEmpty($Tag)) {
-    $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$Tag.zip"
+    $url = "https://github.com/angop95/AKS-Edge/archive/refs/tags/$Tag.zip"
     $zipFile = "$Tag.zip"
     $workdir = "$installDir\AKS-Edge-$tag"
 }
@@ -125,7 +125,7 @@ if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
         Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
     } catch {
-        Write-Error "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
+        Write-Error "Error: Downloading Aide Powershell Modules failed" 
         Stop-Transcript | Out-Null
         Pop-Location
         exit -1
@@ -167,6 +167,7 @@ if ($azcfg.Auth.Password) {
 Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
+Write-Host "Return: $retval"
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
@@ -187,7 +188,7 @@ if ($skipAzureArc) {
         if (Connect-AideArc) {
             Write-Host "Azure Arc connections successful."
         } else {
-            Write-Error "Error: Azure Arc connections failed" -ForegroundColor Red
+            Write-Error "Error: Azure Arc connections failed"
             Stop-Transcript | Out-Null
             Pop-Location
             exit -1
@@ -202,7 +203,7 @@ try {
     Write-Host "Successfully deployment the local path provisioner"
 }
 catch {
-    Write-Error "Error: local path provisioner deployment failed" -ForegroundColor Red
+    Write-Error "Error: local path provisioner deployment failed"
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -214,7 +215,7 @@ try {
     Write-Host "Successfully added firewall rule for AIO MQTT Broker"
 }
 catch {
-    Write-Error "Error: Firewall rule addition for AIO MQTT broker failed" -ForegroundColor Red
+    Write-Error "Error: Firewall rule addition for AIO MQTT broker failed"
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -226,7 +227,7 @@ try {
     Write-Host "Successfully added port proxy for AIO"
 }
 catch {
-    Write-Error "Error: port proxy update for AIO failed" -ForegroundColor Red
+    Write-Error "Error: port proxy update for AIO failed"
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 

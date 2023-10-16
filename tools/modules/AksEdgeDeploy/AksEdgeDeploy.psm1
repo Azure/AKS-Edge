@@ -580,7 +580,10 @@ function Test-AideMsiInstall {
 
     if ($null -eq $aksedgeVersion) {
         if (!$Install) { return $false }
-        if (-not (Install-AideMsi)) { return $false }
+        if (-not (Install-AideMsi)) { 
+            Write-Host "Failed to install MSI"
+            return $false 
+        }
     }
 
     $mod = Get-Module -Name AksEdge
@@ -797,6 +800,7 @@ function Install-AideMsi {
     } else {
         Write-Host "Error in install. Check installation" -ForegroundColor Red
         $retval = $false
+        Wtite-Host "Return Value: $retval"
     }
     Pop-Location
     $ProgressPreference = 'Continue'
@@ -1113,7 +1117,10 @@ function Start-AideWorkflow {
 
     Get-AideHostPcInfo
     # Check PC prequisites (Hyper-V, AksEdge)
-    if (!(Test-AideMsiInstall -Install)) { return $false }
+    if (!(Test-AideMsiInstall -Install)) { 
+        Write-Host "Return Value in Start-AideWorkflow: $retval"
+        return $false 
+    }
     # Install required host features - can result in reboot.
     
     Write-Host "Running Install-AksEdgeHostFeatures" -ForegroundColor Cyan
