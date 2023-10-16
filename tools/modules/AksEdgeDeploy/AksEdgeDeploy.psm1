@@ -580,7 +580,10 @@ function Test-AideMsiInstall {
 
     if ($null -eq $aksedgeVersion) {
         if (!$Install) { return $false }
-        if (-not (Install-AideMsi)) { return $false }
+        if (-not (Install-AideMsi)) { 
+            Write-Host "Failed to install MSI"
+            return $false 
+        }
     }
 
     $mod = Get-Module -Name AksEdge
