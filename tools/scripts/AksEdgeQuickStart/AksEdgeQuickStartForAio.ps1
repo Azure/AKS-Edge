@@ -199,7 +199,7 @@ if ($skipAzureArc) {
 Write-Host "Step 5: Prep for AIO workload deployment"
 Write-Host "Deploy local path provisioner"
 try {
-    & 'C:\Users\Public\kubectl\kubectl.exe' apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
+    & 'C:\Program Files\AksEdge\kubectl\kubectl.exe' apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
     Write-Host "Successfully deployment the local path provisioner"
 }
 catch {
@@ -211,7 +211,7 @@ catch {
 
 Write-Host "Configuring firewall specific to AIO"
 try {
-    New-NetFirewallRule -DisplayName "AIO MQTT Broker" -Direction Inbound -Action Allow
+    New-NetFirewallRule -DisplayName "AIO MQTT Broker" -Direction Inbound -Action Allow | Out-Null
     Write-Host "Successfully added firewall rule for AIO MQTT Broker"
 }
 catch {
@@ -223,7 +223,7 @@ catch {
 
 Write-Host "Configuring port proxy for AIO"
 try {
-    netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=192.168.0.4
+    netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=192.168.0.4 | Out-Null
     Write-Host "Successfully added port proxy for AIO"
 }
 catch {

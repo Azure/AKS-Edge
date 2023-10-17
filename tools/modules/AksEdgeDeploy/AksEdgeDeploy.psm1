@@ -1118,7 +1118,7 @@ function Start-AideWorkflow {
     Get-AideHostPcInfo
     # Check PC prequisites (Hyper-V, AksEdge)
     if (!(Test-AideMsiInstall -Install)) { 
-        Write-Host "Return Value in Start-AideWorkflow: $retval"
+        Write-Error "Return Value in Start-AideWorkflow: $retval"
         return $false 
     }
     # Install required host features - can result in reboot.
