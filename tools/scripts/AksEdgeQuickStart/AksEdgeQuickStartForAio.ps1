@@ -83,9 +83,9 @@ $aksedgeConfig = @"
     "Machines": [
         {
             "LinuxNode": {
-                "CpuCount": 4,
-                "MemoryInMB": 4096,
-                "DataSizeInGB": 20,
+                "CpuCount": 8,
+                "MemoryInMB": 8192,
+                "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
         }
@@ -125,7 +125,7 @@ if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
         Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
     } catch {
-        Write-Error "Error: Downloading Aide Powershell Modules failed" 
+        Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
         Stop-Transcript | Out-Null
         Pop-Location
         exit -1
@@ -156,7 +156,7 @@ if ($azcfg.Auth.Password) {
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
     if ($LastExitCode -eq -1) {
-        Write-Error "Error in configuring Azure Cloud for Arc connection"
+        Write-Host "Error in configuring Azure Cloud for Arc connection" -ForegroundColor Red
         Stop-Transcript | Out-Null
         Pop-Location
         exit -1
@@ -171,7 +171,7 @@ Write-Host "Return: $retval"
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Error -Message "Deployment failed" -Category OperationStopped
+    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1
@@ -188,7 +188,7 @@ if ($skipAzureArc) {
         if (Connect-AideArc) {
             Write-Host "Azure Arc connections successful."
         } else {
-            Write-Error "Error: Azure Arc connections failed"
+            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
             Stop-Transcript | Out-Null
             Pop-Location
             exit -1
@@ -203,7 +203,7 @@ try {
     Write-Host "Successfully deployment the local path provisioner"
 }
 catch {
-    Write-Error "Error: local path provisioner deployment failed"
+    Write-Host "Error: local path provisioner deployment failed" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -215,7 +215,7 @@ try {
     Write-Host "Successfully added firewall rule for AIO MQTT Broker"
 }
 catch {
-    Write-Error "Error: Firewall rule addition for AIO MQTT broker failed"
+    Write-Host "Error: Firewall rule addition for AIO MQTT broker failed" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -227,7 +227,7 @@ try {
     Write-Host "Successfully added port proxy for AIO"
 }
 catch {
-    Write-Error "Error: port proxy update for AIO failed"
+    Write-Host "Error: port proxy update for AIO failed" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -239,7 +239,7 @@ try {
     Write-Host "Updated runtime iptable rules for node exporter"
 }
 catch {
-    Write-Error "Error: runtime iptable rules update failed"
+    Write-Host "Error: runtime iptable rules update failed" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
@@ -250,7 +250,7 @@ try {
     Write-Host "Persisted iptable rules for node exporter"
 }
 catch {
-    Write-Error "Error: failed to persist iptable rules for node exporter"
+    Write-Host "Error: failed to persist iptable rules for node exporter" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
