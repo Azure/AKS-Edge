@@ -14,11 +14,9 @@ param(
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
 
+# Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
-    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
-    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
-    "canadacentral", "eastus2euap"
+    "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3"
 )
 
 if (! [Environment]::Is64BitProcess) {
