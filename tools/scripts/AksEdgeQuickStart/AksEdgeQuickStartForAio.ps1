@@ -223,7 +223,10 @@ catch {
 
 Write-Host "Configuring port proxy for AIO"
 try {
-    netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=192.168.0.4 | Out-Null
+    $deploymentInfo = Get-AksEdgeDeploymentInfo
+    # Get the service ip address start to determine the connect address
+    $connectAddress = $deploymentInfo.LinuxNodeConfig.ServiceIpRange.split("-")[0]
+    netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=$connectAddress | Out-Null
     Write-Host "Successfully added port proxy for AIO"
 }
 catch {
