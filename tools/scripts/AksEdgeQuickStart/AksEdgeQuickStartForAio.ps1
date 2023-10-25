@@ -12,7 +12,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
@@ -24,7 +24,6 @@ if (! [Environment]::Is64BitProcess) {
     exit -1
 }
 #Validate inputs
-$skipAzureArc = $false
 if ($arcLocations -inotcontains $Location) {
     Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
     Write-Host "Supported Locations : $arcLocations"
@@ -146,9 +145,6 @@ Write-Host "Step 2: Setup Azure Cloud for Arc connections"
 $azcfg = (Get-AideUserConfig).Azure
 if ($azcfg.Auth.Password) {
    Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
-   $skipAzureArc = $false
-} elseif ($skipAzureArc) {
-    Write-Host ">> skipping step 2" -ForegroundColor Yellow
 } else {
     $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
@@ -165,7 +161,6 @@ if ($azcfg.Auth.Password) {
 Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
-Write-Host "Return: $retval"
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
@@ -176,28 +171,30 @@ if ($retval) {
 }
 
 Write-Host "Step 4: Connect to Arc"
-if ($skipAzureArc) {
-    Write-Host ">> skipping step 4" -ForegroundColor Yellow
-} else {
-    Write-Host "Installing required Az Powershell modules"
-    $arcstatus = Initialize-AideArc
-    if ($arcstatus) {
-        Write-Host ">Connecting to Azure Arc"
-        if (Connect-AideArc) {
-            Write-Host "Azure Arc connections successful."
-        } else {
-            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
-            Stop-Transcript | Out-Null
-            Pop-Location
-            exit -1
-        }
-    } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
+Write-Host "Installing required Az Powershell modules"
+$arcstatus = Initialize-AideArc
+if ($arcstatus) {
+    Write-Host ">Connecting to Azure Arc"
+    if (Connect-AideArc) {
+        Write-Host "Azure Arc connections successful."
+    } else {
+        Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
+        Stop-Transcript | Out-Null
+        Pop-Location
+        exit -1
+    }
+} 
+else { 
+    Write-Host "Error: Arc Initialization failed." -ForegroundColor Red 
+    Stop-Transcript | Out-Null
+    Pop-Location
+    exit -1
 }
 
 Write-Host "Step 5: Prep for AIO workload deployment"
 Write-Host "Deploy local path provisioner"
 try {
-    & 'C:\Program Files\AksEdge\kubectl\kubectl.exe' apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
+    & kubectl apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
     Write-Host "Successfully deployment the local path provisioner"
 }
 catch {
