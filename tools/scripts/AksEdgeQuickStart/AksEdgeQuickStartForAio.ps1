@@ -49,8 +49,8 @@ $aideuserConfig = @"
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
-        "ServicePrincipalName": "aksedge-sp",
+        "ResourceGroupName": "angop-test-aksedge-rg",
+        "ServicePrincipalName": "angop-test-aksedge-sp",
         "Location": "$Location",
         "CustomLocationOID":"",
         "Auth":{
@@ -106,8 +106,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="Azure"
-$branch="main"
+$fork ="angop95"
+$branch="users/angop/testAideScript"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"
