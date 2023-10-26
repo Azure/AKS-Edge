@@ -49,8 +49,8 @@ $aideuserConfig = @"
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "angop-test-aksedge-rg",
-        "ServicePrincipalName": "angop-test-aksedge-sp",
+        "ResourceGroupName": "aksedge-rg",
+        "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
         "CustomLocationOID":"",
         "Auth":{
@@ -106,8 +106,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="angop95"
-$branch="users/angop/testAideScript"
+$fork ="Azure"
+$branch="main"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"
@@ -206,7 +206,7 @@ catch {
 
 Write-Host "Configuring firewall specific to AIO"
 try {
-    $fireWallRuleExists = Get-NetFirewallRule -DisplayName "AIO Unknow rule"  -ErrorAction SilentlyContinue
+    $fireWallRuleExists = Get-NetFirewallRule -DisplayName "AIO MQTT Broker"  -ErrorAction SilentlyContinue
     if ( $null -eq $fireWallRuleExists ) {
         Write-Host "Add firewall rule for AIO MQTT Broker"
         New-NetFirewallRule -DisplayName "AIO MQTT Broker" -Direction Inbound -Action Allow | Out-Null
