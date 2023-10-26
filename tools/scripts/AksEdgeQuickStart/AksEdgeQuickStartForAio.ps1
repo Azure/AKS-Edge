@@ -116,7 +116,7 @@ if (-Not [string]::IsNullOrEmpty($Tag)) {
     $zipFile = "$Tag.zip"
     $workdir = "$installDir\AKS-Edge-$tag"
 }
-Write-Host "Step 1 : Azure/AKS-Edge repo setup"
+Write-Host "Step 1 : Azure/AKS-Edge repo setup" -ForegroundColor Cyan
 
 if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
@@ -141,7 +141,7 @@ $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurs
 . $aksedgeShell
 
 # Setup Azure 
-Write-Host "Step 2: Setup Azure Cloud for Arc connections"
+Write-Host "Step 2: Setup Azure Cloud for Arc connections" -ForegroundColor Cyan
 $azcfg = (Get-AideUserConfig).Azure
 if ($azcfg.Auth.Password) {
    Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
@@ -158,7 +158,7 @@ if ($azcfg.Auth.Password) {
 }
 
 # Download, install and deploy AKS EE 
-Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
+Write-Host "Step 3: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
@@ -170,7 +170,7 @@ if ($retval) {
     exit -1
 }
 
-Write-Host "Step 4: Connect to Arc"
+Write-Host "Step 4: Connect to Arc" -ForegroundColor Cyan
 Write-Host "Installing required Az Powershell modules"
 $arcstatus = Initialize-AideArc
 if ($arcstatus) {
@@ -191,7 +191,7 @@ else {
     exit -1
 }
 
-Write-Host "Step 5: Prep for AIO workload deployment"
+Write-Host "Step 5: Prep for AIO workload deployment" -ForegroundColor Cyan
 Write-Host "Deploy local path provisioner"
 try {
     & kubectl apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
@@ -206,8 +206,14 @@ catch {
 
 Write-Host "Configuring firewall specific to AIO"
 try {
-    New-NetFirewallRule -DisplayName "AIO MQTT Broker" -Direction Inbound -Action Allow | Out-Null
-    Write-Host "Successfully added firewall rule for AIO MQTT Broker"
+    $fireWallRuleExists = Get-NetFirewallRule -DisplayName "AIO Unknow rule"  -ErrorAction SilentlyContinue
+    if ( $null -eq $fireWallRuleExists ) {
+        Write-Host "Add firewall rule for AIO MQTT Broker"
+        New-NetFirewallRule -DisplayName "AIO MQTT Broker" -Direction Inbound -Action Allow | Out-Null
+    }
+    else {
+        Write-Host "firewall rule for AIO MQTT Broker exists, skip configuring firewall rule..."
+    }   
 }
 catch {
     Write-Host "Error: Firewall rule addition for AIO MQTT broker failed" -ForegroundColor Red
@@ -221,8 +227,14 @@ try {
     $deploymentInfo = Get-AksEdgeDeploymentInfo
     # Get the service ip address start to determine the connect address
     $connectAddress = $deploymentInfo.LinuxNodeConfig.ServiceIpRange.split("-")[0]
-    netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=$connectAddress | Out-Null
-    Write-Host "Successfully added port proxy for AIO"
+    $portProxyRulExists = netsh interface portproxy show v4tov4 | findstr /C:"1883" | findstr /C:"$connectAddress"
+    if ( $null -eq $portProxyRulExists ) {
+        Write-Host "Configure port proxy for AIO"
+        netsh interface portproxy add v4tov4 listenport=1883 listenaddress=0.0.0.0 connectport=1883 connectaddress=$connectAddress | Out-Null
+    }
+    else {
+        Write-Host "Port proxy rule for AIO exists, skip configuring port proxy..."
+    } 
 }
 catch {
     Write-Host "Error: port proxy update for AIO failed" -ForegroundColor Red
@@ -233,22 +245,19 @@ catch {
 
 Write-Host "Update the iptables rules"
 try {
-    Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 9110 -j ACCEPT"
-    Write-Host "Updated runtime iptable rules for node exporter"
+    $iptableRulesExist = Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables-save | grep -- '-m tcp --dport 9110 -j ACCEPT'" -ignoreError
+    if ( $null -eq $iptableRulesExist ) {
+        Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 9110 -j ACCEPT"
+        Write-Host "Updated runtime iptable rules for node exporter"
+        Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo sed -i '/-A OUTPUT -j ACCEPT/i-A INPUT -p tcp -m tcp --dport 9110 -j ACCEPT' /etc/systemd/scripts/ip4save"
+        Write-Host "Persisted iptable rules for node exporter"
+    }
+    else {
+        Write-Host "iptable rule exists, skip configuring iptable rules..."
+    } 
 }
 catch {
-    Write-Host "Error: runtime iptable rules update failed" -ForegroundColor Red
-    Stop-Transcript | Out-Null
-    Pop-Location
-    exit -1 
-}
-
-try {
-    Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo sed -i '/-A OUTPUT -j ACCEPT/i-A INPUT -p tcp -m tcp --dport 9110 -j ACCEPT' /etc/systemd/scripts/ip4save"
-    Write-Host "Persisted iptable rules for node exporter"
-}
-catch {
-    Write-Host "Error: failed to persist iptable rules for node exporter" -ForegroundColor Red
+    Write-Host "Error: iptable rule update failed" -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1 
