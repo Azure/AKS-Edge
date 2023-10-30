@@ -194,7 +194,8 @@ else {
 Write-Host "Step 5: Prep for AIO workload deployment" -ForegroundColor Cyan
 Write-Host "Deploy local path provisioner"
 try {
-    & kubectl apply -f 'https://raw.githubusercontent.com/Azure/AKS-Edge/main/samples/storage/local-path-provisioner/local-path-storage.yaml' 
+    $localPathProvisionerYaml= (Get-ChildItem -Path "$workdir" -Filter local-path-storage.yaml -Recurse).FullName
+    & kubectl apply -f $localPathProvisionerYaml
     Write-Host "Successfully deployment the local path provisioner"
 }
 catch {
