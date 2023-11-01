@@ -9,7 +9,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.230922.1300" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
@@ -167,7 +167,7 @@ if ($azcfg.Auth.Password) {
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
     if ($LastExitCode -eq -1) {
-        Write-Host "Error in configuring Azure Cloud for Arc connection"
+        Write-Host "Error in configuring Azure Cloud for Arc connection" -ForegroundColor Red
         Stop-Transcript | Out-Null
         Pop-Location
         exit -1
@@ -181,7 +181,7 @@ $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Error -Message "Deployment failed" -Category OperationStopped
+    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1
