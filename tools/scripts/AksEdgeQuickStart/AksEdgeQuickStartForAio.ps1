@@ -68,7 +68,7 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "",
+    "AksEdgeProductUrl": "https://download.microsoft.com/download/4/c/8/4c8d3abb-34aa-4136-a7d9-adff3530f3b4/AksEdge-K3s-1.26.6-1.4.109.0.msi",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
