@@ -218,7 +218,7 @@ az connectedk8s connect -n $ClusterName -l $Location -g $ResourceGroupName --sub
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 Write-Host "Associate Custom location with $ClusterName cluster"
-$objectId = az ad sp show --id bc313c14-388c-4e7d-a58e-70017303ee3b --query id -o tsv | Out-Null
+$objectId = az ad sp show --id bc313c14-388c-4e7d-a58e-70017303ee3b --query id -o tsv
 az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations | Out-Null
 
 Write-Host "Step 4: Prep for AIO workload deployment" -ForegroundColor Cyan
