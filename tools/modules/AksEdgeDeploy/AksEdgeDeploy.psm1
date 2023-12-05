@@ -795,12 +795,12 @@ function Install-AideMsi {
     $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
     $retval = Test-AideMsiInstall
     if ($retval) {
-        Remove-Item $msiFile
+        Remove-Item $msiFile -ErrorAction SilentlyContinue
         if($windowsRequired) {
             foreach ($file in $WindowsInstallFiles) {
-                Remove-Item ".\$file"
+                Remove-Item ".\$file" -ErrorAction SilentlyContinue
             }
-            Remove-Item $winFile
+            Remove-Item $winFile -ErrorAction SilentlyContinue
         }
         Write-Host "$reqProduct successfully installed"
         $retval = $true
