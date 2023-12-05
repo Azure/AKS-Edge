@@ -472,6 +472,7 @@ function Test-AideUserConfigInstall {
                             $errCnt += 1; $isOk = $false
                         }
                     }
+                }
             }
             if ($isOk) { Write-Host "Installing from local path - Ok" }
         } else {
