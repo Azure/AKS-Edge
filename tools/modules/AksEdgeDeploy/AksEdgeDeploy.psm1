@@ -26,7 +26,7 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name aksedgeProduct
     "AKS Edge Essentials - K3s" = "https://aka.ms/aks-edge/k3s-msi"
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallUrl -Value "https://aka.ms/aks-edge/windows-node-zip"
-New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallFiles -Value @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003", "AksEdgeWindows-v1.exe")
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name WindowsInstallFiles -Value @("AksEdgeWindows-v1.7z.001", "AksEdgeWindows-v1.7z.002", "AksEdgeWindows-v1.7z.003","AksEdgeWindows-v1.7z.004", "AksEdgeWindows-v1.exe")
 function Get-AideHostPcInfo {
     <#
     .SYNOPSIS
@@ -462,10 +462,15 @@ function Test-AideUserConfigInstall {
             $isOk = $true
             if($windowsRequired) {
                 $filepath = (Resolve-Path -Path $aideConfig.AksEdgeProductUrl).Path | Split-Path -Parent
-                foreach ($file in $WindowsInstallFiles) {
-                    if (!(Test-Path -Path "$filepath\$file")) {
-                        Write-Host "Error: $filepath\$file not found. Cannot deploy Windows Node." -ForegroundColor Red
-                        $errCnt += 1; $isOk = $false
+                if (Test-Path "$filepath\AksEdgeWindows-*.zip") {
+                    Write-Host "Found Windows Install zip.."
+                } else {
+                    Write-Host "$filepath\\AksEdgeWindows-*.zip not found. Looking for unzipped files." -ForegroundColor Yellow
+                    foreach ($file in $WindowsInstallFiles) {
+                        if (!(Test-Path -Path "$filepath\$file")) {
+                            Write-Host "Error: $filepath\$file not found. Cannot deploy Windows Node." -ForegroundColor Red
+                            $errCnt += 1; $isOk = $false
+                        }
                     }
                 }
             }
@@ -721,7 +726,7 @@ function Install-AideMsi {
     $winFile = ".\AksEdgeWindows.zip"
     if ($aideConfig.AksEdgeProductUrl) {
         $url = $aideConfig.AksEdgeProductUrl
-        $urlParent = Split-Path $url -Parent
+        $urlParent = (Resolve-Path -Path $url).Path | Split-Path -Parent
         $winUrl = "$urlParent\AksEdgeWindows-*.zip"
     }
     Write-Host "Installing $reqProduct from $url"
@@ -731,9 +736,14 @@ function Install-AideMsi {
     if (Test-Path -Path $url) {
         Copy-Item -Path $url -Destination $msiFile
         if($windowsRequired) {
-            $filepath = (Resolve-Path -Path $url).Path | Split-Path -Parent
-            foreach ($file in $WindowsInstallFiles) {
-                Copy-Item -Path "$filepath\$file" -Destination .
+            if (Test-Path $winUrl) {
+                Write-Host "Unzip WindowsInstallFiles.."
+                Expand-ArchiveLocal $winUrl .
+            } else {
+                Write-Host "Copying WindowsInstallFiles.."
+                foreach ($file in $WindowsInstallFiles) {
+                    Copy-Item -Path "$urlParent\$file" -Destination .
+                }
             }
             $argList = '/I AksEdge.msi ADDLOCAL=CoreFeature,WindowsNodeFeature /passive '
         }
@@ -785,12 +795,12 @@ function Install-AideMsi {
     $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
     $retval = Test-AideMsiInstall
     if ($retval) {
-        Remove-Item $msiFile
+        Remove-Item $msiFile -ErrorAction SilentlyContinue
         if($windowsRequired) {
             foreach ($file in $WindowsInstallFiles) {
-                Remove-Item ".\$file"
+                Remove-Item ".\$file" -ErrorAction SilentlyContinue
             }
-            Remove-Item $winFile
+            Remove-Item $winFile -ErrorAction SilentlyContinue
         }
         Write-Host "$reqProduct successfully installed"
         $retval = $true
