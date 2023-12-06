@@ -2,14 +2,14 @@
   QuickStart script for setting up Azure for AKS Edge Essentials and deploying the same on the Windows device
 #>
 param(
-    [String] $SubscriptionId,
-    [String] $TenantId,
-    [String] $Location,
-    [Switch] $UseK8s,
+    [Parameter(Mandatory)]
+    [String] $AideUserConfigFilePath,
+    [Parameter(Mandatory)]
+    [string] $AksEdgeConfigFilePath,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion-v2 -Value "1.0.231206.1130" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "southcentralus", "westus", "westus2", "westus3", "centralus", "eastus", "eastus2", "eastus3", "westcentralus", "northcentralus", "brazilsouth",
@@ -22,91 +22,91 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -
     "switzerlandwest", "uksouth", "ukwest", "southafricanorth", "southafricawest", "israelcentral", "qatarcentral", "uaenorth", "uaecentral"
 )
 
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name AksEdgeProductType -Value @(
+    "AKS Edge Essentials - K3s", "AKS Edge Essentials - K8s"
+)
+
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
-#Validate inputs
-$skipAzureArc = $false
-if ([string]::IsNullOrEmpty($SubscriptionId)) {
-    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+#Check provided filepaths, and retrieve respective json string
+if (!(Test-Path -Path "$AideUserConfigFilePath" -PathType Leaf))
+{
+    $msg = "Aide-user config file '$AideUserConfigFilePath' could not be found or accessed"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
 }
-if ([string]::IsNullOrEmpty($TenantId)) {
-    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+try
+{
+    $aideuserConfig = Get-Content "$AideUserConfigFilePath"
 }
-if ([string]::IsNullOrEmpty($Location)) {
-    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
-} elseif ($arcLocations -inotcontains $Location) {
-    Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
-    Write-Host "Supported Locations : $arcLocations"
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to read Aide-user config file contents. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
     exit -1
 }
 
+if (!(Test-Path -Path "$AksEdgeConfigFilePath" -PathType Leaf))
+{
+    $msg = "Aks-Edge config file '$AksEdgeConfigFilePath' could not be found or accessed"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+try
+{
+    $aksedgeConfig = Get-Content "$AksEdgeConfigFilePath"
+}
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to read Aks-Edge config file contents. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+
+#Validate inputs
+try
+{
+    $aideConfigObj = ($aideuserConfig| ConvertFrom-Json)
+}
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to parse aide config string. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+if ([string]::IsNullOrEmpty($aideConfigObj.AksEdgeProduct) -or $AksEdgeProductType -notcontains $aideConfigObj.AksEdgeProduct)
+{
+    Write-Host "Error: AideUserConfig.AksEdgeProduct $($aideConfigObj.AksEdgeProduct) is invalid" -ForegroundColor Red
+    Write-Host "Supported values: $AksEdgeProductType"
+    exit -1
+}
+$skipAzureArc = $false
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.SubscriptionId)) {
+    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.TenantId)) {
+    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.Location)) {
+    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+} elseif ($arcLocations -inotcontains $aideConfigObj.Azure.Location) {
+    Write-Host "Error: Location $($aideConfigObj.Azure.Location) is not supported for Azure Arc" -ForegroundColor Red
+    Write-Host "Supported Locations : $arcLocations"
+    exit -1
+}
 if ($skipAzureArc) {
     Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
 }
 
 $installDir = $((Get-Location).Path)
-$productName = "AKS Edge Essentials - K3s"
-$networkplugin = "flannel"
-if ($UseK8s) {
-    $productName ="AKS Edge Essentials - K8s"
-    $networkplugin = "calico"
-}
-
-# Here string for the json content
-$aideuserConfig = @"
-{
-    "SchemaVersion": "1.1",
-    "Version": "1.0",
-    "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "",
-    "Azure": {
-        "SubscriptionName": "",
-        "SubscriptionId": "$SubscriptionId",
-        "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
-        "ServicePrincipalName": "aksedge-sp",
-        "Location": "$Location",
-        "CustomLocationOID":"",
-        "Auth":{
-            "ServicePrincipalId":"",
-            "Password":""
-        }
-    },
-    "AksEdgeConfigFile": "aksedge-config.json"
-}
-"@
-$aksedgeConfig = @"
-{
-    "SchemaVersion": "1.9",
-    "Version": "1.0",
-    "DeploymentType": "SingleMachineCluster",
-    "Init": {
-        "ServiceIPRangeSize": 10
-    },
-    "Network": {
-        "NetworkPlugin": "$networkplugin",
-        "InternetDisabled": false
-    },
-    "User": {
-        "AcceptEula": true,
-        "AcceptOptionalTelemetry": true
-    },
-    "Machines": [
-        {
-            "LinuxNode": {
-                "CpuCount": 4,
-                "MemoryInMB": 4096,
-                "DataSizeInGB": 20
-            }
-        }
-    ]
-}
-"@
 
 ###
 # Main
@@ -132,7 +132,7 @@ $workdir = "$installDir\AKS-Edge-$branch"
 if (-Not [string]::IsNullOrEmpty($Tag)) {
     $url = "https://github.com/Azure/AKS-Edge/archive/refs/tags/$Tag.zip"
     $zipFile = "$Tag.zip"
-    $workdir = "$installDir\AKS-Edge-$tag"
+    $workdir = "$installDir\AKS-Edge-$Tag"
 }
 Write-Host "Step 1 : Azure/AKS-Edge repo setup"
 
