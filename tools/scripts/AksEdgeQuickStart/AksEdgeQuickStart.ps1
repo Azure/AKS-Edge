@@ -2,11 +2,10 @@
   QuickStart script for setting up Azure for AKS Edge Essentials and deploying the same on the Windows device
 #>
 param(
-    [String] $SubscriptionId,
-    [String] $TenantId,
-    [String] $Location,
-    [Switch] $UseK8s,
-    [string] $Tag
+    [Parameter(Mandatory)]
+    [String] $AideUserConfigFilePath,
+    [Parameter(Mandatory)]
+    [string] $AksEdgeConfigFilePath
 )
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
@@ -22,87 +21,107 @@ if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
-#Validate inputs
-$skipAzureArc = $false
-if ([string]::IsNullOrEmpty($SubscriptionId)) {
-    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+#Check provided filepaths, and retrieve respective json string
+if (!(Test-Path -Path "$AideUserConfigFilePath" -PathType Leaf))
+{
+    $msg = "Aide-user config file '$AideUserConfigFilePath' could not be found or accessed"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
 }
-if ([string]::IsNullOrEmpty($TenantId)) {
-    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+try
+{
+    $aideuserConfig = Get-Content "$AideUserConfigFilePath"
 }
-if ([string]::IsNullOrEmpty($Location)) {
-    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
-} elseif ($arcLocations -inotcontains $Location) {
-    Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
-    Write-Host "Supported Locations : $arcLocations"
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to read Aide-user config file contents. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
     exit -1
 }
 
+if (!(Test-Path -Path "$AksEdgeConfigFilePath" -PathType Leaf))
+{
+    $msg = "Aks-Edge config file '$AksEdgeConfigFilePath' could not be found or accessed"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+try
+{
+    $aksedgeConfig = Get-Content "$AksEdgeConfigFilePath"
+}
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to read Aks-Edge config file contents. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+
+#Validate inputs
+try
+{
+    $aideConfigObj = ($aideuserConfig| ConvertFrom-Json)
+}
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to parse aide config string. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+$skipAzureArc = $false
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.SubscriptionId)) {
+    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.TenantId)) {
+    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+}
+if ([string]::IsNullOrEmpty($aideConfigObj.Azure.Location)) {
+    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
+    $skipAzureArc = $true
+} elseif ($arcLocations -inotcontains $aideConfigObj.Azure.Location) {
+    Write-Host "Error: Location $($aideConfigObj.Azure.Location) is not supported for Azure Arc" -ForegroundColor Red
+    Write-Host "Supported Locations : $arcLocations"
+    exit -1
+}
 if ($skipAzureArc) {
     Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
 }
 
-$installDir = $((Get-Location).Path)
-$productName = "AKS Edge Essentials - K3s"
-$networkplugin = "flannel"
-if ($UseK8s) {
-    $productName ="AKS Edge Essentials - K8s"
-    $networkplugin = "calico"
+#Verify that the right network plugin parameter has been specified
+try
+{
+    $aksConfigObj = ($aksedgeConfig| ConvertFrom-Json)
+}
+catch
+{
+    $err = $_.Exception.Message.ToString()
+    $msg = "Failed to parse aks edge config string. Error was: $err"
+    Write-Host $msg -ForegroundColor Red
+    exit -1
+}
+if(!($UseK8s) -and ($aksConfigObj.Network.NetworkPlugin -ne "flannel"))
+{
+    Write-Host "Error: Network plugin supported for k3s is 'flannel'" -ForegroundColor Red
+    exit -1
+}
+elseif($UseK8s -and ($aksConfigObj.Network.NetworkPlugin -ne "calico"))
+{
+    Write-Host "Error: Network plugin supported for k8s is 'calico'" -ForegroundColor Red
+    exit -1
 }
 
-# Here string for the json content
-$aideuserConfig = @"
-{
-    "SchemaVersion": "1.1",
-    "Version": "1.0",
-    "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "",
-    "Azure": {
-        "SubscriptionName": "",
-        "SubscriptionId": "$SubscriptionId",
-        "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
-        "ServicePrincipalName": "aksedge-sp",
-        "Location": "$Location",
-        "CustomLocationOID":"",
-        "Auth":{
-            "ServicePrincipalId":"",
-            "Password":""
-        }
-    },
-    "AksEdgeConfigFile": "aksedge-config.json"
+$installDir = $((Get-Location).Path)
+$productName = "AKS Edge Essentials - K3s"
+if ($UseK8s) {
+    $productName ="AKS Edge Essentials - K8s"
 }
-"@
-$aksedgeConfig = @"
-{
-    "SchemaVersion": "1.9",
-    "Version": "1.0",
-    "DeploymentType": "SingleMachineCluster",
-    "Init": {
-        "ServiceIPRangeSize": 10
-    },
-    "Network": {
-        "NetworkPlugin": "$networkplugin",
-        "InternetDisabled": false
-    },
-    "User": {
-        "AcceptEula": true,
-        "AcceptOptionalTelemetry": true
-    },
-    "Machines": [
-        {
-            "LinuxNode": {
-                "CpuCount": 4,
-                "MemoryInMB": 4096,
-                "DataSizeInGB": 20
-            }
-        }
-    ]
-}
-"@
+
+$aideConfigObj.AksEdgeProduct = $productName
+$aideuserConfig = $aideConfigObj | ConvertTo-Json -Compress
 
 ###
 # Main
