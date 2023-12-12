@@ -8,11 +8,15 @@ param(
     [String] $TenantId,
     [ValidateNotNullOrEmpty()]
     [String] $Location,
-    [Switch] $UseK8s,
+    [ValidateNotNullOrEmpty()]
+    [String] $ResourceGroupName,
+    [ValidateNotNullOrEmpty()]
+    [String] $ClusterName,
+    [Switch] $UseK8s=$false,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.231016.1400" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.231101.1400" -Option Constant -ErrorAction SilentlyContinue
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
@@ -30,6 +34,26 @@ if ($arcLocations -inotcontains $Location) {
     exit -1
 }
 
+# Validate az cli version.
+try {
+    $azVersion = (az version)[1].Split(":")[1].Split('"')[1]
+    if ($azVersion -lt "2.38.0"){
+        Write-Host "Installed Azure CLI version $azVersion is older than 2.38.0. Please upgrade Azure CLI and retry." -ForegroundColor Red
+        exit -1
+    }
+}
+catch {
+    Write-Host "Please install Azure CLI version 2.38.0 or newer and retry." -ForegroundColor Red
+    exit -1
+}
+
+# Ensure logged into Azure
+$azureLogin = az account show
+if ( $null -eq $azureLogin){
+    Write-Host "Please login to azure via `az login` and retry." -ForegroundColor Red
+    exit -1
+}
+
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
@@ -44,7 +68,7 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "",
+    "AksEdgeProductUrl": "https://download.microsoft.com/download/4/c/8/4c8d3abb-34aa-4136-a7d9-adff3530f3b4/AksEdge-K3s-1.26.6-1.4.109.0.msi",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
@@ -82,7 +106,7 @@ $aksedgeConfig = @"
             "LinuxNode": {
                 "CpuCount": 8,
                 "MemoryInMB": 8192,
-                "DataSizeInGB": 40,
+                "DataSizeInGB": 30,
                 "LogSizeInGB": 4
             }
         }
@@ -140,25 +164,8 @@ Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
 
-# Setup Azure 
-Write-Host "Step 2: Setup Azure Cloud for Arc connections" -ForegroundColor Cyan
-$azcfg = (Get-AideUserConfig).Azure
-if ($azcfg.Auth.Password) {
-   Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
-} else {
-    $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
-    & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
-
-    if ($LastExitCode -eq -1) {
-        Write-Host "Error in configuring Azure Cloud for Arc connection" -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        Pop-Location
-        exit -1
-    }
-}
-
 # Download, install and deploy AKS EE 
-Write-Host "Step 3: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
+Write-Host "Step 2: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
@@ -170,28 +177,51 @@ if ($retval) {
     exit -1
 }
 
-Write-Host "Step 4: Connect to Arc" -ForegroundColor Cyan
-Write-Host "Installing required Az Powershell modules"
-$arcstatus = Initialize-AideArc
-if ($arcstatus) {
-    Write-Host ">Connecting to Azure Arc"
-    if (Connect-AideArc) {
-        Write-Host "Azure Arc connections successful."
-    } else {
-        Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        Pop-Location
-        exit -1
-    }
-} 
-else { 
-    Write-Host "Error: Arc Initialization failed." -ForegroundColor Red 
-    Stop-Transcript | Out-Null
-    Pop-Location
-    exit -1
-}
+Write-Host "Step 3: Connect the cluster to Azure" -ForegroundColor Cyan
+# Set the azure subscription
+az account set -s $SubscriptionId
 
-Write-Host "Step 5: Prep for AIO workload deployment" -ForegroundColor Cyan
+# Create resource group
+$rgExists = az group show --resource-group $ResourceGroupName | Out-Null
+if ($null -eq $rgExists) {
+    Write-Host "Creating resource group: $ResourceGroupName" -ForegroundColor Cyan
+    az group create --location $Location --resource-group $ResourceGroupName --subscription $SubscriptionId | Out-Null
+} 
+
+# Register the required resource providers 
+Write-Host "Registering the required resource providers for AIO" -ForegroundColor Cyan
+az provider register -n "Microsoft.ExtendedLocation"
+az provider register -n "Microsoft.Kubernetes"
+az provider register -n "Microsoft.KubernetesConfiguration"
+az provider register -n "Microsoft.IoTOperationsOrchestrator"
+az provider register -n "Microsoft.IoTOperationsMQ"
+az provider register -n "Microsoft.IoTOperationsDataProcessor"
+az provider register -n "Microsoft.DeviceRegistry"
+
+# Arc-enable the Kubernetes cluster
+Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
+
+$tags = @("SKU=AKSEdgeEssentials")
+$modVersion = (Get-Module AksEdge).Version
+if ($modVersion) { 
+    $tags += @("Version=$modVersion") 
+}
+$infra = Get-AideInfra
+if ($infra) { 
+    $tags += @("Infra=$infra") 
+}
+$clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+if ($clusterid) { 
+    $tags += @("ClusterId=$clusterid") 
+}
+az connectedk8s connect -n $ClusterName -l $Location -g $ResourceGroupName --subscription $SubscriptionId --tags $tags | Out-Null
+
+# Enable custom location support on your cluster using az connectedk8s enable-features command
+Write-Host "Associate Custom location with $ClusterName cluster"
+$objectId = az ad sp show --id bc313c14-388c-4e7d-a58e-70017303ee3b --query id -o tsv | Out-Null
+az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations | Out-Null
+
+Write-Host "Step 4: Prep for AIO workload deployment" -ForegroundColor Cyan
 Write-Host "Deploy local path provisioner"
 try {
     $localPathProvisionerYaml= (Get-ChildItem -Path "$workdir" -Filter local-path-storage.yaml -Recurse).FullName
