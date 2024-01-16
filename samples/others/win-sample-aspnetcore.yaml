@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-aspnetcore
+  labels:
+    app: sample-aspnetcore
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: sample-aspnetcore
+      labels:
+        app: sample-aspnetcore
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": windows
+      containers:
+      - name: sample-aspnetcore
+        image: mcr.microsoft.com/dotnet/samples:aspnetapp
+        resources:
+          limits:
+            cpu: 1
+            memory: 800M
+          requests:
+            cpu: 1
+            memory: 300M
+        ports:
+          - containerPort: 8080
+  selector:
+    matchLabels:
+      app: sample-aspnetcore
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-aspnetcore
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 8080
+  selector:
+    app: sample-aspnetcore
