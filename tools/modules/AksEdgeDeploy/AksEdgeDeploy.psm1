@@ -1118,7 +1118,11 @@ function Start-AideWorkflow {
         } else {
             Write-Host "-------------------going to outer else block-------------------"
             $jsonFile = (Resolve-Path -Path $jsonFile).Path
-            Set-AideUserConfig -jsonFile $jsonFile # validate later after creating the switch
+            $retval = Set-AideUserConfig -jsonFile $jsonFile # validate later after creating the switch
+            if (!$retval) {
+                Write-Host "Error: $jsonFile incorrect after creating switch" -ForegroundColor Red
+                return $false
+            }
         }
     }
 
