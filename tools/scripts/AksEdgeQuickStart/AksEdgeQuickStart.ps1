@@ -124,8 +124,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="mallineniuma"
-$branch="neeharika"
+$fork ="Azure"
+$branch="main"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"

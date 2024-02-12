@@ -1139,8 +1139,7 @@ function Start-AideWorkflow {
     } else {
         if (!(Test-AideVmSwitch -Create)) { return $false } #create switch if specified
         # We are here.. all is good so far. Validate and deploy aksedge
-        $result = Invoke-AideDeployment
-        return $result
+        return Invoke-AideDeployment
     }
     return $true
 }
