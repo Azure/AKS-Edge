@@ -1116,6 +1116,7 @@ function Start-AideWorkflow {
                 return $false
             }
         } else {
+            Write-Host "-------------------going to outer else block-------------------"
             $jsonFile = (Resolve-Path -Path $jsonFile).Path
             Set-AideUserConfig -jsonFile $jsonFile # validate later after creating the switch
         }
