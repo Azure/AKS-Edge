@@ -181,8 +181,8 @@ if ($azcfg.Auth.Password) {
 # Download, install and deploy AKS EE 
 Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
-$aidresult = Start-AideWorkflow -jsonFile $aidejson
-if ($aidresult) {
+$retval = Start-AideWorkflow -jsonFile $aidejson
+if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
     Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
