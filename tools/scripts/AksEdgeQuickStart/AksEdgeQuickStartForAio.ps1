@@ -285,7 +285,21 @@ try {
     }
     else {
         Write-Host "iptable rule exists, skip configuring iptable rules..."
-    } 
+    }
+
+    # Add additional firewall rules
+    $dports = @(10124, 8420, 2379, 50051)
+    foreach($port in $dports)
+    {
+        $iptableRulesExist = Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables-save | grep -- '-m tcp --dport $port -j ACCEPT'" -ignoreError
+        if ( $null -eq $iptableRulesExist ) {
+            Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables -A INPUT -p tcp --dport $port -j ACCEPT"
+            Write-Host "Updated runtime iptable rules for port $port"
+        }
+        else {
+            Write-Host "iptable rule exists, skip configuring iptable rule for port $port..."
+        }
+    }
 }
 catch {
     Write-Host "Error: iptable rule update failed" -ForegroundColor Red
