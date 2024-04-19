@@ -54,6 +54,9 @@ if ( $null -eq $azureLogin){
     exit -1
 }
 
+# Ensure `connectedk8s` az cli extension is installed and up to date.
+az extension add --upgrade --name connectedk8s -y
+
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
