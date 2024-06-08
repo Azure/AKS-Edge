@@ -7,6 +7,7 @@ Param(
     [switch]$spCredReset
 )
 
+
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230829.1100" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
@@ -19,6 +20,18 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -
     "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
     "canadacentral", "eastus2euap"
 )
+
+function Set-CLILoginExperience
+{
+    $currVersion = ((az version) | ConvertFrom-Json).'azure-cli'
+    if($currVersion -eq '2.61.0')
+    {
+        Write-Host "Warning: Az CLI version 2.61.0 has known issues. Default to v1 login experience." -ForegroundColor Yellow
+        az config set core.enable_broker_on_windows=false
+        az config set core.login_experience_v2=off
+    }
+}
+
 function Test-AzVersions {
     #Function to check if the installed az versions are greater or equal to minVersions
     $retval = $true
@@ -124,6 +137,7 @@ if ($arcLocations -inotcontains $($aicfg.Location)) {
 }
 # Install Cli
 Install-AzCli
+Set-CLILoginExperience
 Write-Host "$aicfg"
 Write-Host "> az login to create/update service principal" -ForegroundColor Cyan
 $loginparams = @("--scope", "https://graph.microsoft.com//.default" )
