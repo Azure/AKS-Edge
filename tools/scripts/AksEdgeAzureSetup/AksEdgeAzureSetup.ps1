@@ -78,6 +78,9 @@ function Install-AzCli {
             Write-Host "Error: Required versions not found after az upgrade. Please try uninstalling and reinstalling" -ForegroundColor Red
         }
     }
+
+    # workaround CLI login issue if using CLI 2.61.0 
+    Set-CLILoginExperience
 }
 # Formats JSON in a nicer format than the built-in ConvertTo-Json does.
 #  https://github.com/PowerShell/PowerShell/issues/2736
@@ -137,7 +140,6 @@ if ($arcLocations -inotcontains $($aicfg.Location)) {
 }
 # Install Cli
 Install-AzCli
-Set-CLILoginExperience
 Write-Host "$aicfg"
 Write-Host "> az login to create/update service principal" -ForegroundColor Cyan
 $loginparams = @("--scope", "https://graph.microsoft.com//.default" )
