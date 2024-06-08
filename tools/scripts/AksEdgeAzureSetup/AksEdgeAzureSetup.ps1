@@ -23,10 +23,10 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -
 
 function Set-CLILoginExperience
 {
-    $currVersion = ((az version) | ConvertFrom-Json).'azure-cli'
+    $currVersion = ((az version -o json) | ConvertFrom-Json).'azure-cli'
     if($currVersion -eq '2.61.0')
     {
-        Write-Host "Warning: Az CLI version 2.61.0 has known issues. Default to v1 login experience." -ForegroundColor Yellow
+        Write-Host "Warning: Az CLI version 2.61.0 has known issues. Reverting to the previous browser-based authentication method." -ForegroundColor Yellow
         az config set core.enable_broker_on_windows=false
         az config set core.login_experience_v2=off
     }
@@ -35,7 +35,7 @@ function Set-CLILoginExperience
 function Test-AzVersions {
     #Function to check if the installed az versions are greater or equal to minVersions
     $retval = $true
-    $curVersion = (az version) | ConvertFrom-Json
+    $curVersion = (az version -o json) | ConvertFrom-Json
     if (-not $curVersion) { return $false }
     foreach ($item in $cliMinVersions.Keys ) {
         Write-Host " Checking $item minVersion $($cliMinVersions.$item).." -NoNewline
