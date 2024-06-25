@@ -6,7 +6,7 @@
     "properties": {
         "SchemaVersion": {
             "type": "string",
-            "default": "1.1",
+            "default": "1.2",
             "description": "Version of the schema/format of the json"
         },
         "Version": {
@@ -72,6 +72,9 @@
                             "description": "Password corresponding to ServicePrincipalId to onboard Arc-enabled Server/Kubernetes"
                         }
                     }
+                },
+                "EnableWorkloadIdentity": {
+                    "type": "boolean"
                 }
             }
         },
