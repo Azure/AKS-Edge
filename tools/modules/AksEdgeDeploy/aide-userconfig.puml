@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion":"1.1",
+    "SchemaVersion":"1.2",
     "Version":"1.0",
     "AksEdgeProduct" : [
                 "AKS Edge Essentials - K8s",
@@ -40,7 +40,8 @@ jsonDiagram {
         "Auth": {
             "ServicePrincipalId" : "GUID",
             "Password" : "String"
-        }
+        },
+        "EnableWorkloadIdentity" : "Boolean"
     }
     ,
     "InstallOptions":{
