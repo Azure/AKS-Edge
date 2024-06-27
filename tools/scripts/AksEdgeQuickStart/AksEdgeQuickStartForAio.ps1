@@ -23,6 +23,28 @@ param(
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Option Constant -ErrorAction SilentlyContinue
 
+function Wait-ApiServerReady
+{
+    $retries = 10
+    for (; $retries -gt 0; $retries--)
+    {
+        $ret = & kubectl get --raw='/readyz'
+        if ($ret -eq "ok")
+        {
+            Write-Host "ApiServerReady!"
+            break
+        }
+
+        Write-Host "WaitForApiServer - Retry..."
+        Start-Sleep -Seconds 1
+    }
+
+    if ($retries -eq 0)
+    {
+        exit -1
+    }
+}
+
 function Restart-ApiServer
 {
 param(
@@ -36,7 +58,7 @@ param(
     Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"
     Invoke-AksEdgeNodeCommand -command "sudo systemctl restart k3s.service"
 
-    Start-Sleep -Seconds 10
+    Wait-ApiServerReady
 }
 
 function New-ConnectedCluster
