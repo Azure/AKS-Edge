@@ -13,10 +13,109 @@ param(
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
     [Switch] $UseK8s=$false,
-    [string] $Tag
+    [string] $Tag,
+    # Temporary params for private bits
+    [Parameter(Mandatory=$true)]
+    [string] $connectedK8sPrivateWhlPath,
+    [Parameter(Mandatory=$true)]
+    [string] $helmPath
 )
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Option Constant -ErrorAction SilentlyContinue
+
+function Wait-ApiServerReady
+{
+    $retries = 10
+    for (; $retries -gt 0; $retries--)
+    {
+        $ret = & kubectl get --raw='/readyz'
+        if ($ret -eq "ok")
+        {
+            Write-Host "ApiServerReady!"
+            break
+        }
+
+        Write-Host "WaitForApiServer - Retry..."
+        Start-Sleep -Seconds 1
+    }
+
+    if ($retries -eq 0)
+    {
+        exit -1
+    }
+}
+
+function Restart-ApiServer
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $serviceAccountIssuer
+)
+
+    Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
+    Invoke-AksEdgeNodeCommand -command "sudo cat /var/.eflow/config/k3s/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml.working > /dev/null"
+    Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/k3s-config.yml"
+    Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"
+    Invoke-AksEdgeNodeCommand -command "sudo systemctl restart k3s.service"
+
+    Wait-ApiServerReady
+}
+
+function New-ConnectedCluster
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $resourceGroup,
+    [Parameter(Mandatory=$true)]
+    [string] $location,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName,
+    [Parameter(Mandatory=$true)]
+    [string] $subscriptionId,
+    [Parameter(Mandatory=$true)]
+    [string] $connectedK8sPrivateWhlPath
+)
+
+    Write-Host "New-ConnectedCluster"
+    $tags = @("SKU=AKSEdgeEssentials")
+    $modVersion = (Get-Module AksEdge).Version
+    if ($modVersion) { 
+        $tags += @("Version=$modVersion")
+    }
+    $infra = Get-AideInfra
+    if ($infra) { 
+        $tags += @("Infra=$infra")
+    }
+    $clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+    if ($clusterid) { 
+        $tags += @("ClusterId=$clusterid")
+    }
+
+    az extension remove --name connectedk8s
+    az extension add --source $connectedK8sPrivateWhlPath --allow-preview true -y
+    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:0.1.14275-private"
+    az connectedk8s connect -g $resourceGroup -n $clusterName --subscription $subscriptionId --tags $tags --disable-auto-upgrade --enable-oidc-issuer
+
+    $serviceAccountIssuer = az connectedk8s show-issuer-url
+    if ([string]::IsNullOrEmpty($serviceAccountIssuer))
+    {
+        Write-Host "az connectedk8s show-issuer-url returned empty URL!"
+        $jsonString = & kubectl get signingkeys.clusterconfig.azure.com -n azure-arc signingkey -o json
+        $jsonObj = $jsonString | ConvertFrom-Json
+        $serviceAccountIssuer = $jObj.status.clusterIssuerUrl
+        if ([string]::IsNullOrEmpty($serviceAccountIssuer))
+        {
+            throw "Invalid, empty IssuerUrl!"
+        }
+    }
+
+    Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
+    Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer
+
+    & $helmPath repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
+    & $helmPath repo update
+    & $helmPath install workload-identity-webhook azure-workload-identity/workload-identity-webhook --namespace azure-workload-identity-system --create-namespace --set azureTenantID="$tenantId"
+}
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
@@ -71,7 +170,7 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "https://download.microsoft.com/download/3/d/7/3d7b3eea-51c2-4a2c-8405-28e40191e715/AksEdge-K3s-1.26.10-1.6.384.0.msi",
+    "AksEdgeProductUrl": "C:\\Users\\Public\\msi\\K3s.msi",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
@@ -80,6 +179,7 @@ $aideuserConfig = @"
         "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
         "CustomLocationOID":"",
+        "EnableWorkloadIdentity": true,
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
@@ -90,7 +190,7 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.9",
+    "SchemaVersion": "1.14",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
@@ -133,8 +233,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="Azure"
-$branch="main"
+$fork ="jagadishmurugan"
+$branch="users/jagamu/Bugfix-EdgeConfigVersionCompare"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"
@@ -166,7 +266,6 @@ Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 
 $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
-
 # Download, install and deploy AKS EE 
 Write-Host "Step 2: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
 # invoke the workflow, the json file already updated above.
@@ -204,20 +303,7 @@ az provider register -n "Microsoft.DeviceRegistry"
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-$tags = @("SKU=AKSEdgeEssentials")
-$modVersion = (Get-Module AksEdge).Version
-if ($modVersion) { 
-    $tags += @("Version=$modVersion") 
-}
-$infra = Get-AideInfra
-if ($infra) { 
-    $tags += @("Infra=$infra") 
-}
-$clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
-if ($clusterid) { 
-    $tags += @("ClusterId=$clusterid") 
-}
-az connectedk8s connect -n $ClusterName -l $Location -g $ResourceGroupName --subscription $SubscriptionId --tags $tags | Out-Null
+New-ConnectedCluster -clusterName $ClusterName -location $Location -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId -connectedK8sPrivateWhlPath $connectedK8sPrivateWhlPath
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 Write-Host "Associate Custom location with $ClusterName cluster"

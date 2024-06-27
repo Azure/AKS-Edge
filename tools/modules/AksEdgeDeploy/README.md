@@ -16,7 +16,7 @@ The `Start-AideWorkflow` function in the modole does the following:
 
     ```json
     {
-        "SchemaVersion": "1.1",
+        "SchemaVersion": "1.2",
         "Version": "1.0",
         "AksEdgeProduct" : "AKS Edge Essentials - K3s",
         "AksEdgeConfig": {
@@ -50,7 +50,8 @@ The `Start-AideWorkflow` function in the modole does the following:
             "TenantId":"",
             "ResourceGroupName": "aksedge-rg",
             "ServicePrincipalName" : "aksedge-sp",
-            "Location" : "EastUS"
+            "Location" : "EastUS",
+            "EnableWorkloadIdentity": true
         }
     }
     ```
@@ -81,6 +82,7 @@ Find below the details of the supported parameters in the json file.
 || CustomLocationOID | Optional | GUID | ObjectID for the custom location resource provider  |
 || `Auth`.ServicePrincipalId |Mandatory | GUID | Specify service principal appID to use|
 || `Auth`.Password |Mandatory| String | Specify the password (in clear) |
+|| EnableWorkloadIdentity |Optional| Boolean | Enable secure workload access to azure resource |
 |InstallOptions| InstallPath | Optional | String |  Path to install the product  |
 || VhdxPath | Optional | String | Path to store the vhdx files  |
 |VSwitch| Name | Optional | String | Name for the external switch, mandatory for ScalableCluster|
