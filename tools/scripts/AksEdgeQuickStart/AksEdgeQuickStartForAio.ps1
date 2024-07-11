@@ -49,16 +49,56 @@ function Restart-ApiServer
 {
 param(
     [Parameter(Mandatory=$true)]
-    [string] $serviceAccountIssuer
+    [string] $serviceAccountIssuer,
+    [Switch] $useK8s=$false
 )
 
     Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
-    Invoke-AksEdgeNodeCommand -command "sudo cat /var/.eflow/config/k3s/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml.working > /dev/null"
-    Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/k3s-config.yml"
-    Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"
-    Invoke-AksEdgeNodeCommand -command "sudo systemctl restart k3s.service"
+
+    if ($useK8s)
+    {
+        & kubectl delete pod -n kube-system -l component=kube-apiserver
+    }
+    else
+    {
+        Invoke-AksEdgeNodeCommand -command "sudo cat /var/.eflow/config/k3s/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml.working > /dev/null"
+        Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/k3s-config.yml"
+        Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"
+        Invoke-AksEdgeNodeCommand -command "sudo systemctl restart k3s.service"
+    }
 
     Wait-ApiServerReady
+}
+
+function Verify-ConnectedStatus
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $resourceGroup,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName,
+    [Parameter(Mandatory=$true)]
+    [string] $subscriptionId
+)
+
+    $retries = 60
+    for (; $retries -gt 0; $retries--)
+    {
+        $connectedCluster = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
+        if($connectedCluster.ConnectivityStatus -eq "Connected")
+        {
+            Write-Host "Cluster reached connected status"
+            break
+        }
+
+        Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
+        Start-Sleep -Seconds 10
+    }
+
+    if ($retries -eq 0)
+    {
+        exit -1
+    }
 }
 
 function New-ConnectedCluster
@@ -73,7 +113,8 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $subscriptionId,
     [Parameter(Mandatory=$true)]
-    [string] $connectedK8sPrivateWhlPath
+    [string] $connectedK8sPrivateWhlPath,
+    [Switch] $useK8s=$false
 )
 
     Write-Host "New-ConnectedCluster"
@@ -96,6 +137,8 @@ param(
     $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:0.1.14275-private"
     az connectedk8s connect -g $resourceGroup -n $clusterName --subscription $subscriptionId --tags $tags --disable-auto-upgrade --enable-oidc-issuer
 
+    Verify-ConnectedStatus -clusterName $ClusterName -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId
+
     $serviceAccountIssuer = az connectedk8s show-issuer-url
     if ([string]::IsNullOrEmpty($serviceAccountIssuer))
     {
@@ -110,7 +153,7 @@ param(
     }
 
     Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
-    Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer
+    Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
 
     & $helmPath repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
     & $helmPath repo update
@@ -303,7 +346,7 @@ az provider register -n "Microsoft.DeviceRegistry"
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-New-ConnectedCluster -clusterName $ClusterName -location $Location -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId -connectedK8sPrivateWhlPath $connectedK8sPrivateWhlPath
+New-ConnectedCluster -clusterName $ClusterName -location $Location -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId -connectedK8sPrivateWhlPath $connectedK8sPrivateWhlPath -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 Write-Host "Associate Custom location with $ClusterName cluster"
