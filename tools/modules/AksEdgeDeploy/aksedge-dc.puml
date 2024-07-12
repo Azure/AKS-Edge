@@ -11,7 +11,7 @@ jsonDiagram {
     }
     arrow {
         LineThickness 0.5
-        LineStyle 2;6
+        LineStyle 2,6
     }
     highlight {
         BackgroundColor black
@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.9",
+    "SchemaVersion": "1.13",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -44,7 +44,8 @@ jsonDiagram {
         "SubscriptionId": "GUID",
         "TenantId": "GUID",
         "ClientId": "string",
-        "ClientSecret": "string"
+        "ClientSecret": "string",
+        "CustomLocationsOid": "string"
     },
     "User": {
         "AcceptEula": true,
@@ -52,7 +53,8 @@ jsonDiagram {
         "<color:gray>VolumeLicense":{
             "<color:gray>EnrollmentId":"<color:gray>string",
             "<color:gray>PartNumber":"<color:gray>string"
-        }
+        },
+        "AcceptGpuWarning": false
     },
     "Network": {
         "ControlPlaneEndpointIp": "ipv4",
@@ -96,6 +98,17 @@ jsonDiagram {
                 "multipleOf": 2,
                 "minimum": 2048
             },
+            "MemoryHugePages": {
+                "Size": {
+                    "type": "enum",
+                    "default": 2048,
+                    "values": [2048,1048576]
+                },
+                "count": {
+                    "type": "integer",
+                    "default": 0
+                }
+            },
             "DataSizeInGB": {
                 "type": "integer",
                 "default": 10
@@ -119,6 +132,11 @@ jsonDiagram {
                     "Ip4PrefixLength": "integer"
                 }
             ],
+            "GpuPassthrough": {
+                "Name": "string",
+                "Type": "string",
+                "Count": "integer"
+            },
             "Ip4Address": "ipv4",
             "MacAddress": "string",
             "Mtu": "integer",
