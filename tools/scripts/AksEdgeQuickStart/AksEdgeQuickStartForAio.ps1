@@ -119,13 +119,13 @@ param(
 
     Write-Host "New-ConnectedCluster"
     $tags = @("SKU=AKSEdgeEssentials")
-    $modVersion = (Get-Module AksEdge).Version
-    if ($modVersion) { 
-        $tags += @("Version=$modVersion")
+    $aksEdgeVersion = (Get-Module -Name AksEdge).Version.ToString()
+    if ($aksEdgeVersion) {
+        $tags += @("AKSEE Version=$aksEdgeVersion")
     }
     $infra = Get-AideInfra
     if ($infra) { 
-        $tags += @("Infra=$infra")
+        $tags += @("Host Infra=$infra")
     }
     $clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
     if ($clusterid) { 
