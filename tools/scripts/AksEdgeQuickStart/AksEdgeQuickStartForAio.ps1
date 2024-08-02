@@ -25,7 +25,7 @@ New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Opt
 
 function Wait-ApiServerReady
 {
-    $retries = 10
+    $retries = 60
     for (; $retries -gt 0; $retries--)
     {
         $ret = & kubectl get --raw='/readyz'
@@ -57,6 +57,9 @@ param(
 
     if ($useK8s)
     {
+        Invoke-AksEdgeNodeCommand -command "sudo cat /etc/kubernetes/manifests/kube-apiserver.yaml | tee /home/aksedge-user/kube-apiserver.yaml | tee /home/aksedge-user/kube-apiserver.yaml.working > /dev/null"
+        Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/kube-apiserver.yaml"
+        Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml"
         & kubectl delete pod -n kube-system -l component=kube-apiserver
     }
     else
