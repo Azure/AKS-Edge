@@ -17,14 +17,14 @@ param(
     [string] $Tag,
     # Temporary params for private bits
     [Parameter(Mandatory=$true)]
-    [string] $connectedK8sPrivateWhlPath
+    [string] $privateArtifactsPath
 )
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Option Constant -ErrorAction SilentlyContinue
 
 function Wait-ApiServerReady
 {
-    $retries = 60
+    $retries = 120
     for (; $retries -gt 0; $retries--)
     {
         $ret = & kubectl get --raw='/readyz'
@@ -80,17 +80,31 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $clusterName,
     [Parameter(Mandatory=$true)]
-    [string] $subscriptionId
+    [string] $subscriptionId,
+    [Switch] $enableWorkloadIdentity=$false
 )
 
-    $retries = 60
+    $retries = 150
     for (; $retries -gt 0; $retries--)
     {
         $connectedCluster = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
-        if($connectedCluster.ConnectivityStatus -eq "Connected")
+
+        if ($enableWorkloadIdentity)
         {
-            Write-Host "Cluster reached connected status"
-            break
+            $agentState = $connectedCluster.arcAgentProfile.agentState
+            Write-Host "$retries, AgentState = $agentState"
+        }
+
+        $connectivityStatus = $connectedCluster.ConnectivityStatus
+        Write-Host "$retries, connectivityStatus = $connectivityStatus"
+
+        if ($connectedCluster.ConnectivityStatus -eq "Connected")
+        {
+            if ((-Not $enableWorkloadIdentity) -Or ($connectedCluster.arcAgentProfile.agentState -eq "Succeeded"))
+            {
+                Write-Host "Cluster reached connected status"
+                break
+            }
         }
 
         Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
@@ -107,15 +121,11 @@ function New-ConnectedCluster
 {
 param(
     [Parameter(Mandatory=$true)]
-    [string] $resourceGroup,
-    [Parameter(Mandatory=$true)]
-    [string] $location,
+    [object] $arcArgs,
     [Parameter(Mandatory=$true)]
     [string] $clusterName,
     [Parameter(Mandatory=$true)]
-    [string] $subscriptionId,
-    [Parameter(Mandatory=$true)]
-    [string] $connectedK8sPrivateWhlPath,
+    [string] $privateArtifactsPath,
     [Switch] $useK8s=$false
 )
 
@@ -140,14 +150,36 @@ param(
         throw "Error removing extension connecktedk8s : $errOut"
     }
 
-    $errOut = $($retVal = & {az extension add --source $connectedK8sPrivateWhlPath --allow-preview true -y}) 2>&1
+    $connectedK8sWhlFile = (Get-ChildItem $privateArtifactsPath -Filter "connectedk8s*.whl").FullName
+    $errOut = $($retVal = & {az extension add --source $connectedK8sWhlFile --allow-preview true -y}) 2>&1
     if ($LASTEXITCODE -ne 0)
     {
-        throw "Error installing extension connecktedk8s ($connectedK8sPrivateWhlPath) : $errOut"
+        throw "Error installing extension connectedk8s ($connectedK8sWhlFile) : $errOut"
     }
 
-    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:0.1.15060-private"
-    $errOut = $($retVal = & {az connectedk8s connect -g $resourceGroup -n $clusterName --subscription $subscriptionId --tags $tags --disable-auto-upgrade --enable-oidc-issuer --enable-workload-identity}) 2>&1
+    $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
+    $k8sConnectArgs += @("-n", $clusterName)
+    $k8sConnectArgs += @("-l", $arcArgs.Location)
+    $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
+    $k8sConnectArgs += @("--tags", $tags)
+    $k8sConnectArgs += @("--disable-auto-upgrade")
+    $tag = "0.1.15129-private"
+    if ($arcArgs.EnableWorkloadIdentity)
+    {
+        $k8sConnectArgs += @("--enable-oidc-issuer", "--enable-workload-identity")
+    }
+
+    if (-Not [string]::IsNullOrEmpty($arcArgs.GatewayResourceId))
+    {
+
+        $tag = "0.1.15110-private"
+        $k8sConnectArgs += @("--enable-gateway")
+        $k8sConnectArgs += @("--gateway-resource-id", $arcArgs.GatewayResourceId)
+    }
+
+    Write-Host "Connect cmd args - $k8sConnectArgs"
+    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:$tag"
+    $errOut = $($retVal = & {az connectedk8s connect $k8sConnectArgs}) 2>&1
     if ($LASTEXITCODE -ne 0)
     {
         throw "Arc Connection failed with error : $errOut"
@@ -156,22 +188,25 @@ param(
     # For debugging
     Write-Host "az connectedk8s out : $retVal"
 
-    Verify-ConnectedStatus -clusterName $ClusterName -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId
+    Verify-ConnectedStatus -clusterName $ClusterName -resourcegroup $arcArgs.ResourceGroupName -subscriptionId $arcArgs.SubscriptionId -enableWorkloadIdentity:$arcArgs.EnableWorkloadIdentity
 
-    $errOut = $($obj = & {az connectedk8s show -g $resourceGroup -n $clusterName  | ConvertFrom-Json}) 2>&1
-    if ($null -eq $obj)
+    if ($arcArgs.EnableWorkloadIdentity)
     {
-        throw "Invalid, empty IssuerUrl!"
-    }
+        $errOut = $($obj = & {az connectedk8s show -g $arcArgs.ResourceGroupName -n $clusterName  | ConvertFrom-Json}) 2>&1
+        if ($null -eq $obj)
+        {
+            throw "Invalid, empty IssuerUrl!"
+        }
 
-    $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
-    if ([string]::IsNullOrEmpty($serviceAccountIssuer))
-    {
-        throw "Invalid, empty IssuerUrl!"
-    }
+        $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
+        if ([string]::IsNullOrEmpty($serviceAccountIssuer))
+        {
+            throw "Invalid, empty IssuerUrl!"
+        }
 
-    Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
-    Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
+        Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
+        Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
+    }
 }
 
 # Specify only AIO supported regions
@@ -221,10 +256,13 @@ if ($LASTEXITCODE -ne 0)
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
+$msiFile = (Get-ChildItem -Path $privateArtifactsPath -Filter "k3s.msi").FullName
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
+    $msiFile = (Get-ChildItem -Path $privateArtifactsPath -Filter "k8s.msi").FullName
 }
+$msiFile = $msiFile.Replace("\","\\")
 
 # Here string for the json content
 $aideuserConfig = @"
@@ -232,16 +270,18 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "C:\\Users\\Public\\msi\\K3s.msi",
+    "AksEdgeProductUrl": "$msiFile",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
+        "ResourceGroupName": "$ResourceGroupName",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
         "CustomLocationOID":"$CustomLocationOid",
         "EnableWorkloadIdentity": true,
+        "EnableKeyManagement": true,
+        "GatewayResourceId": "",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
@@ -323,6 +363,7 @@ if (!(Test-Path -Path "$workdir")) {
 
 $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $aideuserConfig -Force
+$aideuserConfigJson = $aideuserConfig | ConvertFrom-Json
 $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 
@@ -374,20 +415,31 @@ $resourceProviders =
 )
 foreach($rp in $resourceProviders)
 {
+    $errOut = $($obj = & {az provider show -n $rp | ConvertFrom-Json}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error querying provider $rp : $errOut"
+    }
+
+    if ($obj.registrationState -eq "Registered")
+    {
+        continue
+    }
+
     $errOut = $($retVal = & {az provider register -n $rp}) 2>&1
     if ($LASTEXITCODE -ne 0)
     {
-        throw "Error creating ResourceGroup : $errOut"
+        throw "Error registering provider $rp : $errOut"
     }
 }
 
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-New-ConnectedCluster -clusterName $ClusterName -location $Location -resourcegroup $ResourceGroupName -subscriptionId $SubscriptionId -connectedK8sPrivateWhlPath $connectedK8sPrivateWhlPath -useK8s:$UseK8s
+New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -privateArtifactsPath $privateArtifactsPath -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
-$objectId = $CustomLocationOid
+$objectId = $aideuserConfigJson.Azure.CustomLocationOID
 if ([string]::IsNullOrEmpty($objectId))
 {
     Write-Host "Associate Custom location with $ClusterName cluster"

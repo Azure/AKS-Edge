@@ -41,7 +41,9 @@ jsonDiagram {
             "ServicePrincipalId" : "GUID",
             "Password" : "String"
         },
-        "EnableWorkloadIdentity" : "Boolean"
+        "EnableWorkloadIdentity" : "Boolean",
+        "EnableKeyManagement" : "Boolean",
+        "GatewayResourceId": "String"
     }
     ,
     "InstallOptions":{
