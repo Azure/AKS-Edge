@@ -31,7 +31,9 @@ param(
     $k8sConnectArgs += @("-n", $clusterName)
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
 
-    $retries = 150
+    # 15 min timeout to check for Connected status - as recommended by Arc team
+    $retries = 90
+    $sleepDurationInSeconds = 10
     for (; $retries -gt 0; $retries--)
     {
         $connectedCluster = az connectedk8s show $k8sConnectArgs | ConvertFrom-Json
@@ -42,7 +44,7 @@ param(
         }
 
         Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
-        Start-Sleep -Seconds 10
+        Start-Sleep -Seconds $sleepDurationInSeconds
     }
 
     if ($retries -eq 0)
