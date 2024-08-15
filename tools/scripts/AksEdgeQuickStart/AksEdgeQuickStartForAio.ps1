@@ -284,11 +284,7 @@ $resourceProviders =
 @(
     "Microsoft.ExtendedLocation",
     "Microsoft.Kubernetes",
-    "Microsoft.KubernetesConfiguration",
-    "Microsoft.IoTOperationsOrchestrator",
-    "Microsoft.IoTOperationsMQ",
-    "Microsoft.IoTOperationsDataProcessor",
-    "Microsoft.DeviceRegistry"
+    "Microsoft.KubernetesConfiguration"
 )
 foreach($rp in $resourceProviders)
 {
