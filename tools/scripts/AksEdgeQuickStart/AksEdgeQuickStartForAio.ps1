@@ -12,11 +12,89 @@ param(
     [String] $ResourceGroupName,
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
+    [String] $CustomLocationOid,
     [Switch] $UseK8s=$false,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Option Constant -ErrorAction SilentlyContinue
+
+function Verify-ConnectedStatus
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [object] $arcArgs,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName
+)
+
+    $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
+    $k8sConnectArgs += @("-n", $clusterName)
+    $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
+
+    $retries = 150
+    for (; $retries -gt 0; $retries--)
+    {
+        $connectedCluster = az connectedk8s show $k8sConnectArgs | ConvertFrom-Json
+        if ($connectedCluster.ConnectivityStatus -eq "Connected")
+        {
+            Write-Host "Cluster reached connected status"
+            break
+        }
+
+        Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
+        Start-Sleep -Seconds 10
+    }
+
+    if ($retries -eq 0)
+    {
+        throw "Arc Connection timed out!"
+    }
+}
+
+function New-ConnectedCluster
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [object] $arcArgs,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName,
+    [Switch] $useK8s=$false
+)
+
+    Write-Host "New-ConnectedCluster"
+
+    $tags = @("SKU=AKSEdgeEssentials")
+    $aksEdgeVersion = (Get-Module -Name AksEdge).Version.ToString()
+    if ($aksEdgeVersion) {
+        $tags += @("AKSEE Version=$aksEdgeVersion")
+    }
+    $infra = Get-AideInfra
+    if ($infra) { 
+        $tags += @("Host Infra=$infra")
+    }
+    $clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+    if ($clusterid) { 
+        $tags += @("ClusterId=$clusterid")
+    }
+
+    $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
+    $k8sConnectArgs += @("-n", $clusterName)
+    $k8sConnectArgs += @("-l", $arcArgs.Location)
+    $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
+    $k8sConnectArgs += @("--tags", $tags)
+
+    Write-Host "Connect cmd args - $k8sConnectArgs"
+
+    $errOut = $($retVal = & {az connectedk8s connect $k8sConnectArgs}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Arc Connection failed with error : $errOut"
+    }
+
+    Verify-ConnectedStatus -arcArgs $arcArgs -clusterName $ClusterName
+}
+
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240815.1300" -Option Constant -ErrorAction SilentlyContinue
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
@@ -71,15 +149,15 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "https://download.microsoft.com/download/3/d/7/3d7b3eea-51c2-4a2c-8405-28e40191e715/AksEdge-K3s-1.26.10-1.6.384.0.msi",
+    "AksEdgeProductUrl": "https://download.microsoft.com/download/9/d/b/9db70435-27fc-4feb-8792-04444d585526/AksEdge-K3s-1.28.3-1.7.639.0.msi",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
+        "ResourceGroupName": "$ResourceGroupName",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
-        "CustomLocationOID":"",
+        "CustomLocationOID":"$CustomLocationOid",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
@@ -161,6 +239,8 @@ if (!(Test-Path -Path "$workdir")) {
 
 $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $aideuserConfig -Force
+$aideuserConfigJson = $aideuserConfig | ConvertFrom-Json
+
 $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 
@@ -182,47 +262,75 @@ if ($retval) {
 
 Write-Host "Step 3: Connect the cluster to Azure" -ForegroundColor Cyan
 # Set the azure subscription
-az account set -s $SubscriptionId
+$errOut = $($retVal = & {az account set -s $SubscriptionId}) 2>&1
+if ($LASTEXITCODE -ne 0)
+{
+    throw "Error setting Subscription ($SubscriptionId): $errOut"
+}
 
 # Create resource group
-$rgExists = az group show --resource-group $ResourceGroupName | Out-Null
+$errOut = $($rgExists = & {az group show --resource-group $ResourceGroupName}) 2>&1
 if ($null -eq $rgExists) {
     Write-Host "Creating resource group: $ResourceGroupName" -ForegroundColor Cyan
-    az group create --location $Location --resource-group $ResourceGroupName --subscription $SubscriptionId | Out-Null
+    $errOut = $($retVal = & {az group create --location $Location --resource-group $ResourceGroupName --subscription $SubscriptionId}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error creating ResourceGroup ($ResourceGroupName): $errOut"
+    }
 } 
 
 # Register the required resource providers 
-Write-Host "Registering the required resource providers for AIO" -ForegroundColor Cyan
-az provider register -n "Microsoft.ExtendedLocation"
-az provider register -n "Microsoft.Kubernetes"
-az provider register -n "Microsoft.KubernetesConfiguration"
-az provider register -n "Microsoft.IoTOperationsOrchestrator"
-az provider register -n "Microsoft.IoTOperationsMQ"
-az provider register -n "Microsoft.IoTOperationsDataProcessor"
-az provider register -n "Microsoft.DeviceRegistry"
+$resourceProviders = 
+@(
+    "Microsoft.ExtendedLocation",
+    "Microsoft.Kubernetes",
+    "Microsoft.KubernetesConfiguration",
+    "Microsoft.IoTOperationsOrchestrator",
+    "Microsoft.IoTOperationsMQ",
+    "Microsoft.IoTOperationsDataProcessor",
+    "Microsoft.DeviceRegistry"
+)
+foreach($rp in $resourceProviders)
+{
+    $errOut = $($obj = & {az provider show -n $rp | ConvertFrom-Json}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error querying provider $rp : $errOut"
+    }
+
+    if ($obj.registrationState -eq "Registered")
+    {
+        continue
+    }
+
+    $errOut = $($retVal = & {az provider register -n $rp}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error registering provider $rp : $errOut"
+    }
+}
 
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
-
-$tags = @("SKU=AKSEdgeEssentials")
-$modVersion = (Get-Module AksEdge).Version
-if ($modVersion) { 
-    $tags += @("Version=$modVersion") 
-}
-$infra = Get-AideInfra
-if ($infra) { 
-    $tags += @("Infra=$infra") 
-}
-$clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
-if ($clusterid) { 
-    $tags += @("ClusterId=$clusterid") 
-}
-az connectedk8s connect -n $ClusterName -l $Location -g $ResourceGroupName --subscription $SubscriptionId --tags $tags | Out-Null
+New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 Write-Host "Associate Custom location with $ClusterName cluster"
-$objectId = az ad sp show --id bc313c14-388c-4e7d-a58e-70017303ee3b --query id -o tsv
-az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations | Out-Null
+$objectId = $aideuserConfigJson.Azure.CustomLocationOID
+if ([string]::IsNullOrEmpty($objectId))
+{
+    $customLocationsAppId = "bc313c14-388c-4e7d-a58e-70017303ee3b"
+    $errOut = $($objectId = & {az ad sp show --id $customLocationsAppId --query id -o tsv}) 2>&1
+    if ($null -eq $objectId)
+    {
+        throw "Error querying ObjectId for CustomLocationsAppId : $errOut"
+    }
+}
+$errOut = $($retVal = & {az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations}) 2>&1
+if ($LASTEXITCODE -ne 0)
+{
+    throw "Error enabling feature CustomLocations : $errOut"
+}
 
 Write-Host "Step 4: Prep for AIO workload deployment" -ForegroundColor Cyan
 Write-Host "Deploy local path provisioner"
