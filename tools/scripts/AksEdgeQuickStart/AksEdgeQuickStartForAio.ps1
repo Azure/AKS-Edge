@@ -84,7 +84,7 @@ param(
     [Switch] $enableWorkloadIdentity=$false
 )
 
-    $retries = 150
+    $retries = 90
     for (; $retries -gt 0; $retries--)
     {
         $connectedCluster = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
@@ -163,7 +163,8 @@ param(
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
     $k8sConnectArgs += @("--tags", $tags)
     $k8sConnectArgs += @("--disable-auto-upgrade")
-    $tag = "0.1.15129-private"
+    $tag = "0.1.15269-private"
+    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:$tag"
     if ($arcArgs.EnableWorkloadIdentity)
     {
         $k8sConnectArgs += @("--enable-oidc-issuer", "--enable-workload-identity")
@@ -171,14 +172,10 @@ param(
 
     if (-Not [string]::IsNullOrEmpty($arcArgs.GatewayResourceId))
     {
-
-        $tag = "0.1.15110-private"
-        $k8sConnectArgs += @("--enable-gateway")
         $k8sConnectArgs += @("--gateway-resource-id", $arcArgs.GatewayResourceId)
     }
 
     Write-Host "Connect cmd args - $k8sConnectArgs"
-    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:$tag"
     $errOut = $($retVal = & {az connectedk8s connect $k8sConnectArgs}) 2>&1
     if ($LASTEXITCODE -ne 0)
     {
@@ -407,11 +404,7 @@ $resourceProviders =
 @(
     "Microsoft.ExtendedLocation",
     "Microsoft.Kubernetes",
-    "Microsoft.KubernetesConfiguration",
-    "Microsoft.IoTOperationsOrchestrator",
-    "Microsoft.IoTOperationsMQ",
-    "Microsoft.IoTOperationsDataProcessor",
-    "Microsoft.DeviceRegistry"
+    "Microsoft.KubernetesConfiguration"
 )
 foreach($rp in $resourceProviders)
 {
