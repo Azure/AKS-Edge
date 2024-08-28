@@ -256,7 +256,7 @@ $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
+    Write-Error -Message "Deployment failed" -Category OperationStopped
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1
