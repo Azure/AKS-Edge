@@ -187,8 +187,8 @@ $aksedgeConfig = @"
     "Machines": [
         {
             "LinuxNode": {
-                "CpuCount": 8,
-                "MemoryInMB": 16384,
+                "CpuCount": 4,
+                "MemoryInMB": 10240,
                 "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
