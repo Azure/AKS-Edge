@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.13",
+    "SchemaVersion": "1.14",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -45,7 +45,8 @@ jsonDiagram {
         "TenantId": "GUID",
         "ClientId": "string",
         "ClientSecret": "string",
-        "CustomLocationsOid": "string"
+        "CustomLocationsOid": "string",
+        "EnableWorkloadIdentity": "boolean"
     },
     "User": {
         "AcceptEula": true,
