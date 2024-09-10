@@ -13,6 +13,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
     [String] $CustomLocationOid,
+    # k8s is not fully validated. Please refer AIO documentation for validated platforms
     [Switch] $UseK8s=$false,
     [string] $Tag
 )
