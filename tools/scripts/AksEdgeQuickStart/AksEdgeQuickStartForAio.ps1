@@ -13,6 +13,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
     [String] $CustomLocationOid,
+    # k8s is not fully validated. Please refer AIO documentation for validated platforms
     [Switch] $UseK8s=$false,
     [string] $Tag
 )
@@ -140,9 +141,12 @@ az extension add --upgrade --name connectedk8s -y
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
+$productUrl = "https://download.microsoft.com/download/9/d/b/9db70435-27fc-4feb-8792-04444d585526/AksEdge-K3s-1.28.3-1.7.639.0.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
+    # Setting URL to empty string, so K8s msi will be selected
+    $productUrl = ""
 }
 
 # Here string for the json content
@@ -151,7 +155,7 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "https://download.microsoft.com/download/9/d/b/9db70435-27fc-4feb-8792-04444d585526/AksEdge-K3s-1.28.3-1.7.639.0.msi",
+    "AksEdgeProductUrl": "$productUrl",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
