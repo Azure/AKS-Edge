@@ -144,12 +144,16 @@ param(
         throw "Error removing extension connecktedk8s : $errOut"
     }
 
-    $connectedK8sWhlFile = (Get-ChildItem $privateArtifactsPath -Filter "connectedk8s*.whl").FullName
+    Push-Location $env:TEMP
+    $progressPreference = 'silentlyContinue'
+    Invoke-WebRequest -Uri "https://github.com/AzureArcForKubernetes/azure-cli-extensions/raw/connectedk8s/public/cli-extensions/connectedk8s-1.10.0-py2.py3-none-any.whl" -OutFile .\connectedk8s-1.10.0-py2.py3-none-any.whl
+    $connectedK8sWhlFile = (Get-ChildItem . -Filter "connectedk8s-1.10.0-py2.py3-none-any.whl").FullName
     $errOut = $($retVal = & {az extension add --source $connectedK8sWhlFile --allow-preview true -y}) 2>&1
     if ($LASTEXITCODE -ne 0)
     {
         throw "Error installing extension connectedk8s ($connectedK8sWhlFile) : $errOut"
     }
+    Pop-Location
 
     $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
     $k8sConnectArgs += @("-n", $clusterName)
@@ -157,7 +161,7 @@ param(
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
     $k8sConnectArgs += @("--tags", $tags)
     $k8sConnectArgs += @("--disable-auto-upgrade")
-    $tag = "0.1.15269-private"
+    $tag = "0.1.15392-private"
     $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:$tag"
     if ($arcArgs.EnableWorkloadIdentity)
     {
@@ -249,14 +253,13 @@ if ($LASTEXITCODE -ne 0)
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
-$productUrl = "https://download.microsoft.com/download/9/d/b/9db70435-27fc-4feb-8792-04444d585526/AksEdge-K3s-1.28.3-1.7.639.0.msi"
+$productUrl = "https://download.microsoft.com/download/9/0/8/9089c6e0-bc8e-4318-b1e0-a045c29fc14d/AksEdge-K3s-1.29.6-1.8.202.0.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
     # Setting URL to empty string, so K8s msi will be selected
     $productUrl = ""
 }
-$msiFile = $msiFile.Replace("\","\\")
 
 # Here string for the json content
 $aideuserConfig = @"
@@ -329,8 +332,8 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 # Download the AksEdgeDeploy modules from Azure/AksEdge
-$fork ="jagadishmurugan"
-$branch="users/jagamu/Bugfix-EdgeConfigVersionCompare"
+$fork ="Azure"
+$branch="main"
 $url = "https://github.com/$fork/AKS-Edge/archive/$branch.zip"
 $zipFile = "AKS-Edge-$branch.zip"
 $workdir = "$installDir\AKS-Edge-$branch"
