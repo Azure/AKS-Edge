@@ -14,13 +14,9 @@ param(
     [String] $ClusterName,
     [String] $CustomLocationOid,
     [Switch] $UseK8s=$false,
-    [string] $Tag,
-    # Temporary params for private bits
-    [Parameter(Mandatory=$true)]
-    [string] $privateArtifactsPath
+    [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240419.1300" -Option Constant -ErrorAction SilentlyContinue
 
 function Wait-ApiServerReady
 {
@@ -124,8 +120,6 @@ param(
     [object] $arcArgs,
     [Parameter(Mandatory=$true)]
     [string] $clusterName,
-    [Parameter(Mandatory=$true)]
-    [string] $privateArtifactsPath,
     [Switch] $useK8s=$false
 )
 
@@ -206,6 +200,8 @@ param(
     }
 }
 
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
+
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     # Adding eastus2euap for PublicPreview - might need to remove later
@@ -253,11 +249,12 @@ if ($LASTEXITCODE -ne 0)
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
-$msiFile = (Get-ChildItem -Path $privateArtifactsPath -Filter "k3s.msi").FullName
+$productUrl = "https://download.microsoft.com/download/9/d/b/9db70435-27fc-4feb-8792-04444d585526/AksEdge-K3s-1.28.3-1.7.639.0.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
-    $msiFile = (Get-ChildItem -Path $privateArtifactsPath -Filter "k8s.msi").FullName
+    # Setting URL to empty string, so K8s msi will be selected
+    $productUrl = ""
 }
 $msiFile = $msiFile.Replace("\","\\")
 
@@ -267,7 +264,7 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "$msiFile",
+    "AksEdgeProductUrl": "$productUrl",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
@@ -306,8 +303,8 @@ $aksedgeConfig = @"
     "Machines": [
         {
             "LinuxNode": {
-                "CpuCount": 8,
-                "MemoryInMB": 16384,
+                "CpuCount": 4,
+                "MemoryInMB": 10240,
                 "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
@@ -361,6 +358,7 @@ if (!(Test-Path -Path "$workdir")) {
 $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $aideuserConfig -Force
 $aideuserConfigJson = $aideuserConfig | ConvertFrom-Json
+
 $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
 
@@ -373,7 +371,7 @@ $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
+    Write-Error -Message "Deployment failed" -Category OperationStopped
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1
@@ -429,7 +427,7 @@ foreach($rp in $resourceProviders)
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -privateArtifactsPath $privateArtifactsPath -useK8s:$UseK8s
+New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 $objectId = $aideuserConfigJson.Azure.CustomLocationOID
