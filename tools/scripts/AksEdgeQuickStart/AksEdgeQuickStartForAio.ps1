@@ -17,6 +17,12 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
+
+# Specify only AIO supported regions
+New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3"
+)
 
 function Wait-ApiServerReady
 {
@@ -203,14 +209,6 @@ param(
         Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
     }
 }
-
-New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
-
-# Specify only AIO supported regions
-New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    # Adding eastus2euap for PublicPreview - might need to remove later
-    "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3", "eastus2euap"
-)
 
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
