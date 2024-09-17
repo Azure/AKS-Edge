@@ -819,7 +819,13 @@ function Expand-ArchiveLocal {
     $Shell = New-Object -ComObject "Shell.Application"
     $zipContents = $Shell.Namespace((Convert-Path $ZipFile)).items()
     $DestinationFolder = $Shell.Namespace((Convert-Path $Destination))
-    $DestinationFolder.CopyHere($zipContents)
+
+    if ($zipContents.Count -eq 1 -and $zipContents.Item(0).isFolder) {
+        $folderContents = $zipContents.Item(0).GetFolder.items()
+        $DestinationFolder.CopyHere($folderContents)
+    } else {
+        $DestinationFolder.CopyHere($zipContents)
+    }
 }
 function Remove-AideMsi {
     <#

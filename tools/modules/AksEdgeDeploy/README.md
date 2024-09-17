@@ -20,7 +20,7 @@ The `Start-AideWorkflow` function in the modole does the following:
         "Version": "1.0",
         "AksEdgeProduct" : "AKS Edge Essentials - K3s",
         "AksEdgeConfig": {
-            "SchemaVersion": "1.9",
+            "SchemaVersion": "1.14",
             "Version": "1.0",
             "DeploymentType": "SingleMachineCluster",
             "Init": {
