@@ -126,6 +126,7 @@ param(
     [object] $arcArgs,
     [Parameter(Mandatory=$true)]
     [string] $clusterName,
+    [object] $proxyArgs,
     [Switch] $useK8s=$false
 )
 
@@ -167,6 +168,22 @@ param(
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
     $k8sConnectArgs += @("--tags", $tags)
     $k8sConnectArgs += @("--disable-auto-upgrade")
+    if ($null -ne $proxyArgs)
+    {
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.Http))
+        {
+            $k8sConnectArgs += @("--proxy-http", $proxyArgs.Http)
+        }
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.Https))
+        {
+            $k8sConnectArgs += @("--proxy-https", $proxyArgs.Https)
+        }
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.No))
+        {
+            $k8sConnectArgs += @("--proxy-skip-range", $proxyArgs.No)
+        }
+    }
+
     $tag = "1.20.1-preview"
     $env:HELMREGISTRY="azurearcfork8s.azurecr.io/public/azurearck8s/canary/preview2/azure-arc-k8sagents:$tag"
     if ($arcArgs.EnableWorkloadIdentity)
@@ -295,7 +312,12 @@ $aksedgeConfig = @"
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
-        "InternetDisabled": false
+        "InternetDisabled": false,
+        "Proxy": {
+            "Http": null,
+            "Https": null,
+            "No": "localhost,127.0.0.0/8,192.168.0.0/16,172.17.0.0/16,10.42.0.0/16,10.43.0.0/16,10.96.0.0/12,10.244.0.0/16,.svc"
+        }
     },
     "User": {
         "AcceptEula": true,
@@ -362,6 +384,7 @@ $aideuserConfigJson = $aideuserConfig | ConvertFrom-Json
 
 $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
+$aksedgeConfigJson = $aksedgeConfig | ConvertFrom-Json
 
 $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
@@ -428,7 +451,7 @@ foreach($rp in $resourceProviders)
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -useK8s:$UseK8s
+New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -proxyArgs $aksedgeConfigJson.Network.Proxy -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
 $objectId = $aideuserConfigJson.Azure.CustomLocationOID
