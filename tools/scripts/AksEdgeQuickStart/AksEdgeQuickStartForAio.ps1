@@ -152,7 +152,7 @@ param(
 
     Push-Location $env:TEMP
     $progressPreference = 'silentlyContinue'
-    Invoke-WebRequest -Uri "https://github.com/AzureArcForKubernetes/azure-cli-extensions/raw/connectedk8s/public/cli-extensions/connectedk8s-1.10.0-py2.py3-none-any.whl" -OutFile .\connectedk8s-1.10.0-py2.py3-none-any.whl
+    Invoke-WebRequest -Uri "https://aka.ms/ArcK8sPrivateWhl" -OutFile .\connectedk8s-1.10.0-py2.py3-none-any.whl
     $connectedK8sWhlFile = (Get-ChildItem . -Filter "connectedk8s-1.10.0-py2.py3-none-any.whl").FullName
     $errOut = $($retVal = & {az extension add --source $connectedK8sWhlFile --allow-preview true -y}) 2>&1
     if ($LASTEXITCODE -ne 0)
@@ -167,8 +167,8 @@ param(
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
     $k8sConnectArgs += @("--tags", $tags)
     $k8sConnectArgs += @("--disable-auto-upgrade")
-    $tag = "0.1.15392-private"
-    $env:HELMREGISTRY="azurearcfork8sdev.azurecr.io/merge/private/azure-arc-k8sagents:$tag"
+    $tag = "1.20.1-preview"
+    $env:HELMREGISTRY="azurearcfork8s.azurecr.io/public/azurearck8s/canary/preview2/azure-arc-k8sagents:$tag"
     if ($arcArgs.EnableWorkloadIdentity)
     {
         $k8sConnectArgs += @("--enable-oidc-issuer", "--enable-workload-identity")
