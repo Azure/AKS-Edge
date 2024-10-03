@@ -41,9 +41,9 @@ jsonDiagram {
             "ServicePrincipalId" : "GUID",
             "Password" : "String"
         },
-        "EnableWorkloadIdentity" : "Boolean",
-        "EnableKeyManagement" : "Boolean",
-        "GatewayResourceId": "String",
+        "//EnableWorkloadIdentity//" : "Boolean",
+        "//EnableKeyManagement//" : "Boolean",
+        "//GatewayResourceId//": "String",
         "ConnectedMachineName": "String"
     }
     ,
