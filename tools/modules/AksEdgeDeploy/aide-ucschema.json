@@ -6,7 +6,7 @@
     "properties": {
         "SchemaVersion": {
             "type": "string",
-            "default": "1.2",
+            "default": "1.3",
             "description": "Version of the schema/format of the json"
         },
         "Version": {
@@ -74,13 +74,20 @@
                     }
                 },
                 "EnableWorkloadIdentity": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Enables Workload Identity (only for AIO)"
                 },
                 "EnableKeyManagement": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Enables Key management (key rotation) (only for AIO)"
                 },
                 "GatewayResourceId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Resource Id for the Arc Gateway resource (only for AIO)"
+                },
+                "ConnectedMachineName":{
+                    "type": "string",
+                    "description": "Connected Machine name used for Azure Arc enabled Server"
                 }
             }
         },
