@@ -1,5 +1,5 @@
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.3",
     "Version": "1.0",
     "AksEdgeProduct": "AKS Edge Essentials - K3s",
     "AksEdgeProductUrl": "",
@@ -22,7 +22,8 @@
         "Auth": {
             "ServicePrincipalId": "",
             "Password": ""
-        }
+        },
+        "ConnectedMachineName": ""
     },
     "AksEdgeConfigFile": "aksedge-config.json"
 }
