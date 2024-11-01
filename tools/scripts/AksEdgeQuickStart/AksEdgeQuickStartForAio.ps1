@@ -220,15 +220,10 @@ if ($arcLocations -inotcontains $Location) {
 }
 
 # Validate az cli version.
-try {
-    $azVersion = (az version)[1].Split(":")[1].Split('"')[1]
-    if ($azVersion -lt "2.38.0"){
-        Write-Host "Installed Azure CLI version $azVersion is older than 2.38.0. Please upgrade Azure CLI and retry." -ForegroundColor Red
-        exit -1
-    }
-}
-catch {
-    Write-Host "Please install Azure CLI version 2.38.0 or newer and retry." -ForegroundColor Red
+$azVersion = (az version)[1].Split(":")[1].Split('"')[1]
+$azMinRequiredVersion = "2.64.0"
+if ($azVersion -lt $azMinRequiredVersion){
+    Write-Host "Installed Azure CLI version $azVersion is older than $azMinRequiredVersion. Please upgrade Azure CLI and retry." -ForegroundColor Red
     exit -1
 }
 
