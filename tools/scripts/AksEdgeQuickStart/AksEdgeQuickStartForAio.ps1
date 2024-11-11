@@ -145,23 +145,6 @@ param(
         $tags += @("ClusterId=$clusterid")
     }
 
-    $errOut = $($retVal = & {az extension remove --name connectedk8s}) 2>&1
-    if ($LASTEXITCODE -ne 0)
-    {
-        throw "Error removing extension connecktedk8s : $errOut"
-    }
-
-    Push-Location $env:TEMP
-    $progressPreference = 'silentlyContinue'
-    Invoke-WebRequest -Uri "https://aka.ms/ArcK8sPrivateWhl" -OutFile .\connectedk8s-1.10.0-py2.py3-none-any.whl
-    $connectedK8sWhlFile = (Get-ChildItem . -Filter "connectedk8s-1.10.0-py2.py3-none-any.whl").FullName
-    $errOut = $($retVal = & {az extension add --source $connectedK8sWhlFile --allow-preview true -y}) 2>&1
-    if ($LASTEXITCODE -ne 0)
-    {
-        throw "Error installing extension connectedk8s ($connectedK8sWhlFile) : $errOut"
-    }
-    Pop-Location
-
     $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
     $k8sConnectArgs += @("-n", $clusterName)
     $k8sConnectArgs += @("-l", $arcArgs.Location)
@@ -184,8 +167,6 @@ param(
         }
     }
 
-    $tag = "1.20.1-preview"
-    $env:HELMREGISTRY="azurearcfork8s.azurecr.io/public/azurearck8s/canary/preview2/azure-arc-k8sagents:$tag"
     if ($arcArgs.EnableWorkloadIdentity)
     {
         $k8sConnectArgs += @("--enable-oidc-issuer", "--enable-workload-identity")
@@ -239,15 +220,10 @@ if ($arcLocations -inotcontains $Location) {
 }
 
 # Validate az cli version.
-try {
-    $azVersion = (az version)[1].Split(":")[1].Split('"')[1]
-    if ($azVersion -lt "2.38.0"){
-        Write-Host "Installed Azure CLI version $azVersion is older than 2.38.0. Please upgrade Azure CLI and retry." -ForegroundColor Red
-        exit -1
-    }
-}
-catch {
-    Write-Host "Please install Azure CLI version 2.38.0 or newer and retry." -ForegroundColor Red
+$azVersion = (az version)[1].Split(":")[1].Split('"')[1]
+$azMinRequiredVersion = "2.64.0"
+if ($azVersion -lt $azMinRequiredVersion){
+    Write-Host "Installed Azure CLI version $azVersion is older than $azMinRequiredVersion. Please upgrade Azure CLI and retry." -ForegroundColor Red
     exit -1
 }
 
@@ -327,7 +303,7 @@ $aksedgeConfig = @"
         {
             "LinuxNode": {
                 "CpuCount": 4,
-                "MemoryInMB": 10240,
+                "MemoryInMB": 16384,
                 "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
