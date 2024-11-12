@@ -25,7 +25,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeRemoteDeployVersion -Value "1.0.241002.1000" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -42,7 +42,7 @@ if ($UseK8s) {
 # Here string for the json content
 $aideuserConfig = @"
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.3",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "",
@@ -57,7 +57,8 @@ $aideuserConfig = @"
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
-        }
+        },
+        "ConnectedMachineName": ""
     },
     "AksEdgeConfigFile": "aksedge-config.json"
 }

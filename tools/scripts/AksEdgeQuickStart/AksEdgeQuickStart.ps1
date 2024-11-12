@@ -9,7 +9,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.241002.1000" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "southcentralus", "westus", "westus2", "westus3", "centralus", "eastus", "eastus2", "eastus3", "westcentralus", "northcentralus", "brazilsouth",
@@ -60,7 +60,7 @@ if ($UseK8s) {
 # Here string for the json content
 $aideuserConfig = @"
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.3",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "",
@@ -75,7 +75,8 @@ $aideuserConfig = @"
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
-        }
+        },
+        "ConnectedMachineName": ""
     },
     "AksEdgeConfigFile": "aksedge-config.json"
 }
