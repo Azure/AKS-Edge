@@ -303,7 +303,7 @@ $aksedgeConfig = @"
         {
             "LinuxNode": {
                 "CpuCount": 4,
-                "MemoryInMB": 16384,
+                "MemoryInMB": 10240,
                 "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
