@@ -27,27 +27,30 @@ if (! [Environment]::Is64BitProcess) {
     exit -1
 }
 #Validate inputs
-$skipAzureArc = $false
+#$skipAzureArc = $false
 if ([string]::IsNullOrEmpty($SubscriptionId)) {
-    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+    Write-Host "Error: Require SubscriptionId for Azure Arc. Need to connect to Arc before proceeding to deployment" -ForegroundColor Red
+    exit -1
+    #$skipAzureArc = $true
 }
 if ([string]::IsNullOrEmpty($TenantId)) {
-    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+    Write-Host "Error: Require TenantId for Azure Arc. Need to connect to Arc before proceeding to deployment" -ForegroundColor Red
+    #$skipAzureArc = $true
+    exit -1
 }
 if ([string]::IsNullOrEmpty($Location)) {
-    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
+    Write-Host "Error: Require Location for Azure Arc. Need to connect to Arc before proceeding to deployment" -ForegroundColor Red
+    #$skipAzureArc = $true
+    exit -1
 } elseif ($arcLocations -inotcontains $Location) {
     Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
     Write-Host "Supported Locations : $arcLocations"
     exit -1
 }
 
-if ($skipAzureArc) {
-    Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
-}
+# if ($skipAzureArc) {
+#     Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
+# }
 
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
@@ -163,10 +166,12 @@ Write-Host "Step 2: Setup Azure Cloud for Arc connections"
 $azcfg = (Get-AideUserConfig).Azure
 if ($azcfg.Auth.Password) {
    Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
-   $skipAzureArc = $false
-} elseif ($skipAzureArc) {
-    Write-Host ">> skipping step 2" -ForegroundColor Yellow
-} else {
+}
+   #$skipAzureArc = $false
+# } elseif ($skipAzureArc) {
+#     Write-Host ">> skipping step 2" -ForegroundColor Yellow
+# } 
+else {
     $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
 
@@ -192,23 +197,22 @@ if ($retval) {
 }
 
 Write-Host "Step 4: Connect to Arc"
-if ($skipAzureArc) {
-    Write-Host ">> skipping step 4" -ForegroundColor Yellow
-} else {
-    Write-Host "Installing required Az Powershell modules"
-    $arcstatus = Initialize-AideArc
-    if ($arcstatus) {
-        Write-Host ">Connecting to Azure Arc"
-        if (Connect-AideArc) {
-            Write-Host "Azure Arc connections successful."
-        } else {
-            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
-            Stop-Transcript | Out-Null
-            Pop-Location
-            exit -1
-        }
-    } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
-}
+# if ($skipAzureArc) {
+#     Write-Host ">> skipping step 4" -ForegroundColor Yellow
+# } else {
+Write-Host "Installing required Az Powershell modules"
+$arcstatus = Initialize-AideArc
+if ($arcstatus) {
+    Write-Host ">Connecting to Azure Arc"
+    if (Connect-AideArc) {
+        Write-Host "Azure Arc connections successful."
+    } else {
+        Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
+        Stop-Transcript | Out-Null
+        Pop-Location
+        exit -1
+    }
+} else { Write-Host "Error: Arc Initialization failed. retry connecting to Arc" -ForegroundColor Red }
 
 $endtime = Get-Date
 $duration = ($endtime - $starttime)
