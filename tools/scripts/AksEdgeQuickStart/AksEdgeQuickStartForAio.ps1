@@ -14,6 +14,8 @@ param(
     [String] $ClusterName,
     [String] $CustomLocationOid,
     [Switch] $UseK8s=$false,
+    [string] $AksEdgeInstallPath,
+    [string] $AksEdgeVhdxPath,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
@@ -212,6 +214,7 @@ if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
+
 #Validate inputs
 if ($arcLocations -inotcontains $Location) {
     Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
@@ -220,17 +223,30 @@ if ($arcLocations -inotcontains $Location) {
 }
 
 # Validate az cli version.
-$azVersion = (az version)[1].Split(":")[1].Split('"')[1]
-$azMinRequiredVersion = "2.64.0"
-if ($azVersion -lt $azMinRequiredVersion){
-    Write-Host "Installed Azure CLI version $azVersion is older than $azMinRequiredVersion. Please upgrade Azure CLI and retry." -ForegroundColor Red
+try {
+    $azVersion = (az version)[1].Split(":")[1].Split('"')[1]
+    $azMinRequiredVersion = "2.64.0"
+    if ($azVersion -lt $azMinRequiredVersion){
+        Write-Host "Installed Azure CLI version $azVersion is older than $azMinRequiredVersion. Please upgrade Azure CLI and retry." -ForegroundColor Red
+        exit -1
+    }
+} catch {
+    Write-Host "Error: Azure CLI is not installed. Please install Azure CLI and retry." -ForegroundColor Red
     exit -1
 }
+
 
 # Ensure logged into Azure
 $azureLogin = az account show
 if ( $null -eq $azureLogin){
     Write-Host "Please login to azure via `az login` and retry." -ForegroundColor Red
+    exit -1
+}
+
+# Ensure Powershell Language Mode is "FullLanguage"
+if ($ExecutionContext.SessionState.LanguageMode -ne "FullLanguage") {
+    Write-Host "Error: Powershell ExecutionContext.SessionState.LanguageMode is set to '$($ExecutionContext.SessionState.LanguageMode)'." -ForegroundColor Red
+    Write-Host "Powershell ExecutionContext.SessionState.LanguageMode must be set to 'FullLanguage'." -ForegroundColor Red
     exit -1
 }
 
@@ -275,7 +291,11 @@ $aideuserConfig = @"
             "Password":""
         }
     },
-    "AksEdgeConfigFile": "aksedge-config.json"
+    "AksEdgeConfigFile": "aksedge-config.json",
+    "InstallOptions": {
+        "InstallPath": "$AksEdgeInstallPath",
+        "VhdxPath": "$AksEdgeVhdxPath"
+    }
 }
 "@
 $aksedgeConfig = @"
