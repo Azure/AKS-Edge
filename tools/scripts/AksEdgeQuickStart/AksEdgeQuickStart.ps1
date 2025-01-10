@@ -182,6 +182,9 @@ if ($azcfg.Auth.Password) {
 Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
+if ($retval -eq "arc parameters not set or invalid") {
+    $retval = $true
+}
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
