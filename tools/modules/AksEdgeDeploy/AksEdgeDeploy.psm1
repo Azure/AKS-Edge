@@ -914,7 +914,9 @@ function Invoke-AideDeployment {
     $retval = New-AksEdgeDeployment -JsonConfigString $aksedgeDeployParams
 
     if ($retval -ieq "OK") {
-        Write-Host "* AksEdge VM deployment successfull." -ForegroundColor Green
+        Write-Host "* AksEdge VM deployment successful." -ForegroundColor Green
+    } elseif ($retval -ieq "arc parameters not set or invalid") {
+        Write-Host "* AksEdge VM deployment successful but arc connection failed." -ForegroundColor Green
     } else {
         Write-Host "Error: AksEdge VM deployment failed with the below error message." -ForegroundColor Red
         Write-Host "Error message : $retval." -ForegroundColor Red

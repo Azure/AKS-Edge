@@ -147,7 +147,7 @@ if (!(Test-Path -Path "$installDir\$zipFile")) {
     }
 }
 if (!(Test-Path -Path "$workdir")) {
-    Expand-Archive -Path $installDir\$zipFile -DestinationPath "$installDir" -Force
+    #Expand-Archive -Path $installDir\$zipFile -DestinationPath "$installDir" -Force
 }
 
 $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
@@ -182,9 +182,6 @@ if ($azcfg.Auth.Password) {
 Write-Host "Step 3: Download, install and deploy AKS Edge Essentials"
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
-if ($retval -eq "arc parameters not set or invalid") {
-    $retval = $true
-}
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
