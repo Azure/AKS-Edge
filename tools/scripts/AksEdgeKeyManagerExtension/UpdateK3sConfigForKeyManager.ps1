@@ -27,7 +27,8 @@ function Invoke-AksEdgeNodeCmd
 
 }
 
-
+Import-Module AksEdge
+ 
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 $VerbosePreference = [System.Management.Automation.ActionPreference]::Continue
 
