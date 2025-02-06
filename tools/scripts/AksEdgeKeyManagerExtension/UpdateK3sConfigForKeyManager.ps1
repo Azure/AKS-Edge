@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 
+
 <#
  This script updates the AKS Edge Essential K3s configuration to set the lifespan of a Service Account token to 24 hours. 
  This only needs to be run once prior to install the KeyManaget extension for the first time.
@@ -14,11 +15,10 @@ function Invoke-AksEdgeNodeCmd
     param(
         [ValidateNotNullOrEmpty()]        
         [string] $command,
-        [switch] $ignoreError = $false,
-        [string] $NodeType = "Linux"
+        [switch] $ignoreError = $false
     )
     
-    $response = Invoke-AksEdgeNodeCommand $command -ignoreError:$ignoreError -NodeType $NodeType
+    $response = Invoke-AksEdgeNodeCommand $command -ignoreError:$ignoreError
     if ($LASTEXITCODE -eq 0)
     {
         return $response
@@ -26,6 +26,8 @@ function Invoke-AksEdgeNodeCmd
     throw "Invoke-AksEdgeNodeCommand `"$command`" failed."
 
 }
+
+#Requires -RunAsAdministrator
 
 Import-Module AksEdge
  
