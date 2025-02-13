@@ -11,7 +11,7 @@ jsonDiagram {
     }
     arrow {
         LineThickness 0.5
-        LineStyle 2;6
+        LineStyle 2,6
     }
     highlight {
         BackgroundColor black
@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion":"1.2",
+    "SchemaVersion":"1.3",
     "Version":"1.0",
     "AksEdgeProduct" : [
                 "AKS Edge Essentials - K8s",
@@ -41,9 +41,10 @@ jsonDiagram {
             "ServicePrincipalId" : "GUID",
             "Password" : "String"
         },
-        "EnableWorkloadIdentity" : "Boolean",
-        "EnableKeyManagement" : "Boolean",
-        "GatewayResourceId": "String"
+        "//EnableWorkloadIdentity//" : "Boolean",
+        "//EnableKeyManagement//" : "Boolean",
+        "//GatewayResourceId//": "String",
+        "ConnectedMachineName": "String"
     }
     ,
     "InstallOptions":{
