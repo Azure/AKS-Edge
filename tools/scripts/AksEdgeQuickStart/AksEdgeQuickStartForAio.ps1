@@ -13,7 +13,6 @@ param(
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
     [String] $CustomLocationOid,
-    [Switch] $UseK8s=$false,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
@@ -208,6 +207,7 @@ param(
     }
 }
 
+$UseK8s = $false
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
