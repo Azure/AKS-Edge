@@ -257,9 +257,9 @@ function Disconnect-AideArc {
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcEdgeInstallConfig -Value @{
     "PSModules" = @(
-        @{Name="Az.Resources"; Version="6.4.1"; Flags="-AllowClobber"},
-        @{Name="Az.Accounts"; Version="2.11.2"; Flags="-AllowClobber"}, 
-        @{Name="Az.ConnectedKubernetes"; Version="0.9.0"; Flags="-AllowClobber"}
+        @{Name="Az.Resources"; Version="7.8.1"; Flags="-AllowClobber"},
+        @{Name="Az.Accounts"; Version="4.0.2"; Flags="-AllowClobber"}, 
+        @{Name="Az.ConnectedKubernetes"; Version="0.13.0"; Flags="-AllowClobber"}
         )
 }
 function Test-ArcEdgeAzModules {
@@ -322,7 +322,7 @@ function Test-ArcEdgeAzModules {
 
 function Connect-AideArcKubernetes {
     $usrCfg = Get-AideUserConfig
-    $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json )
+    $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json -Depth 6 )
     $retVal = Connect-AksEdgeArc -JsonConfigString $json
     if ($retVal -eq "OK") {
         $serverinfo = Get-AideArcServerInfo
@@ -339,7 +339,7 @@ function Connect-AideArcKubernetes {
 }
 function Disconnect-AideArcKubernetes {
     $usrCfg = Get-AideUserConfig
-    $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json )
+    $json = ($usrCfg.AksEdgeConfig | ConvertTo-Json -Depth 6)
     $retVal = Disconnect-AksEdgeArc -JsonConfigString $json
     return ($retVal -eq "OK")
 }

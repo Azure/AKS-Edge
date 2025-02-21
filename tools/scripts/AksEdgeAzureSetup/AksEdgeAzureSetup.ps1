@@ -8,7 +8,7 @@ Param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeAzureSetup -Value "1.0.230829.1100" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeAzureSetup -Value "1.0.250221.1400" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
     "azure-cli"      = "2.41.0"
     "azure-cli-core" = "2.41.0"
@@ -42,11 +42,11 @@ function Install-AzCli {
     #Check if Az CLI is installed. If not install it.
     $AzCommand = Get-Command -Name az -ErrorAction SilentlyContinue
     if (!$AzCommand) {
-        $CLIPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+        $CLIPath = "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
         Write-Host "> Installing AzCLI..."
         Push-Location $env:TEMP
         $progressPreference = 'silentlyContinue'
-        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
+        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindowsx64 -OutFile .\AzureCLI.msi
         $progressPreference = 'Continue'
         Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /passive'
         Remove-Item .\AzureCLI.msi
