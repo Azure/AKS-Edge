@@ -22,12 +22,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfi
     "ArcIotSchema"  = @("SubscriptionName", "SubscriptionId", "TenantId", "ResourceGroupName", "Location", "Auth")
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azMinVersions -Value @{
-    "azure-cli"        = "2.41.0"
-    "azure-cli-core"   = "2.41.0"
-    "connectedk8s"     = "1.3.1"
-    "connectedmachine" = "0.5.1"
+    "azure-cli"        = "2.69.0"
+    "azure-cli-core"   = "2.69.0"
+    "connectedk8s"     = "1.10.6"
+    "connectedmachine" = "1.0.0"
     "customlocation"   = "0.1.3"
-    "k8s-extension"    = "1.3.3"
+    "k8s-extension"    = "1.6.3"
 }
 function Test-AzVersions {
     #Function to check if the installed az versions are greater or equal to minVersions
@@ -64,7 +64,7 @@ function Install-AideAzCli {
         Installs Azure CLI and required extensions
 
     .DESCRIPTION
-        Checks if Azure CLI is installed (az) and installs the latest version of Azure CLI from "https://aka.ms/installazurecliwindows". 
+        Checks if Azure CLI is installed (az) and installs the latest version of Azure CLI from "https://aka.ms/installazurecliwindowsx64". 
         This also checks and installs the following extensions
         "connectedmachine", "connectedk8s", "customlocation", "k8s-extension"
 
@@ -82,7 +82,7 @@ function Install-AideAzCli {
         Write-Host "> Installing AzCLI..."
         Push-Location $env:TEMP
         $progressPreference = 'silentlyContinue'
-        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
+        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindowsx64 -OutFile .\AzureCLI.msi
         $progressPreference = 'Continue'
         Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /passive'
         Remove-Item .\AzureCLI.msi
