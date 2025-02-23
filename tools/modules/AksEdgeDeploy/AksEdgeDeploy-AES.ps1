@@ -300,7 +300,8 @@ function Disconnect-AideArcServer {
         return $true
     }
     #check and unregister extensions
-    Remove-AideArcServerExtension
+    # TBC: The ConnectedMachine resource will take care of this.
+    # Remove-AideArcServerExtension
     # disconnect
     Write-Host "ACMA state is connected. Disconnecting now..."
     # Get creds
