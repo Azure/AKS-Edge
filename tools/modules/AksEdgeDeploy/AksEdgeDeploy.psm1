@@ -397,7 +397,11 @@ function Disable-WindowsAzureGuestAgent {
     if ($service -and ($($service.Status) -ne 'Stopped')) {
         Set-Service WindowsAzureGuestAgent -StartupType Disabled -Verbose
         Stop-Service WindowsAzureGuestAgent -Force -Verbose
-        New-NetFirewallRule -Name BlockAzureIMDS -DisplayName "Block access to Azure IMDS" -Enabled True -Profile Any -Direction Outbound -Action Block -RemoteAddress 169.254.169.254
+        $fireWallRuleExists = Get-NetFirewallRule -DisplayName "Block access to Azure IMDS"  -ErrorAction SilentlyContinue
+        if ( $null -eq $fireWallRuleExists ) {
+            Write-Host "Adding firewall rule for Azure IMDS"
+            New-NetFirewallRule -Name BlockAzureIMDS -DisplayName "Block access to Azure IMDS" -Enabled True -Profile Any -Direction Outbound -Action Block -RemoteAddress 169.254.169.254
+        }
     } else {
         Write-Host "WindowsAzureGuestAgent is already stopped"
     }
