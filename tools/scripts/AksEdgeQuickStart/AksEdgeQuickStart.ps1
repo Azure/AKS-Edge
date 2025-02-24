@@ -11,15 +11,13 @@ param(
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.241002.1000" -Option Constant -ErrorAction SilentlyContinue
 
-New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "southcentralus", "westus", "westus2", "westus3", "centralus", "eastus", "eastus2", "eastus3", "westcentralus", "northcentralus", "brazilsouth",
-    "brazilsoutheast", "canadacentral", "canadaeast", "chilenorthcentral", "mexicocentral", "usgovvirginia", "usdodcentral", "usdodeast", "usgovarizona",
-    "usgovtexas", "usseceast", "ussecwest", "ussecwestcentral", "eastasia", "southeastasia", "australiaeast", "australiasoutheast", "australiacentral",
-    "australiacentral2", "chinaeast", "chinaeast2", "chinanorth", "chinanorth2", "chinanorth3", "centralindia", "southindia", "westindia", "indonesiacentral",
-    "japaneast", "japanwest", "koreacentral", "koreasouth", "malaysiawest", "newzealandnorth", "taiwan", "austriaeast", "belgiumcentral", "denmarkeast",
-    "northeurope", "westeurope", "finlandcentral", "francecentral", "francesouth", "germanywestcentral", "germanynortheast", "germanycentral", "germanynorth",
-    "greece", "italynorth", "norwayeast", "norwaywest", "polandcentral", "spaincentral", "swedencentral", "swedensouth", "switzerlandnorth",
-    "switzerlandwest", "uksouth", "ukwest", "southafricanorth", "southafricawest", "israelcentral", "qatarcentral", "uaenorth", "uaecentral"
+New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
+    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
+    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
+    "canadacentral", "canadaeast","switzerlandnorth", "southafricanorth", "brazilsouth",
+    "uaenorth","centralindia", "swedencentral", "norwayeast", "germanywestcentral", "israelcentral",
+    "southindia", "italynorth", "ukwest", "eastus2euap"
 )
 
 if (! [Environment]::Is64BitProcess) {
