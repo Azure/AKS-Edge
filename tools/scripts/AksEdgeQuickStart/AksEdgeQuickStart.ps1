@@ -9,15 +9,14 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.241002.1000" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.250221.1400" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
-    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
-    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
-    "canadacentral", "canadaeast","switzerlandnorth", "southafricanorth", "brazilsouth",
-    "uaenorth","centralindia", "swedencentral", "norwayeast", "germanywestcentral", "israelcentral",
-    "southindia", "italynorth", "ukwest", "eastus2euap"
+    "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
+    "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
+    "italynorth","japaneast","koreacentral","northcentralus","northeurope","norwayeast","southafricanorth",
+    "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
+    "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
 
 if (! [Environment]::Is64BitProcess) {
