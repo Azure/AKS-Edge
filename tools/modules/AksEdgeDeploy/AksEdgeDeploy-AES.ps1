@@ -12,10 +12,11 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfi
     "ArcIotSchema"  = @("SubscriptionName", "SubscriptionId", "TenantId", "ResourceGroupName", "Location", "Auth")
 }
 New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
-    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
-    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
-    "canadacentral", "eastus2euap"
+    "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
+    "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
+    "italynorth","japaneast","koreacentral","northcentralus","northeurope","norwayeast","southafricanorth",
+    "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
+    "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
 function Get-AideArcUserConfig {
     return (Get-AideUserConfig).Azure
