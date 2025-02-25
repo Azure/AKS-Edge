@@ -12,7 +12,7 @@ param(
     [String] $ResourceGroupName,
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
-    [Switch] $UseK8s=$false,
+    [String] $CustomLocationOid,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
@@ -23,6 +23,191 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -
     "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3"
 )
 
+function Wait-ApiServerReady
+{
+    $retries = 120
+    for (; $retries -gt 0; $retries--)
+    {
+        $ret = & kubectl get --raw='/readyz'
+        if ($ret -eq "ok")
+        {
+            Write-Host "ApiServerReady!"
+            break
+        }
+
+        Write-Host "WaitForApiServer - Retry..."
+        Start-Sleep -Seconds 1
+    }
+
+    if ($retries -eq 0)
+    {
+        exit -1
+    }
+}
+
+function Restart-ApiServer
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $serviceAccountIssuer,
+    [Switch] $useK8s=$false
+)
+
+    Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
+
+    if ($useK8s)
+    {
+        Invoke-AksEdgeNodeCommand -command "sudo cat /etc/kubernetes/manifests/kube-apiserver.yaml | tee /home/aksedge-user/kube-apiserver.yaml | tee /home/aksedge-user/kube-apiserver.yaml.working > /dev/null"
+        Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/kube-apiserver.yaml"
+        Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml"
+        & kubectl delete pod -n kube-system -l component=kube-apiserver
+    }
+    else
+    {
+        Invoke-AksEdgeNodeCommand -command "sudo cat /var/.eflow/config/k3s/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml.working > /dev/null"
+        Invoke-AksEdgeNodeCommand -command "sudo sed -i 's|service-account-issuer.*|service-account-issuer=$serviceAccountIssuer|' /home/aksedge-user/k3s-config.yml"
+        Invoke-AksEdgeNodeCommand -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"
+        Invoke-AksEdgeNodeCommand -command "sudo systemctl restart k3s.service"
+    }
+
+    Wait-ApiServerReady
+}
+
+function Verify-ConnectedStatus
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $resourceGroup,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName,
+    [Parameter(Mandatory=$true)]
+    [string] $subscriptionId,
+    [Switch] $enableWorkloadIdentity=$false
+)
+
+    $retries = 90
+    for (; $retries -gt 0; $retries--)
+    {
+        $connectedCluster = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
+
+        if ($enableWorkloadIdentity)
+        {
+            $agentState = $connectedCluster.arcAgentProfile.agentState
+            Write-Host "$retries, AgentState = $agentState"
+        }
+
+        $connectivityStatus = $connectedCluster.ConnectivityStatus
+        Write-Host "$retries, connectivityStatus = $connectivityStatus"
+
+        if ($connectedCluster.ConnectivityStatus -eq "Connected")
+        {
+            if ((-Not $enableWorkloadIdentity) -Or ($connectedCluster.arcAgentProfile.agentState -eq "Succeeded"))
+            {
+                Write-Host "Cluster reached connected status"
+                break
+            }
+        }
+
+        Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
+        Start-Sleep -Seconds 10
+    }
+
+    if ($retries -eq 0)
+    {
+        exit -1
+    }
+}
+
+function New-ConnectedCluster
+{
+param(
+    [Parameter(Mandatory=$true)]
+    [object] $arcArgs,
+    [Parameter(Mandatory=$true)]
+    [string] $clusterName,
+    [object] $proxyArgs,
+    [Switch] $useK8s=$false
+)
+
+    Write-Host "New-ConnectedCluster"
+    $tags = @("SKU=AKSEdgeEssentials")
+    $aksEdgeVersion = (Get-Module -Name AksEdge).Version.ToString()
+    if ($aksEdgeVersion) {
+        $tags += @("AKSEE Version=$aksEdgeVersion")
+    }
+    $infra = Get-AideInfra
+    if ($infra) { 
+        $tags += @("Host Infra=$infra")
+    }
+    $clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
+    if ($clusterid) { 
+        $tags += @("ClusterId=$clusterid")
+    }
+
+    $k8sConnectArgs = @("-g", $arcArgs.ResourceGroupName)
+    $k8sConnectArgs += @("-n", $clusterName)
+    $k8sConnectArgs += @("-l", $arcArgs.Location)
+    $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
+    $k8sConnectArgs += @("--tags", $tags)
+    $k8sConnectArgs += @("--disable-auto-upgrade")
+    if ($null -ne $proxyArgs)
+    {
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.Http))
+        {
+            $k8sConnectArgs += @("--proxy-http", $proxyArgs.Http)
+        }
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.Https))
+        {
+            $k8sConnectArgs += @("--proxy-https", $proxyArgs.Https)
+        }
+        if (-Not [string]::IsNullOrEmpty($proxyArgs.No))
+        {
+            $k8sConnectArgs += @("--proxy-skip-range", $proxyArgs.No)
+        }
+    }
+
+    if ($arcArgs.EnableWorkloadIdentity)
+    {
+        $k8sConnectArgs += @("--enable-oidc-issuer", "--enable-workload-identity")
+    }
+
+    if (-Not [string]::IsNullOrEmpty($arcArgs.GatewayResourceId))
+    {
+        $k8sConnectArgs += @("--gateway-resource-id", $arcArgs.GatewayResourceId)
+    }
+
+    Write-Host "Connect cmd args - $k8sConnectArgs"
+    $errOut = $($retVal = & {az connectedk8s connect $k8sConnectArgs}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Arc Connection failed with error : $errOut"
+    }
+
+    # For debugging
+    Write-Host "az connectedk8s out : $retVal"
+
+    Verify-ConnectedStatus -clusterName $ClusterName -resourcegroup $arcArgs.ResourceGroupName -subscriptionId $arcArgs.SubscriptionId -enableWorkloadIdentity:$arcArgs.EnableWorkloadIdentity
+
+    if ($arcArgs.EnableWorkloadIdentity)
+    {
+        $errOut = $($obj = & {az connectedk8s show -g $arcArgs.ResourceGroupName -n $clusterName  | ConvertFrom-Json}) 2>&1
+        if ($null -eq $obj)
+        {
+            throw "Invalid, empty IssuerUrl!"
+        }
+
+        $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
+        if ([string]::IsNullOrEmpty($serviceAccountIssuer))
+        {
+            throw "Invalid, empty IssuerUrl!"
+        }
+
+        Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
+        Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
+    }
+}
+
+$UseK8s = $false
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -35,15 +220,10 @@ if ($arcLocations -inotcontains $Location) {
 }
 
 # Validate az cli version.
-try {
-    $azVersion = (az version)[1].Split(":")[1].Split('"')[1]
-    if ($azVersion -lt "2.38.0"){
-        Write-Host "Installed Azure CLI version $azVersion is older than 2.38.0. Please upgrade Azure CLI and retry." -ForegroundColor Red
-        exit -1
-    }
-}
-catch {
-    Write-Host "Please install Azure CLI version 2.38.0 or newer and retry." -ForegroundColor Red
+$azVersion = (az version)[1].Split(":")[1].Split('"')[1]
+$azMinRequiredVersion = "2.64.0"
+if ($azVersion -lt $azMinRequiredVersion){
+    Write-Host "Installed Azure CLI version $azVersion is older than $azMinRequiredVersion. Please upgrade Azure CLI and retry." -ForegroundColor Red
     exit -1
 }
 
@@ -54,12 +234,22 @@ if ( $null -eq $azureLogin){
     exit -1
 }
 
+# Ensure `connectedk8s` az cli extension is installed and up to date.
+$errOut = $($retVal = & {az extension add --upgrade --name connectedk8s -y}) 2>&1
+if ($LASTEXITCODE -ne 0)
+{
+    throw "Error upgrading extension connecktedk8s : $errOut"
+}
+
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
+$productUrl = "https://download.microsoft.com/download/0/7/d/07d52874-440d-4770-b104-50f517769961/Final%201.9%20Release%20-%20Full/AksEdge-K3s-1.29.6-1.9.262.0.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
+    # Setting URL to empty string, so K8s msi will be selected
+    $productUrl = ""
 }
 
 # Here string for the json content
@@ -68,15 +258,18 @@ $aideuserConfig = @"
     "SchemaVersion": "1.1",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
-    "AksEdgeProductUrl": "https://download.microsoft.com/download/4/c/8/4c8d3abb-34aa-4136-a7d9-adff3530f3b4/AksEdge-K3s-1.26.6-1.4.109.0.msi",
+    "AksEdgeProductUrl": "$productUrl",
     "Azure": {
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
+        "ResourceGroupName": "$ResourceGroupName",
         "ServicePrincipalName": "aksedge-sp",
         "Location": "$Location",
-        "CustomLocationOID":"",
+        "CustomLocationOID":"$CustomLocationOid",
+        "EnableWorkloadIdentity": true,
+        "EnableKeyManagement": true,
+        "GatewayResourceId": "",
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
@@ -87,7 +280,7 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.9",
+    "SchemaVersion": "1.14",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
@@ -95,7 +288,12 @@ $aksedgeConfig = @"
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
-        "InternetDisabled": false
+        "InternetDisabled": false,
+        "Proxy": {
+            "Http": null,
+            "Https": null,
+            "No": null
+        }
     },
     "User": {
         "AcceptEula": true,
@@ -104,9 +302,9 @@ $aksedgeConfig = @"
     "Machines": [
         {
             "LinuxNode": {
-                "CpuCount": 8,
-                "MemoryInMB": 8192,
-                "DataSizeInGB": 30,
+                "CpuCount": 4,
+                "MemoryInMB": 10240,
+                "DataSizeInGB": 40,
                 "LogSizeInGB": 4
             }
         }
@@ -158,12 +356,14 @@ if (!(Test-Path -Path "$workdir")) {
 
 $aidejson = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
 Set-Content -Path $aidejson -Value $aideuserConfig -Force
+$aideuserConfigJson = $aideuserConfig | ConvertFrom-Json
+
 $aksedgejson = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
 Set-Content -Path $aksedgejson -Value $aksedgeConfig -Force
+$aksedgeConfigJson = $aksedgeConfig | ConvertFrom-Json
 
 $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
 . $aksedgeShell
-
 # Download, install and deploy AKS EE 
 Write-Host "Step 2: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
 # invoke the workflow, the json file already updated above.
@@ -171,7 +371,7 @@ $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
+    Write-Error -Message "Deployment failed" -Category OperationStopped
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1
@@ -179,47 +379,73 @@ if ($retval) {
 
 Write-Host "Step 3: Connect the cluster to Azure" -ForegroundColor Cyan
 # Set the azure subscription
-az account set -s $SubscriptionId
+$errOut = $($retVal = & {az account set -s $SubscriptionId}) 2>&1
+if ($LASTEXITCODE -ne 0)
+{
+    throw "Error setting Subscription ($SubscriptionId): $errOut"
+}
 
 # Create resource group
-$rgExists = az group show --resource-group $ResourceGroupName | Out-Null
+$errOut = $($rgExists = & {az group show --resource-group $ResourceGroupName}) 2>&1
 if ($null -eq $rgExists) {
     Write-Host "Creating resource group: $ResourceGroupName" -ForegroundColor Cyan
-    az group create --location $Location --resource-group $ResourceGroupName --subscription $SubscriptionId | Out-Null
-} 
+    $errOut = $($retVal = & {az group create --location $Location --resource-group $ResourceGroupName --subscription $SubscriptionId}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error creating ResourceGroup ($ResourceGroupName): $errOut"
+    }
+}
 
 # Register the required resource providers 
 Write-Host "Registering the required resource providers for AIO" -ForegroundColor Cyan
-az provider register -n "Microsoft.ExtendedLocation"
-az provider register -n "Microsoft.Kubernetes"
-az provider register -n "Microsoft.KubernetesConfiguration"
-az provider register -n "Microsoft.IoTOperationsOrchestrator"
-az provider register -n "Microsoft.IoTOperationsMQ"
-az provider register -n "Microsoft.IoTOperationsDataProcessor"
-az provider register -n "Microsoft.DeviceRegistry"
+$resourceProviders = 
+@(
+    "Microsoft.ExtendedLocation",
+    "Microsoft.Kubernetes",
+    "Microsoft.KubernetesConfiguration"
+)
+foreach($rp in $resourceProviders)
+{
+    $errOut = $($obj = & {az provider show -n $rp | ConvertFrom-Json}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error querying provider $rp : $errOut"
+    }
+
+    if ($obj.registrationState -eq "Registered")
+    {
+        continue
+    }
+
+    $errOut = $($retVal = & {az provider register -n $rp}) 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Error registering provider $rp : $errOut"
+    }
+}
 
 # Arc-enable the Kubernetes cluster
 Write-Host "Arc enable the kubernetes cluster $ClusterName" -ForegroundColor Cyan
 
-$tags = @("SKU=AKSEdgeEssentials")
-$modVersion = (Get-Module AksEdge).Version
-if ($modVersion) { 
-    $tags += @("Version=$modVersion") 
-}
-$infra = Get-AideInfra
-if ($infra) { 
-    $tags += @("Infra=$infra") 
-}
-$clusterid = $(kubectl get configmap -n aksedge aksedge -o jsonpath="{.data.clustername}")
-if ($clusterid) { 
-    $tags += @("ClusterId=$clusterid") 
-}
-az connectedk8s connect -n $ClusterName -l $Location -g $ResourceGroupName --subscription $SubscriptionId --tags $tags | Out-Null
+New-ConnectedCluster -clusterName $ClusterName -arcArgs $aideuserConfigJson.Azure -proxyArgs $aksedgeConfigJson.Network.Proxy -useK8s:$UseK8s
 
 # Enable custom location support on your cluster using az connectedk8s enable-features command
-Write-Host "Associate Custom location with $ClusterName cluster"
-$objectId = az ad sp show --id bc313c14-388c-4e7d-a58e-70017303ee3b --query id -o tsv | Out-Null
-az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations | Out-Null
+$objectId = $aideuserConfigJson.Azure.CustomLocationOID
+if ([string]::IsNullOrEmpty($objectId))
+{
+    Write-Host "Associate Custom location with $ClusterName cluster"
+    $customLocationsAppId = "bc313c14-388c-4e7d-a58e-70017303ee3b"
+    $errOut = $($objectId = & {az ad sp show --id $customLocationsAppId --query id -o tsv}) 2>&1
+    if ($null -eq $objectId)
+    {
+        throw "Error querying ObjectId for CustomLocationsAppId : $errOut"
+    }
+}
+$errOut = $($retVal = & {az connectedk8s enable-features -n $ClusterName -g $ResourceGroupName --custom-locations-oid $objectId --features cluster-connect custom-locations}) 2>&1
+if ($LASTEXITCODE -ne 0)
+{
+    throw "Error enabling feature CustomLocations : $errOut"
+}
 
 Write-Host "Step 4: Prep for AIO workload deployment" -ForegroundColor Cyan
 Write-Host "Deploy local path provisioner"
@@ -285,7 +511,21 @@ try {
     }
     else {
         Write-Host "iptable rule exists, skip configuring iptable rules..."
-    } 
+    }
+
+    # Add additional firewall rules
+    $dports = @(10124, 8420, 2379, 50051)
+    foreach($port in $dports)
+    {
+        $iptableRulesExist = Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables-save | grep -- '-m tcp --dport $port -j ACCEPT'" -ignoreError
+        if ( $null -eq $iptableRulesExist ) {
+            Invoke-AksEdgeNodeCommand -NodeType "Linux" -command "sudo iptables -A INPUT -p tcp --dport $port -j ACCEPT"
+            Write-Host "Updated runtime iptable rules for port $port"
+        }
+        else {
+            Write-Host "iptable rule exists, skip configuring iptable rule for port $port..."
+        }
+    }
 }
 catch {
     Write-Host "Error: iptable rule update failed" -ForegroundColor Red

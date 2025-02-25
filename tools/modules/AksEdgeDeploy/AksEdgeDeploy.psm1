@@ -279,8 +279,7 @@ function UpgradeJsonFormat {
     }
     #upgrade from public preview format to GA format
     $edgeCfg = $jsonObj.AksEdgeConfig
-
-    if ($edgeCfg.SchemaVersion -gt "1.4") {
+    if ([version]$edgeCfg.SchemaVersion -gt [version]"1.4") {
         if (($azCfg.Auth.Password) -and ([string]::IsNullOrEmpty($($edgeCfg.Arc.ClientSecret)))) {
             #Copy over the Azure parameters to Arc section
             $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
@@ -820,7 +819,13 @@ function Expand-ArchiveLocal {
     $Shell = New-Object -ComObject "Shell.Application"
     $zipContents = $Shell.Namespace((Convert-Path $ZipFile)).items()
     $DestinationFolder = $Shell.Namespace((Convert-Path $Destination))
-    $DestinationFolder.CopyHere($zipContents)
+
+    if ($zipContents.Count -eq 1 -and $zipContents.Item(0).isFolder) {
+        $folderContents = $zipContents.Item(0).GetFolder.items()
+        $DestinationFolder.CopyHere($folderContents)
+    } else {
+        $DestinationFolder.CopyHere($zipContents)
+    }
 }
 function Remove-AideMsi {
     <#
@@ -1117,7 +1122,11 @@ function Start-AideWorkflow {
             }
         } else {
             $jsonFile = (Resolve-Path -Path $jsonFile).Path
-            Set-AideUserConfig -jsonFile $jsonFile # validate later after creating the switch
+            $retval = Set-AideUserConfig -jsonFile $jsonFile # validate later after creating the switch
+            if (!$retval) {
+                Write-Host "Error: $jsonFile incorrect after creating switch" -ForegroundColor Red
+                return $false
+            }
         }
     }
 

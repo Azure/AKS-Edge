@@ -16,11 +16,11 @@ The `Start-AideWorkflow` function in the modole does the following:
 
     ```json
     {
-        "SchemaVersion": "1.1",
+        "SchemaVersion": "1.3",
         "Version": "1.0",
         "AksEdgeProduct" : "AKS Edge Essentials - K3s",
         "AksEdgeConfig": {
-            "SchemaVersion": "1.9",
+            "SchemaVersion": "1.14",
             "Version": "1.0",
             "DeploymentType": "SingleMachineCluster",
             "Init": {
@@ -50,7 +50,8 @@ The `Start-AideWorkflow` function in the modole does the following:
             "TenantId":"",
             "ResourceGroupName": "aksedge-rg",
             "ServicePrincipalName" : "aksedge-sp",
-            "Location" : "EastUS"
+            "Location" : "EastUS",
+            "EnableWorkloadIdentity": true
         }
     }
     ```
@@ -67,12 +68,12 @@ Find below the details of the supported parameters in the json file.
 
 |Node| Parameter | Required | Type / Values | Comments |
 |-| --------- | -------- |---------------- | -------- |
-|SchemaVersion| - | Mandatory | 1.1 | Fixed value, schema version. Reserved  |
+|SchemaVersion| - | Mandatory | 1.3 | Fixed value, schema version. Reserved  |
 |Version| - | Mandatory | 1.0 | Fixed value, json instance version  |
 |AksEdgeProduct| - | Mandatory | AKS Edge Essentials - K8s <br> AKS Edge Essentials - K3s | Desired product K8s or K3s |
 |AksEdgeProductUrl| - | Optional | URL | URL to download the MSI  |
 |Azure | ClusterName | Optional | String | Name of the cluster for Arc connection. Default is hostname-distribution (abc-k8s or def-k3s)|
-|| SubscriptionName | Mandatory | GUID | Name of the Azure Subscription  |
+|| SubscriptionName | Mandatory | String | Name of the Azure Subscription  |
 || SubscriptionId | Optional | GUID | Azure Subscription ID  |
 || TenantId | Optional | GUID | Azure Tenant ID  |
 || ResourceGroupName | Mandatory | String | ResourceGroupName  |
@@ -81,6 +82,10 @@ Find below the details of the supported parameters in the json file.
 || CustomLocationOID | Optional | GUID | ObjectID for the custom location resource provider  |
 || `Auth`.ServicePrincipalId |Mandatory | GUID | Specify service principal appID to use|
 || `Auth`.Password |Mandatory| String | Specify the password (in clear) |
+|| EnableWorkloadIdentity |Optional| Boolean | Enable secure workload access to azure resource (only for AIO)|
+|| EnableKeyManagement |Optional| Boolean | Enables Key management (key rotation) (only for AIO)|
+|| GatewayResourceId |Optional| String | Resource Id for the Arc Gateway resource (only for AIO)|
+|| ConnectedMachineName |Optional| String | Specify the resource name for connected machine agent. Default is hostname |
 |InstallOptions| InstallPath | Optional | String |  Path to install the product  |
 || VhdxPath | Optional | String | Path to store the vhdx files  |
 |VSwitch| Name | Optional | String | Name for the external switch, mandatory for ScalableCluster|

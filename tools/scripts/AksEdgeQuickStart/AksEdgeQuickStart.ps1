@@ -57,7 +57,7 @@ if ($UseK8s) {
 # Here string for the json content
 $aideuserConfig = @"
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.3",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "",
@@ -72,14 +72,15 @@ $aideuserConfig = @"
         "Auth":{
             "ServicePrincipalId":"",
             "Password":""
-        }
+        },
+        "ConnectedMachineName": ""
     },
     "AksEdgeConfigFile": "aksedge-config.json"
 }
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.9",
+    "SchemaVersion": "1.14",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
@@ -182,7 +183,7 @@ $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
     Write-Host "Deployment Successful. "
 } else {
-    Write-Host -Message "Deployment failed" -Category OperationStopped -ForegroundColor Red
+    Write-Error -Message "Deployment failed" -Category OperationStopped
     Stop-Transcript | Out-Null
     Pop-Location
     exit -1

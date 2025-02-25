@@ -92,7 +92,7 @@ function Install-AideArcServer {
     Push-Location $env:TEMP
     try {
         # Download the installation package
-        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 30 -OutFile "$env:TEMP\install_windows_azcmagent.ps1"
+        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1"
         # Install the hybrid agent
         & "$env:TEMP\install_windows_azcmagent.ps1"
         if ($LASTEXITCODE -ne 0) {
@@ -261,6 +261,9 @@ function Connect-AideArcServer {
         $tags += @("--tags","AKSEE=$clustername")
     }
     $connectargs += $tags
+    if ($aicfg.ConnectedMachineName) {
+        $connectargs += @("--resource-name","$($aicfg.ConnectedMachineName)")
+    }
     $hostSettings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object ProxyServer, ProxyEnable
     if ($hostSettings.ProxyEnable) {
         & $azcmagentexe config set proxy.url $($hostSettings.ProxyServer)
