@@ -14,7 +14,8 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfi
 <# Azure Regions where Arc enabled Kubernetes is supported.
     $data = (az provider show --namespace "Microsoft.Kubernetes" --output json) | ConvertFrom-Json
     $resourceInfo = $data.resourceTypes | Where-Object { $_.resourceType -eq "connectedclusters" } # lists the displaynames
-    $arcLocations = $resourceInfo.locations.toLower().replace(" ","") # gives the table below.
+    $arcLocations = $resourceInfo.locations.toLower().replace(" ","") # gives the locations unsorted.
+    $arcLocations = $arcLocations | Sort-Object # Sort the list.
     #Mapping of names to displaynames : az account list-locations -o table
 #>
 New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
