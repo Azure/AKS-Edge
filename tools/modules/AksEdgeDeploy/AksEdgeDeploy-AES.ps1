@@ -11,6 +11,12 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azcmagentexe -
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfig -Value @{
     "ArcIotSchema"  = @("SubscriptionName", "SubscriptionId", "TenantId", "ResourceGroupName", "Location", "Auth")
 }
+<# Azure Regions where Arc enabled Kubernetes is supported.
+    $data = (az provider show --namespace "Microsoft.Kubernetes" --output json) | ConvertFrom-Json
+    $resourceInfo = $data.resourceTypes | Where-Object { $_.resourceType -eq "connectedclusters" } # lists the displaynames
+    $arcLocations = $resourceInfo.locations.toLower().replace(" ","") # gives the table below.
+    #Mapping of names to displaynames : az account list-locations -o table
+#>
 New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
     "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
