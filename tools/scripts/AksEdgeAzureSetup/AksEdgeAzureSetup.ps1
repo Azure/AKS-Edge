@@ -10,8 +10,8 @@ Param(
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeAzureSetup -Value "1.0.250221.1400" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
-    "azure-cli"      = "2.41.0"
-    "azure-cli-core" = "2.41.0"
+    "azure-cli"      = "2.69.0"
+    "azure-cli-core" = "2.69.0"
 }
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
