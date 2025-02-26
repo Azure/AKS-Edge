@@ -205,6 +205,9 @@ param(
 
         Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
         Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
+
+        Write-Host "Restart ARC agents."
+        & kubectl -n azure-arc rollout restart deployment
     }
 }
 
