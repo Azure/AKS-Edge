@@ -208,10 +208,24 @@ param(
     }
 }
 
+function Get-AkseeInstalledProductName
+{
+
+    return (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like "*Aks Edge Essentials*"}).DisplayName
+}
+
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
 }
+
+$installedAkseeProductName = Get-AkseeInstalledProductName
+if (-Not [string]::IsNullOrEmpty($installedAkseeProductName)) {
+    if ($installedAkseeProductName -like "*K8s*") {
+        Write-Host "Detected AKSEE k8s installation. Please uninstall and run the script again!" -ForegroundColor Red
+    }
+}
+
 #Validate inputs
 if ($arcLocations -inotcontains $Location) {
     Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
@@ -369,6 +383,8 @@ Write-Host "Step 2: Download, install and deploy AKS Edge Essentials" -Foregroun
 # invoke the workflow, the json file already updated above.
 $retval = Start-AideWorkflow -jsonFile $aidejson
 if ($retval) {
+    $deploymentInfo = Get-AksEdgeDeploymentInfo | Out-Null
+    if ($deploymentInfo)
     Write-Host "Deployment Successful. "
 } else {
     Write-Error -Message "Deployment failed" -Category OperationStopped
