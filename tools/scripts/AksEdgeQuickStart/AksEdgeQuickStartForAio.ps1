@@ -345,7 +345,7 @@ Write-Host "Step 1 : Azure/AKS-Edge repo setup" -ForegroundColor Cyan
 
 if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
-        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
+        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile -UseBasicParsing
     } catch {
         Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
         Stop-Transcript | Out-Null
