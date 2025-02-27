@@ -223,6 +223,7 @@ $installedAkseeProductName = Get-AkseeInstalledProductName
 if (-Not [string]::IsNullOrEmpty($installedAkseeProductName)) {
     if ($installedAkseeProductName -like "*K8s*") {
         Write-Host "Detected AKSEE k8s installation. Please uninstall and run the script again!" -ForegroundColor Red
+        exit -1
     }
 }
 
