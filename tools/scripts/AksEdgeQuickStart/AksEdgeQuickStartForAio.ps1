@@ -13,7 +13,6 @@ param(
     [ValidateNotNullOrEmpty()]
     [String] $ClusterName,
     [String] $CustomLocationOid,
-    [Switch] $UseK8s=$false,
     [string] $Tag
 )
 #Requires -RunAsAdministrator
@@ -205,6 +204,9 @@ param(
 
         Write-Host "serviceAccountIssuer = $serviceAccountIssuer"
         Restart-ApiServer -serviceAccountIssuer $serviceAccountIssuer -useK8s:$useK8s
+
+        Write-Host "Restart ARC agents."
+        & kubectl -n azure-arc rollout restart deployment
     }
 }
 
@@ -214,6 +216,7 @@ function Get-AkseeInstalledProductName
     return (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' | Get-ItemProperty |  Where-Object {$_.DisplayName -like "*Aks Edge Essentials*"}).DisplayName
 }
 
+$UseK8s = $false
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
@@ -357,7 +360,7 @@ Write-Host "Step 1 : Azure/AKS-Edge repo setup" -ForegroundColor Cyan
 
 if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
-        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
+        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile -UseBasicParsing
     } catch {
         Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
         Stop-Transcript | Out-Null

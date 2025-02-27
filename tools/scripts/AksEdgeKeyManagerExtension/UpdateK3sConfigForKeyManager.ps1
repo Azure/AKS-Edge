@@ -36,6 +36,7 @@ $VerbosePreference = [System.Management.Automation.ActionPreference]::Continue
 
 
 Write-Verbose "Updating k3s-config.yml"
+Invoke-AksEdgeNodeCmd -command "sudo cat /var/.eflow/config/k3s/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml | tee /home/aksedge-user/k3s-config.yml.working > /dev/null" 
 Invoke-AksEdgeNodeCmd -command "sudo sed -i '/kube-apiserver-arg:/a\  - service-account-max-token-expiration=24h00m0s\' /home/aksedge-user/k3s-config.yml"   
 Invoke-AksEdgeNodeCmd -command "sudo sed -i '/kube-apiserver-arg:/a\  - service-account-extend-token-expiration=false\' /home/aksedge-user/k3s-config.yml"   
 Invoke-AksEdgeNodeCmd -command "sudo cp /home/aksedge-user/k3s-config.yml /var/.eflow/config/k3s/k3s-config.yml"   
