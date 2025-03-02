@@ -47,7 +47,7 @@ function Install-AzCli {
         Write-Host "> Installing AzCLI..."
         Push-Location $env:TEMP
         $progressPreference = 'silentlyContinue'
-        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindowsx64 -OutFile .\AzureCLI.msi
+        Invoke-WebRequest -Uri https://aka.ms/installazurecliwindowsx64 -OutFile .\AzureCLI.msi -UseBasicParsing
         $progressPreference = 'Continue'
         Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /passive'
         Remove-Item .\AzureCLI.msi
