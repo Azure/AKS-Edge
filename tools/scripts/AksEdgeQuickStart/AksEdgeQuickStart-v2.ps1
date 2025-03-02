@@ -9,17 +9,14 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion-v2 -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion-v2 -Value "1.0.250221.1400" -Option Constant -ErrorAction SilentlyContinue
 
-New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "southcentralus", "westus", "westus2", "westus3", "centralus", "eastus", "eastus2", "eastus3", "westcentralus", "northcentralus", "brazilsouth",
-    "brazilsoutheast", "canadacentral", "canadaeast", "chilenorthcentral", "mexicocentral", "usgovvirginia", "usdodcentral", "usdodeast", "usgovarizona",
-    "usgovtexas", "usseceast", "ussecwest", "ussecwestcentral", "eastasia", "southeastasia", "australiaeast", "australiasoutheast", "australiacentral",
-    "australiacentral2", "chinaeast", "chinaeast2", "chinanorth", "chinanorth2", "chinanorth3", "centralindia", "southindia", "westindia", "indonesiacentral",
-    "japaneast", "japanwest", "koreacentral", "koreasouth", "malaysiawest", "newzealandnorth", "taiwan", "austriaeast", "belgiumcentral", "denmarkeast",
-    "northeurope", "westeurope", "finlandcentral", "francecentral", "francesouth", "germanywestcentral", "germanynortheast", "germanycentral", "germanynorth",
-    "greece", "italynorth", "norwayeast", "norwaywest", "polandcentral", "spaincentral", "swedencentral", "swedensouth", "switzerlandnorth",
-    "switzerlandwest", "uksouth", "ukwest", "southafricanorth", "southafricawest", "israelcentral", "qatarcentral", "uaenorth", "uaecentral"
+New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
+    "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
+    "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
+    "italynorth","japaneast","koreacentral","northcentralus","northeurope","norwayeast","southafricanorth",
+    "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
+    "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name AksEdgeProductType -Value @(
@@ -138,7 +135,7 @@ Write-Host "Step 1 : Azure/AKS-Edge repo setup"
 
 if (!(Test-Path -Path "$installDir\$zipFile")) {
     try {
-        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
+        Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile -UseBasicParsing
     } catch {
         Write-Host "Error: Downloading Aide Powershell Modules failed" -ForegroundColor Red
         Stop-Transcript | Out-Null

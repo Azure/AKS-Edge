@@ -1,0 +1,13 @@
+@startuml AKSArc
+title AKS Arc Template
+json AKSArc {
+%load_json(".\aide-usschema.json")
+}
+
+map legend {
+    deprecated => <s>deprecated
+    not applicable => <color:red>not applicable
+    new feature => <color:blue>new feature
+}
+
+@enduml

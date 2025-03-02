@@ -11,11 +11,18 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name azcmagentexe -
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arciotEnvConfig -Value @{
     "ArcIotSchema"  = @("SubscriptionName", "SubscriptionId", "TenantId", "ResourceGroupName", "Location", "Auth")
 }
+<# Azure Regions where Arc enabled Kubernetes is supported.
+    $data = (az provider show --namespace "Microsoft.Kubernetes" --output json) | ConvertFrom-Json
+    $resourceInfo = $data.resourceTypes | Where-Object { $_.resourceType -eq "connectedclusters" } # lists the displaynames
+    $arcLocations = $resourceInfo.locations.toLower().replace(" ","") # gives the table below.
+    #Mapping of names to displaynames : az account list-locations -o table
+#>
 New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
-    "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
-    "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
-    "canadacentral", "eastus2euap"
+    "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
+    "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
+    "italynorth","japaneast","koreacentral","northcentralus","northeurope","norwayeast","southafricanorth",
+    "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
+    "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
 function Get-AideArcUserConfig {
     return (Get-AideUserConfig).Azure
@@ -91,7 +98,7 @@ function Install-AideArcServer {
     Push-Location $env:TEMP
     try {
         # Download the installation package
-        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1"
+        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -UseBasicParsing
         # Install the hybrid agent
         & "$env:TEMP\install_windows_azcmagent.ps1"
         if ($LASTEXITCODE -ne 0) {
@@ -300,7 +307,8 @@ function Disconnect-AideArcServer {
         return $true
     }
     #check and unregister extensions
-    Remove-AideArcServerExtension
+    # TBC: The ConnectedMachine resource will take care of this.
+    # Remove-AideArcServerExtension
     # disconnect
     Write-Host "ACMA state is connected. Disconnecting now..."
     # Get creds
