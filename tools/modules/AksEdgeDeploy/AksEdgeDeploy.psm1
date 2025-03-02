@@ -186,8 +186,6 @@ function Read-AideUserConfig {
                     $aideSession.ReadFromFile = $true
                 }
             }
-            $upgraded = UpgradeJsonFormat $jsonContent
-            if ($upgraded) { Save-AideUserConfig }
             return $true
         } else {
             Write-Host "Error: Incorrect json content" -ForegroundColor Red
@@ -234,8 +232,6 @@ function Set-AideUserConfig {
                     $aideSession.ReadFromFile = $true
                 }
             }
-            $upgraded = UpgradeJsonFormat $jsonContent
-            if ($upgraded) { Save-AideUserConfig }
         } else {
             Write-Host "Error: Incorrect jsonString" -ForegroundColor Red
             return $false
@@ -252,100 +248,6 @@ function Set-AideUserConfig {
     return $true
 }
 
-function UpgradeJsonFormat {
-    Param(
-        [PSCustomObject] $jsonObj
-    )
-    $retval = $false
-    $azCfg = $jsonObj.Azure
-    if ($azCfg.Auth.spId) {
-        $newAuth = @{
-            ServicePrincipalId = $azCfg.Auth.spId
-            Password           = $azCfg.Auth.password
-        }
-        $azCfg | Add-Member -MemberType NoteProperty -Name 'Auth' -Value $newAuth -Force
-        $retval = $true
-    }
-    $arcdata = @{
-        Location          = $azCfg.Location
-        ResourceGroupName = $azCfg.ResourceGroupName
-        SubscriptionId    = $azCfg.SubscriptionId
-        TenantId          = $azCfg.TenantId
-        ClientId          = $azCfg.Auth.ServicePrincipalId
-        ClientSecret      = $azCfg.Auth.Password
-    }
-    if ($azCfg.ClusterName) {
-        $arcdata += @{ClusterName = $azCfg.ClusterName}
-    }
-    #upgrade from public preview format to GA format
-    $edgeCfg = $jsonObj.AksEdgeConfig
-    if ([version]$edgeCfg.SchemaVersion -gt [version]"1.4") {
-        if (($azCfg.Auth.Password) -and ([string]::IsNullOrEmpty($($edgeCfg.Arc.ClientSecret)))) {
-            #Copy over the Azure parameters to Arc section
-            $edgeCfg | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
-            $retval = $true
-        }
-        return $retval 
-    }
-    $clustertype = "ScalableCluster"
-    if ($edgeCfg.DeployOptions.SingleMachineCluster) {
-        $clustertype = "SingleMachineCluster"
-        $smcluster = $true
-    }
-    $nodetype = $edgeCfg.DeployOptions.NodeType
-    $newEdgeConfig = New-AksEdgeConfig -DeploymentType $clustertype -NodeType $nodetype
-    #init section
-    if ($smcluster) {
-        $newEdgeConfig.Init.ServiceIPRangeSize = $edgeCfg.Network.ServiceIPRangeSize
-    } else {
-        $newEdgeConfig.Init.ServiceIPRangeStart = $edgeCfg.Network.ServiceIPRangeStart
-        #supporting only Class C address range.. so ip4 prefix 24
-        $startip = $edgeCfg.Network.ServiceIPRangeStart
-        $endip = $edgeCfg.Network.ServiceIPRangeEnd
-        $newEdgeConfig.Init.ServiceIPRangeSize = ($endip.Split(".")[3]) - ($startip.Split(".")[3])
-    }
-    #arc section
-    $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
-    #network section
-    $edgeCfgNW = $edgeCfg.Network
-    $nwdata = @{
-        NetworkPlugin    = $edgeCfg.DeployOptions.NetworkPlugin
-        InternetDisabled = [bool]$edgeCfgNW.InternetDisabled
-        Proxy            = $edgeCfgNW.Proxy
-    }
-    if (-not $smcluster) {
-        $nwdata = $nwdata + @{
-            ControlPlaneEndpointIp = $edgeCfgNW.ControlPlaneEndpointIp
-            Ip4GatewayAddress      = $edgeCfgNW.Ip4GatewayAddress
-            Ip4PrefixLength        = $edgeCfgNW.Ip4PrefixLength
-            DnsServers             = $edgeCfgNW.DnsServers
-            SkipAddressFreeCheck   = [bool]$edgeCfgNW.SkipAddressFreeCheck
-        }
-    }
-    $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Network' -Value $nwdata -Force
-    #user section
-    $newEdgeConfig.User.AcceptEula = $edgeCfg.EndUser.AcceptEula
-    $newEdgeConfig.User.AcceptOptionalTelemetry = $edgeCfg.EndUser.AcceptOptionalTelemetry
-    #machines section
-    $machinenode = $newEdgeConfig.Machines[0]
-    $mtu = 0
-    if ($machinenode.LinuxNode) {
-        #TODO: extra Mtu field to be removed.
-        $machinenode.LinuxNode = $edgeCfg.LinuxVm
-        $mtu = [int]$edgeCfg.LinuxVm.Mtu
-    }
-    if ($machinenode.WindowsNode) {
-        $machinenode.WindowsNode = $edgeCfg.WindowsVm
-        $mtu = [int]$edgeCfg.WindowsVm.Mtu
-    }
-    if ($machinenode.NetworkConnection) {
-        $nwnode = $machinenode.NetworkConnection
-        $nwnode.AdapterName = $edgeCfg.Network.VSwitch.AdapterName
-        $nwnode.Mtu = $mtu
-    }
-    $jsonObj | Add-Member -MemberType NoteProperty -Name 'AksEdgeConfig' -Value $newEdgeConfig -Force
-    return $true
-}
 function Save-AideUserConfig {
     <#
     .DESCRIPTION
