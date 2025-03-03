@@ -9,7 +9,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.030325.1100" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.250303.1500" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
