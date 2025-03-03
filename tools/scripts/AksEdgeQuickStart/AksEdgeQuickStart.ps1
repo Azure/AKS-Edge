@@ -9,17 +9,14 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.241002.1000" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.030325.1100" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "southcentralus", "westus", "westus2", "westus3", "centralus", "eastus", "eastus2", "eastus3", "westcentralus", "northcentralus", "brazilsouth",
-    "brazilsoutheast", "canadacentral", "canadaeast", "chilenorthcentral", "mexicocentral", "usgovvirginia", "usdodcentral", "usdodeast", "usgovarizona",
-    "usgovtexas", "usseceast", "ussecwest", "ussecwestcentral", "eastasia", "southeastasia", "australiaeast", "australiasoutheast", "australiacentral",
-    "australiacentral2", "chinaeast", "chinaeast2", "chinanorth", "chinanorth2", "chinanorth3", "centralindia", "southindia", "westindia", "indonesiacentral",
-    "japaneast", "japanwest", "koreacentral", "koreasouth", "malaysiawest", "newzealandnorth", "taiwan", "austriaeast", "belgiumcentral", "denmarkeast",
-    "northeurope", "westeurope", "finlandcentral", "francecentral", "francesouth", "germanywestcentral", "germanynortheast", "germanycentral", "germanynorth",
-    "greece", "italynorth", "norwayeast", "norwaywest", "polandcentral", "spaincentral", "swedencentral", "swedensouth", "switzerlandnorth",
-    "switzerlandwest", "uksouth", "ukwest", "southafricanorth", "southafricawest", "israelcentral", "qatarcentral", "uaenorth", "uaecentral"
+    "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
+    "eastasia","eastus","eastus2","eastus2euap","francecentral","germanywestcentral","israelcentral",
+    "italynorth","japaneast","koreacentral","northcentralus","northeurope","norwayeast","southafricanorth",
+    "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
+    "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
 
 if (! [Environment]::Is64BitProcess) {
