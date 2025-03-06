@@ -176,6 +176,9 @@ param(
         $k8sConnectArgs += @("--gateway-resource-id", $arcArgs.GatewayResourceId)
     }
 
+    # Use kubectl.exe from AKSEE deployment
+    $env:KUBECTL_CLIENT_PATH = "$env:ProgramFiles\AksEdge\kubectl\kubectl.exe"
+
     Write-Host "Connect cmd args - $k8sConnectArgs"
     $errOut = $($retVal = & {az connectedk8s connect $k8sConnectArgs}) 2>&1
     if ($LASTEXITCODE -ne 0)
