@@ -7,6 +7,7 @@ Param(
     [switch]$spCredReset
 )
 
+
 #Requires -RunAsAdministrator
 New-Variable -Name gAksEdgeAzureSetup -Value "1.0.030325.1100" -Option Constant -ErrorAction SilentlyContinue
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name cliMinVersions -Value @{
@@ -20,10 +21,22 @@ New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -
     "southcentralus","southeastasia","southindia","swedencentral","switzerlandnorth","uaenorth","uksouth",
     "ukwest","westcentralus","westeurope","westus","westus2","westus3"
 )
+
+function Set-CLILoginExperience
+{
+    $currVersion = ((az version -o json) | ConvertFrom-Json).'azure-cli'
+    if($currVersion -eq '2.61.0')
+    {
+        Write-Host "Warning: Az CLI version 2.61.0 has known issues. Reverting to the previous browser-based authentication method." -ForegroundColor Yellow
+        az config set core.enable_broker_on_windows=false
+        az config set core.login_experience_v2=off
+    }
+}
+
 function Test-AzVersions {
     #Function to check if the installed az versions are greater or equal to minVersions
     $retval = $true
-    $curVersion = (az version) | ConvertFrom-Json
+    $curVersion = (az version -o json) | ConvertFrom-Json
     if (-not $curVersion) { return $false }
     foreach ($item in $cliMinVersions.Keys ) {
         Write-Host " Checking $item minVersion $($cliMinVersions.$item).." -NoNewline
@@ -66,6 +79,9 @@ function Install-AzCli {
             Write-Host "Error: Required versions not found after az upgrade. Please try uninstalling and reinstalling" -ForegroundColor Red
         }
     }
+
+    # workaround CLI login issue if using CLI 2.61.0 
+    Set-CLILoginExperience
 }
 # Formats JSON in a nicer format than the built-in ConvertTo-Json does.
 #  https://github.com/PowerShell/PowerShell/issues/2736
