@@ -91,7 +91,7 @@ function Install-AideArcServer {
     Push-Location $env:TEMP
     try {
         # Download the installation package
-        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1"
+        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -UseBasicParsing
         # Install the hybrid agent
         & "$env:TEMP\install_windows_azcmagent.ps1"
         if ($LASTEXITCODE -ne 0) {

@@ -161,7 +161,7 @@ do {
             # Download the AksEdgeDeploy modules from Azure/AksEdge
             if (!(Test-Path -Path "$installDir\$zipFile")) {
                 try {
-                    Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile
+                    Invoke-WebRequest -Uri $url -OutFile $installDir\$zipFile -UseBasicParsing
                 } catch {
 		    Write-Error -Message "Error: Downloading Aide Powershell Modules from $installDir\$zipFile failed" -Category OperationStopped
                     Stop-Transcript | Out-Null
