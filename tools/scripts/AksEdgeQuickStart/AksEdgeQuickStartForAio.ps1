@@ -265,7 +265,7 @@ if ($LASTEXITCODE -ne 0)
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
-$productUrl = "https://download.microsoft.com/download/0/7/d/07d52874-440d-4770-b104-50f517769961/Final%201.9%20Release%20-%20Full/AksEdge-K3s-1.30.6-1.10.868.0.msi"
+$productUrl = "download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
@@ -306,9 +306,9 @@ $aksedgeConfig = @"
     "DeploymentType": "SingleMachineCluster",
     "Init": {
         "ServiceIPRangeSize": 10,
-	"KmsPlugin":{
-		"Enable": false
-	}
+		"KmsPlugin": {
+			"Enable": false
+		}
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
