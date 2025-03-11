@@ -306,9 +306,9 @@ $aksedgeConfig = @"
     "DeploymentType": "SingleMachineCluster",
     "Init": {
         "ServiceIPRangeSize": 10,
-        "KmsPlugin":{
-            "Enable": false
-        }
+	"KmsPlugin":{
+		"Enabled": false
+	}
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
