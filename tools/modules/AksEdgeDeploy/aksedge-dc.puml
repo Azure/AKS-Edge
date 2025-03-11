@@ -21,13 +21,14 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.14",
+    "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
             "ScalableCluster",
             "<color:gray>CapiCluster(Reserved)"
     ],
+    "EnableKms": true,
     "Init": {
         "ServiceIPRangeStart": "ipv4",
         "ServiceIPRangeSize": {

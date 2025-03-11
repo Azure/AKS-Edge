@@ -80,9 +80,10 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.14",
+    "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
+    "EnableKms": true,
     "Init": {
         "ServiceIPRangeSize": 10
     },
