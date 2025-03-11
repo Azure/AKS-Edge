@@ -16,7 +16,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.250311.1500" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.240904.1500" -Option Constant -ErrorAction SilentlyContinue
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
@@ -265,7 +265,7 @@ if ($LASTEXITCODE -ne 0)
 $installDir = $((Get-Location).Path)
 $productName = "AKS Edge Essentials - K3s"
 $networkplugin = "flannel"
-$productUrl = "download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi"
+$productUrl = "https://download.microsoft.com/download/0/7/d/07d52874-440d-4770-b104-50f517769961/Final%201.9%20Release%20-%20Full/AksEdge-K3s-1.29.6-1.9.262.0.msi"
 if ($UseK8s) {
     $productName ="AKS Edge Essentials - K8s"
     $networkplugin = "calico"
@@ -301,14 +301,11 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.15",
+    "SchemaVersion": "1.14",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
-        "ServiceIPRangeSize": 10,
-		"KmsPlugin": {
-			"Enable": false
-		}
+        "ServiceIPRangeSize": 10
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
