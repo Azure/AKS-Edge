@@ -307,7 +307,7 @@ $aksedgeConfig = @"
     "Init": {
         "ServiceIPRangeSize": 10,
         "KmsPlugin":{
-            "Enable:" false
+            "Enable": false
         }
     },
     "Network": {
