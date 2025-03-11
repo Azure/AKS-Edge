@@ -23,7 +23,6 @@ The `Start-AideWorkflow` function in the modole does the following:
             "SchemaVersion": "1.15",
             "Version": "1.0",
             "DeploymentType": "SingleMachineCluster",
-            "EnableKms": true,
             "Init": {
                 "ServiceIPRangeSize": 10
             },

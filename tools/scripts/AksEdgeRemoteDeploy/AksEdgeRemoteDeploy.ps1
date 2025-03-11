@@ -65,9 +65,11 @@ $aksedgeConfig = @"
     "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
-    "EnableKms": true,
     "Init": {
         "ServiceIPRangeSize": 10
+        "KmsPlugin":{
+            "Enable": false
+        }
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",

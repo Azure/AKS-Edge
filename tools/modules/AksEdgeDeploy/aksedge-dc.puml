@@ -28,13 +28,15 @@ jsonDiagram {
             "ScalableCluster",
             "<color:gray>CapiCluster(Reserved)"
     ],
-    "EnableKms": true,
     "Init": {
         "ServiceIPRangeStart": "ipv4",
         "ServiceIPRangeSize": {
             "type": "integer",
             "minimum" : 1,
             "maximum" : 127
+        },
+        "KmsPlugin":{
+            "Enable": false
         }
     },
     "<color:gray>Join":"<color:gray>Reserved",
