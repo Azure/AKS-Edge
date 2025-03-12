@@ -21,7 +21,7 @@ jsonDiagram {
 </style>
 #highlight "SchemaVersion"
 {
-    "SchemaVersion": "1.14",
+    "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": [
             "SingleMachineCluster",
@@ -34,6 +34,9 @@ jsonDiagram {
             "type": "integer",
             "minimum" : 1,
             "maximum" : 127
+        },
+        "KmsPlugin": {
+            "Enable": false
         }
     },
     "<color:gray>Join":"<color:gray>Reserved",
