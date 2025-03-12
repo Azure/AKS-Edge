@@ -9,7 +9,7 @@ param(
     [string] $Tag
 )
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.030325.1100" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeQuickStartVersion -Value "1.0.250311.1500" -Option Constant -ErrorAction SilentlyContinue
 
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
     "australiaeast","brazilsouth","canadacentral","canadaeast","centralindia","centralus","centraluseuap",
@@ -80,11 +80,14 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.14",
+    "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
-        "ServiceIPRangeSize": 10
+        "ServiceIPRangeSize": 10,
+        "KmsPlugin":{
+            "Enable": true
+        }
     },
     "Network": {
         "NetworkPlugin": "$networkplugin",
