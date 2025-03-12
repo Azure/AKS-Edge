@@ -23,7 +23,7 @@ AksEdgeQuickStart enables you to quickly bootstrap your machine with installatio
   
     ```powershell
     $url = "https://raw.githubusercontent.com/Azure/AKS-Edge/main/tools/scripts/AksEdgeQuickStart/AksEdgeQuickStart.ps1"
-    Invoke-WebRequest -Uri $url -OutFile .\AksEdgeQuickStart.ps1
+    Invoke-WebRequest -Uri $url -OutFile .\AksEdgeQuickStart.ps1 -UseBasicParsing
     Unblock-File .\AksEdgeQuickStart.ps1
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
     ```
