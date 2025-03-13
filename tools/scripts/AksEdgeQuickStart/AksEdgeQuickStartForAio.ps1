@@ -276,7 +276,7 @@ if ($UseK8s) {
 # Here string for the json content
 $aideuserConfig = @"
 {
-    "SchemaVersion": "1.1",
+    "SchemaVersion": "1.3",
     "Version": "1.0",
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "$productUrl",
