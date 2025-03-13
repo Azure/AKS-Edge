@@ -1,0 +1,30 @@
+{
+  "SchemaVersion": "1.3",
+  "Version": "1.0",
+  "AksEdgeProduct": "AKS Edge Essentials - K3s",
+  "AksEdgeProductUrl": "https://download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi",
+  "InstallOptions": {
+    "InstallPath": "",
+    "VhdxPath": ""
+  },
+  "VSwitch": {
+    "Name": "",
+    "AdapterName": ""
+  },
+  "Azure": {
+    "SubscriptionName": "",
+    "SubscriptionId": "<subscription-id>",
+    "TenantId": "<tenant-id>",
+    "ResourceGroupName": "<resourcegroup-name>",
+    "ServicePrincipalName": "",
+    "Location": "<location>",
+    "CustomLocationOID": "<customlocation-oid>",
+    "EnableWorkloadIdentity": true,
+    "GatewayResourceId": "",
+    "Auth": {
+      "ServicePrincipalId": "",
+      "Password": ""
+    }
+  },
+  "AksEdgeConfigFile": "aio-aksedge-config.json"
+}
