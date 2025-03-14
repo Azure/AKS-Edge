@@ -2,7 +2,9 @@
   QuickStart script for setting up Azure for AKS Edge Essentials and deploying the same on the Windows device
 #>
 param(
+    [Parameter(Mandatory)]
     [String] $aideUserConfigfile,
+    [Parameter(Mandatory)]
     [String] $aksedgeConfigFile,
     [string] $Tag
 )
