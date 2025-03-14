@@ -362,12 +362,11 @@ param(
 function DeployAksEdge
 {
 param (
-    [object] $aideUserConfig
+    [String] $aideUserConfigFile
 )
 
     # invoke the workflow, the json file already updated above.
-    $aideuserConfigString = $aideUserConfig | ConvertTo-Json
-    $retval = Start-AideWorkflow -jsonString $aideuserConfigString
+    $retval = Start-AideWorkflow -jsonFile $aideUserConfigFile
     if ($retval) {
         Write-Host "Deployment Successful. "
     } else {
@@ -560,21 +559,23 @@ try {
     {
         $aksedgeConfigFile = "$workdir\tools\aio-aksedge-config.json"
     }
-    $aksedgeConfigFile = (Resolve-Path -Path $aksedgeConfigFile).Path
     $aksedgeConfig = ValidateConfigFile -filePath $aksedgeConfigFile
+    $aksedgeConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
+    Set-Content -Path $aksedgeConfigRepoFile -Value ($aksedgeConfig | ConvertTo-Json -Depth 6) -Force
 
     if ([string]::IsNullOrEmpty($aideUserConfigFile))
     {
         $aideUserConfigFile = "$workdir\tools\aio-aide-userconfig.json"
     }
-    $aideUserConfigFile = (Resolve-Path -Path $aideUserConfigFile).Path
     $aideuserConfig = ValidateConfigFile -filePath $aideUserConfigFile
-    $aideuserConfig.AksEdgeConfigFile = $aksedgeConfigFile
+    $aideuserConfig.AksEdgeConfigFile = "aksedge-config.json"
     $aideuserConfig.AksEdgeProductUrl = "https://download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi"
+    $aideuserConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
+    Set-Content -Path $aideuserConfigRepoFile -Value ($aideuserConfig | ConvertTo-Json -Depth 6) -Force
     EnsureDeploymentPrerequisites -aideUserConfig $aideUserConfig -aksedgeConfig $aksedgeConfig -workdir $workdir
 
     Write-Host "Step 3: Download, install and deploy AKS Edge Essentials" -ForegroundColor Cyan
-    DeployAksEdge -aideUserConfig $aideuserConfig
+    DeployAksEdge -aideUserConfigFile $aideuserConfigRepoFile
 
     Write-Host "Step 4: Connect the cluster to Azure" -ForegroundColor Cyan
     ConnectAksEdgeArc -aideUserConfig $aideUserConfig -aksedgeConfig $aksedgeConfig

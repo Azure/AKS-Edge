@@ -7,7 +7,7 @@ param(
 )
 
 #Requires -RunAsAdministrator
-New-Variable -Name gAksEdgeShellVersion -Value "1.0250313.1500" -Option Constant -ErrorAction SilentlyContinue
+New-Variable -Name gAksEdgeShellVersion -Value "1.0.250313.1500" -Option Constant -ErrorAction SilentlyContinue
 if (! [Environment]::Is64BitProcess) {
     Write-Host "Error: Run this in 64bit Powershell session" -ForegroundColor Red
     exit -1
