@@ -749,9 +749,7 @@ function Install-AideMsi {
     } else {
         $ProgressPreference = 'SilentlyContinue'
         try {
-            if (-not (Test-Path $msiFile)) {
-                Invoke-WebRequest $url -OutFile $msiFile -UseBasicParsing
-            }
+            Invoke-WebRequest $url -OutFile $msiFile -UseBasicParsing
         } catch {
             Write-Host "failed to download from $url"
             Remove-Item $msiFile -Force -ErrorAction SilentlyContinue
@@ -762,9 +760,7 @@ function Install-AideMsi {
         if($windowsRequired) {
             $argList = '/I AksEdge.msi ADDLOCAL=CoreFeature,WindowsNodeFeature /passive '
             try {
-                if (-not (Test-Path $winFile)) {
-                    Invoke-WebRequest $winUrl -OutFile $winFile -UseBasicParsing
-                }
+                Invoke-WebRequest $winUrl -OutFile $winFile -UseBasicParsing
                 if (Test-Path $winFile) {
                     Write-Host "Unzip WindowsInstallFiles.."
                     Expand-ArchiveLocal $winFile .
