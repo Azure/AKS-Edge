@@ -250,11 +250,10 @@ param(
 )
 
     #Validate inputs
-    $supportedProducTypes = @("AKS Edge Essentials - K3s")
-    if ([string]::IsNullOrEmpty($aideuserConfig.AksEdgeProduct) -or $supportedProducTypes -notcontains $aideuserConfig.AksEdgeProduct)
+    $supportedProductTypes = @("AKS Edge Essentials - K3s")
+    if ([string]::IsNullOrEmpty($aideuserConfig.AksEdgeProduct) -or $supportedProductTypes -notcontains $aideuserConfig.AksEdgeProduct)
     {
-        Write-Host "Supported values: $supportedProducTypes"
-        Write-Host "AideUserConfig.AksEdgeProduct $($aideuserConfig.AksEdgeProduct) is invalid" 
+        throw "AideUserConfig.AksEdgeProduct $($aideuserConfig.AksEdgeProduct) is invalid! Supported values: $supportedProductTypes." 
     }
     if ([string]::IsNullOrEmpty($aideuserConfig.Azure.SubscriptionId)) {
         throw "Require SubscriptionId for Azure Arc"
