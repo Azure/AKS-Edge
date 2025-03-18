@@ -1,0 +1,40 @@
+{
+    "SchemaVersion": "1.15",
+    "Version": "1.0",
+    "DeploymentType": "SingleMachineCluster",
+    "Init": {
+        "ServiceIPRangeSize": 10
+    },
+    "Arc": {
+        "ClusterName": "<cluster-name>",
+        "Location": null,
+        "ResourceGroupName": null,
+        "SubscriptionId": null,
+        "TenantId": null,
+        "ClientId": null,
+        "ClientSecret": null
+    },
+    "Network": {
+        "NetworkPlugin": "flannel",
+        "InternetDisabled": false,
+        "Proxy": {
+            "Http": null,
+            "Https": null,
+            "No": null
+        }
+    },
+    "User": {
+        "AcceptEula": true,
+        "AcceptOptionalTelemetry": true
+    },
+    "Machines": [
+        {
+            "LinuxNode": {
+                "CpuCount": 4,
+                "MemoryInMB": 10240,
+                "DataSizeInGB": 40,
+                "LogSizeInGB": 4
+            }
+        }
+    ]
+}
