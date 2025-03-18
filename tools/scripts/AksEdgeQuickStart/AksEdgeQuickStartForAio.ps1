@@ -296,7 +296,7 @@ function EnsurePreRequisites
     $installedAkseeProductName = Get-AkseeInstalledProductName
     if (-Not [string]::IsNullOrEmpty($installedAkseeProductName)) {
         if ($installedAkseeProductName -like "*K8s*") {
-            throw "Detected AKSEE k8s installation. Please uninstall and run the script again!" -ForegroundColor Red
+            throw "Detected AKSEE k8s installation. Please uninstall and run the script again!"
         }
     }
 
