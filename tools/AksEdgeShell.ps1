@@ -43,6 +43,7 @@ if ($feature.State -ne "Enabled") {
     Write-Host "Hyper-V is enabled" -ForegroundColor Green
 }
 
+
 Set-AideUserConfig $aksjson | Out-Null
 if (Test-AideDeployment) {
     Write-Host "AksEdge Cluster is already deployed" -ForegroundColor Green
