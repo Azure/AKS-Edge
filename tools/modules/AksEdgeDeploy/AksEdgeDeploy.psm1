@@ -68,11 +68,17 @@ function Get-AideHostPcInfo {
             $aideSession.HostOS.IsAzureVM = $true
             Write-Host "in Azure environment " -NoNewline
             if ($guestAgent.Status -eq 'Running') {
-                $vmInfo = Get-AzureVMInfo
-                Write-Host "(Name= $($vmInfo.name)" -NoNewline
-                Write-Host "vmSize= $($vmInfo.vmSize)" -NoNewline
-                Write-Host "offer= $($vmInfo.offer)" -NoNewline
-                Write-Host "sku= $($vmInfo.sku) )" -NoNewline
+                try {
+                     $vmInfo = Get-AzureVMInfo
+                     Write-Host "(Name= $($vmInfo.name)" -NoNewline
+                     Write-Host "vmSize= $($vmInfo.vmSize)" -NoNewline
+                     Write-Host "offer= $($vmInfo.offer)" -NoNewline
+                     Write-Host "sku= $($vmInfo.sku) )" -NoNewline
+                }
+                catch {
+                    # Ignore exception
+                    Write-Host $_
+                }
             }
         }
         if ($pCS.HypervisorPresent) {
