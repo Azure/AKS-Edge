@@ -35,7 +35,7 @@ function Wait-ApiServerReady
 
     if ($retries -eq 0)
     {
-        exit -1
+        throw "waiting for API server timed out!"
     }
 }
 
@@ -108,7 +108,7 @@ param(
 
     if ($retries -eq 0)
     {
-        exit -1
+        throw "waiting for cluster connected status timed out!"
     }
 }
 
@@ -217,7 +217,7 @@ param(
 
     if (!(Test-Path -Path $filePath -PathType Leaf))
     {
-        throw "Aide-user config file '$AideUserConfigFilePath' not found!"
+        throw "Config file '$filePath' not found!"
     }
 
     try
@@ -226,6 +226,7 @@ param(
     }
     catch
     {
+        $err = $_.Exception.Message.ToString()
         throw "Failed to read $filePath content with error $err"
     }
 
@@ -252,7 +253,7 @@ param(
     $supportedProducTypes = @("AKS Edge Essentials - K3s")
     if ([string]::IsNullOrEmpty($aideuserConfig.AksEdgeProduct) -or $supportedProducTypes -notcontains $aideuserConfig.AksEdgeProduct)
     {
-        Write-Host "Supported values: $AksEdgeProductType"
+        Write-Host "Supported values: $supportedProducTypes"
         Write-Host "AideUserConfig.AksEdgeProduct $($aideuserConfig.AksEdgeProduct) is invalid" 
     }
     if ([string]::IsNullOrEmpty($aideuserConfig.Azure.SubscriptionId)) {
@@ -295,8 +296,7 @@ function EnsurePreRequisites
     $installedAkseeProductName = Get-AkseeInstalledProductName
     if (-Not [string]::IsNullOrEmpty($installedAkseeProductName)) {
         if ($installedAkseeProductName -like "*K8s*") {
-            Write-Host "Detected AKSEE k8s installation. Please uninstall and run the script again!" -ForegroundColor Red
-            exit -1
+            throw "Detected AKSEE k8s installation. Please uninstall and run the script again!" -ForegroundColor Red
         }
     }
 
@@ -316,7 +316,6 @@ function EnsurePreRequisites
 
 function EnsureDeploymentPrerequisites {
 param(
-    [string] $aideUserConfigFile,
     [object] $aideUserConfig,
     [object] $aksedgeConfig,
     [string ] $workdir
@@ -325,7 +324,7 @@ param(
     ValidateConfig -aideUserConfig $aideuserConfig -aksedgeConfig $aksedgeConfig
 
     $aksedgeShell = (Get-ChildItem -Path "$workdir" -Filter AksEdgeShell.ps1 -Recurse).FullName
-    . $aksedgeShell -aideUserConfigfile $aideUserConfigfile
+    . $aksedgeShell
 }
 
 function SetupAksEdgeRepo {
@@ -543,7 +542,6 @@ param(
 
 try {
     EnsurePrerequisites
-    #-$aideUserConfig $aideUserConfigfile -aksedgeConfig $aksedgeConfigFile
 
     $installDir = $((Get-Location).Path)
     $starttime = Get-Date
