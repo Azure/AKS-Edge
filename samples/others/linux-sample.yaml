@@ -17,7 +17,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: azure-vote-back
-        image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
+        image: azurek8ssamples.azurecr.io/marketplaceimages/azure-vote-back:latest
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "yes"
@@ -58,7 +58,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: azure-vote-front
-        image: mcr.microsoft.com/azuredocs/azure-vote-front:v1
+        image: azurek8ssamples.azurecr.io/marketplaceimages/azure-vote-front:latest
         ports:
         - containerPort: 80
         resources:
