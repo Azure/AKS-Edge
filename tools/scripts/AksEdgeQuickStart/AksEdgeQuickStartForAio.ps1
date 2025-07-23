@@ -13,7 +13,7 @@ New-Variable -Name gAksEdgeQuickStartForAioVersion -Value "1.0.250313.1500" -Opt
 
 # Specify only AIO supported regions
 New-Variable -Option Constant -ErrorAction SilentlyContinue -Name arcLocations -Value @(
-    "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3"
+    "eastus", "eastus2", "northeurope", "westeurope", "westus", "westus2", "westus3", "germanywestcentral"
 )
 
 function Wait-ApiServerReady
