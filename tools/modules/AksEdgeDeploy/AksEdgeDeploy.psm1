@@ -310,8 +310,8 @@ function UpgradeJsonFormat {
         $endip = $edgeCfg.Network.ServiceIPRangeEnd
         $newEdgeConfig.Init.ServiceIPRangeSize = ($endip.Split(".")[3]) - ($startip.Split(".")[3])
     }
-    #adding SkipArc flag
-    $newEdgeConfig.SkipArc = $true
+    #adding AioDeploy flag
+    $newEdgeConfig.AioDeploy = $true
     #arc section
     $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
     #network section
