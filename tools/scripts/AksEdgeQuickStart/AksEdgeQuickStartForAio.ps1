@@ -559,6 +559,8 @@ try {
         $aksedgeConfigFile = "$workdir\tools\aio-aksedge-config.json"
     }
     $aksedgeConfig = ValidateConfigFile -filePath $aksedgeConfigFile
+    # Ensure aioDeploy is set to true
+    $aksedgeConfig.AioDeploy = $true
     $aksedgeConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
     Set-Content -Path $aksedgeConfigRepoFile -Value ($aksedgeConfig | ConvertTo-Json -Depth 6) -Force
 

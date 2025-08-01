@@ -293,6 +293,8 @@ function UpgradeJsonFormat {
         }
         return $retval 
     }
+    #adding AioDeploy flag
+    $newEdgeConfig.AioDeploy = $edgeCfg.AioDeploy
     $clustertype = "ScalableCluster"
     if ($edgeCfg.DeployOptions.SingleMachineCluster) {
         $clustertype = "SingleMachineCluster"
@@ -310,8 +312,7 @@ function UpgradeJsonFormat {
         $endip = $edgeCfg.Network.ServiceIPRangeEnd
         $newEdgeConfig.Init.ServiceIPRangeSize = ($endip.Split(".")[3]) - ($startip.Split(".")[3])
     }
-    #adding AioDeploy flag
-    $newEdgeConfig.AioDeploy = $true
+
     #arc section
     $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
     #network section
