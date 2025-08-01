@@ -310,6 +310,8 @@ function UpgradeJsonFormat {
         $endip = $edgeCfg.Network.ServiceIPRangeEnd
         $newEdgeConfig.Init.ServiceIPRangeSize = ($endip.Split(".")[3]) - ($startip.Split(".")[3])
     }
+    #adding AioDeploy flag
+    $newEdgeConfig.AioDeploy = $true
     #arc section
     $newEdgeConfig | Add-Member -MemberType NoteProperty -Name 'Arc' -Value $arcdata -Force
     #network section
@@ -914,10 +916,7 @@ function Invoke-AideDeployment {
     Write-Verbose "$aksedgeDeployParams"
     Write-Host "Starting AksEdge VM deployment..."
     $retval = New-AksEdgeDeployment -JsonConfigString $aksedgeDeployParams
-    
-    if ($retval -ieq "Azure Arc parameters not set or invalid") {
-        $retval = "OK"
-    }
+
     if ($retval -ieq "OK") {
         Write-Host "* AksEdge VM deployment successfull." -ForegroundColor Green
     } else {
