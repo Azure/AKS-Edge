@@ -2,7 +2,6 @@
     "SchemaVersion": "1.16",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
-    "AioDeploy": false,
     "Init": {
         "ServiceIPRangeSize": 10,
         "KmsPlugin":{
