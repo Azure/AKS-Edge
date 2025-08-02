@@ -561,7 +561,6 @@ try {
     $aksedgeConfig = ValidateConfigFile -filePath $aksedgeConfigFile
     #Create the flag and Ensure aioDeploy is set to true
     $aksedgeConfig | Add-Member -Type NoteProperty -Name 'AioDeploy' -Value $true -Force
-    $aksedgeConfig.AioDeploy = $true
     $aksedgeConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
     Set-Content -Path $aksedgeConfigRepoFile -Value ($aksedgeConfig | ConvertTo-Json -Depth 6) -Force
 
