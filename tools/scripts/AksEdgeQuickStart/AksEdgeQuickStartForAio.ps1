@@ -569,7 +569,7 @@ try {
     }
     $aideuserConfig = ValidateConfigFile -filePath $aideUserConfigFile
     $aideuserConfig.AksEdgeConfigFile = "aksedge-config.json"
-    $aideuserConfig.AksEdgeProductUrl = "https://download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi"
+    $aideuserConfig.AksEdgeProductUrl = "https://download.microsoft.com/download/54f3357b-9a99-4a31-9c29-c9e14ad72c00/27DF5B54-0617-46B2-A298-758F10818C75/final 1.11 Release - Full/AksEdge-k3s-1.31.6-1.11.230.0.msi"
     $aideuserConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
     Set-Content -Path $aideuserConfigRepoFile -Value ($aideuserConfig | ConvertTo-Json -Depth 6) -Force
     EnsureDeploymentPrerequisites -aideUserConfig $aideUserConfig -aksedgeConfig $aksedgeConfig -workdir $workdir
