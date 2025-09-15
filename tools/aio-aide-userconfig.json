@@ -13,12 +13,12 @@
   },
   "Azure": {
     "SubscriptionName": "",
-    "SubscriptionId": "f9cb372a-8903-4370-9ce0-3042e3bb2cc8",
-    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
-    "ResourceGroupName": "aksedge-rg",
+    "SubscriptionId": "<subscription-id>",
+    "TenantId": "<tenant-id>",
+    "ResourceGroupName": "<resourcegroup-name>",
     "ServicePrincipalName": "",
-    "Location": "EastUs",
-    "CustomLocationOID": null,
+    "Location": "<location>",
+    "CustomLocationOID": "<customlocation-oid>",
     "EnableWorkloadIdentity": true,
     "GatewayResourceId": "",
     "Auth": {
