@@ -6,7 +6,7 @@
         "ServiceIPRangeSize": 10
     },
     "Arc": {
-        "ClusterName": "<cluster-name>",
+        "ClusterName": "neeharika-arc-connection-200",
         "Location": null,
         "ResourceGroupName": null,
         "SubscriptionId": null,
