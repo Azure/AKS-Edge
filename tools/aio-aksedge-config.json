@@ -1,5 +1,5 @@
 {
-    "SchemaVersion": "1.16",
+    "SchemaVersion": "1.15",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
