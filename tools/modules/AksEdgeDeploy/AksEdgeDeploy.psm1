@@ -293,8 +293,6 @@ function UpgradeJsonFormat {
         }
         return $retval 
     }
-    #adding AioDeploy flag
-    $newEdgeConfig.AioDeploy = $edgeCfg.AioDeploy
     $clustertype = "ScalableCluster"
     if ($edgeCfg.DeployOptions.SingleMachineCluster) {
         $clustertype = "SingleMachineCluster"
@@ -916,6 +914,10 @@ function Invoke-AideDeployment {
     Write-Verbose "$aksedgeDeployParams"
     Write-Host "Starting AksEdge VM deployment..."
     $retval = New-AksEdgeDeployment -JsonConfigString $aksedgeDeployParams
+
+    if ($retval -ieq "Azure Arc parameters not set or invalid") {
+        $retval = "OK"
+    }
     if ($retval -ieq "OK") {
         Write-Host "* AksEdge VM deployment successfull." -ForegroundColor Green
     } else {

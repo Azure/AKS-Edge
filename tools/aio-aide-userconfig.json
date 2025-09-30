@@ -2,7 +2,7 @@
   "SchemaVersion": "1.3",
   "Version": "1.0",
   "AksEdgeProduct": "AKS Edge Essentials - K3s",
-  "AksEdgeProductUrl": "https://download.microsoft.com/download/3c746257-1358-4c17-a9bd-cfd2cece33db/86F37103-8F3A-4D68-B7B0-D10B62BB8271/final1.11/AksEdge-K3s-1.31.6-1.11.247.0.msi",
+  "AksEdgeProductUrl": "https://download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi",
   "InstallOptions": {
     "InstallPath": "",
     "VhdxPath": ""
@@ -13,11 +13,11 @@
   },
   "Azure": {
     "SubscriptionName": "",
-    "SubscriptionId": "<subscription-id>",
-    "TenantId": "<tenant-id>",
-    "ResourceGroupName": "<resourcegroup-name>",
+    "SubscriptionId": "f9cb372a-8903-4370-9ce0-3042e3bb2cc8",
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "ResourceGroupName": "aksedge-rg",
     "ServicePrincipalName": "",
-    "Location": "<location>",
+    "Location": "EastUs",
     "CustomLocationOID": "<customlocation-oid>",
     "EnableWorkloadIdentity": true,
     "GatewayResourceId": "",
