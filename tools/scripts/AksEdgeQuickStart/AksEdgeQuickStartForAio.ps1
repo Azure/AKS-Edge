@@ -559,7 +559,6 @@ try {
         $aksedgeConfigFile = "$workdir\tools\aio-aksedge-config.json"
     }
     $aksedgeConfig = ValidateConfigFile -filePath $aksedgeConfigFile
-    $aksedgeConfig | Add-Member -Type NoteProperty -Name 'AioDeploy' -Value $true -Force
     $aksedgeConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aksedge-config.json -Recurse).FullName
     Set-Content -Path $aksedgeConfigRepoFile -Value ($aksedgeConfig | ConvertTo-Json -Depth 6) -Force
 
@@ -569,7 +568,7 @@ try {
     }
     $aideuserConfig = ValidateConfigFile -filePath $aideUserConfigFile
     $aideuserConfig.AksEdgeConfigFile = "aksedge-config.json"
-    $aideuserConfig.AksEdgeProductUrl = "https://download.microsoft.com/download/3c746257-1358-4c17-a9bd-cfd2cece33db/86F37103-8F3A-4D68-B7B0-D10B62BB8271/final1.11/AksEdge-K3s-1.31.6-1.11.247.0.msi"
+    $aideuserConfig.AksEdgeProductUrl = "https://download.microsoft.com/download/67fee208-b68d-47a3-81a5-454382df99a6/AksEdge-K3s-1.30.6.msi"
     $aideuserConfigRepoFile = (Get-ChildItem -Path "$workdir" -Filter aide-userconfig.json -Recurse).FullName
     Set-Content -Path $aideuserConfigRepoFile -Value ($aideuserConfig | ConvertTo-Json -Depth 6) -Force
     EnsureDeploymentPrerequisites -aideUserConfig $aideUserConfig -aksedgeConfig $aksedgeConfig -workdir $workdir
