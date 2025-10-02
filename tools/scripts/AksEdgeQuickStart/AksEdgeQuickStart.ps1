@@ -2,8 +2,11 @@
   QuickStart script for setting up Azure for AKS Edge Essentials and deploying the same on the Windows device
 #>
 param(
+    [Parameter(Mandatory)]
     [String] $SubscriptionId,
+    [Parameter(Mandatory)]
     [String] $TenantId,
+    [Parameter(Mandatory)]
     [String] $Location,
     [Switch] $UseK8s,
     [string] $Tag
@@ -24,26 +27,10 @@ if (! [Environment]::Is64BitProcess) {
     exit -1
 }
 #Validate inputs
-$skipAzureArc = $false
-if ([string]::IsNullOrEmpty($SubscriptionId)) {
-    Write-Host "Warning: Require SubscriptionId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
-}
-if ([string]::IsNullOrEmpty($TenantId)) {
-    Write-Host "Warning: Require TenantId for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
-}
-if ([string]::IsNullOrEmpty($Location)) {
-    Write-Host "Warning: Require Location for Azure Arc" -ForegroundColor Cyan
-    $skipAzureArc = $true
-} elseif ($arcLocations -inotcontains $Location) {
+if ($arcLocations -inotcontains $Location) {
     Write-Host "Error: Location $Location is not supported for Azure Arc" -ForegroundColor Red
     Write-Host "Supported Locations : $arcLocations"
     exit -1
-}
-
-if ($skipAzureArc) {
-    Write-Host "Azure setup and Arc connection will be skipped as required details are not available" -ForegroundColor Yellow
 }
 
 $installDir = $((Get-Location).Path)
@@ -80,7 +67,7 @@ $aideuserConfig = @"
 "@
 $aksedgeConfig = @"
 {
-    "SchemaVersion": "1.15",
+    "SchemaVersion": "1.16",
     "Version": "1.0",
     "DeploymentType": "SingleMachineCluster",
     "Init": {
@@ -164,9 +151,6 @@ Write-Host "Step 2: Setup Azure Cloud for Arc connections"
 $azcfg = (Get-AideUserConfig).Azure
 if ($azcfg.Auth.Password) {
    Write-Host "Password found in json spec. Skipping AksEdgeAzureSetup." -ForegroundColor Cyan
-   $skipAzureArc = $false
-} elseif ($skipAzureArc) {
-    Write-Host ">> skipping step 2" -ForegroundColor Yellow
 } else {
     $aksedgeazuresetup = (Get-ChildItem -Path "$workdir" -Filter AksEdgeAzureSetup.ps1 -Recurse).FullName
     & $aksedgeazuresetup -jsonFile $aidejson -spContributorRole -spCredReset
@@ -193,22 +177,20 @@ if ($retval) {
 }
 
 Write-Host "Step 4: Connect to Arc"
-if ($skipAzureArc) {
-    Write-Host ">> skipping step 4" -ForegroundColor Yellow
+Write-Host "Installing required Az Powershell modules"
+$arcstatus = Initialize-AideArc
+if ($arcstatus) {
+    Write-Host ">Connecting to Azure Arc"
+    if (Connect-AideArcServer) {
+        Write-Host "Azure Arc Server connection successful."
+    } else {
+        Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
+        Stop-Transcript | Out-Null
+        Pop-Location
+        exit -1
+    }
 } else {
-    Write-Host "Installing required Az Powershell modules"
-    $arcstatus = Initialize-AideArc
-    if ($arcstatus) {
-        Write-Host ">Connecting to Azure Arc"
-        if (Connect-AideArc) {
-            Write-Host "Azure Arc connections successful."
-        } else {
-            Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
-            Stop-Transcript | Out-Null
-            Pop-Location
-            exit -1
-        }
-    } else { Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red }
+    Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red
 }
 
 $endtime = Get-Date
