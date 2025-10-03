@@ -176,7 +176,7 @@ if ($retval) {
     exit -1
 }
 
-Write-Host "Step 4: Connect to Arc"
+Write-Host "Step 4: Connect to Arc Server"
 Write-Host "Installing required Az Powershell modules"
 $arcstatus = Initialize-AideArc
 if ($arcstatus) {
@@ -184,13 +184,13 @@ if ($arcstatus) {
     if (Connect-AideArcServer) {
         Write-Host "Azure Arc Server connection successful."
     } else {
-        Write-Host "Error: Azure Arc connections failed" -ForegroundColor Red
+        Write-Host "Error: Azure Arc Server connections failed" -ForegroundColor Red
         Stop-Transcript | Out-Null
         Pop-Location
         exit -1
     }
 } else {
-    Write-Host "Error: Arc Initialization failed. Skipping Arc Connection" -ForegroundColor Red
+    Write-Host "Error: Arc Initialization failed. Skipping Arc Server Connection" -ForegroundColor Red
 }
 
 $endtime = Get-Date
