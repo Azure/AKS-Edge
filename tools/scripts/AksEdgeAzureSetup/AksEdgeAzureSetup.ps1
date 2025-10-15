@@ -45,7 +45,13 @@ function Install-AzCli {
     if (!$AzCommand) {
         $CLIPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
         Write-Host "> Installing AzCLI..."
-        Push-Location $env:TEMP
+        $tempPath = Join-Path $env:SystemRoot "AkseeTemp"
+        if (-Not (Test-Path -Path $tempPath)) {
+            New-Item -Path $tempPath -ItemType Directory
+            Write-Output "Directory '$tempPath' created."
+        }
+
+        Push-Location $tempPath
         $progressPreference = 'silentlyContinue'
         Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi -UseBasicParsing
         $progressPreference = 'Continue'

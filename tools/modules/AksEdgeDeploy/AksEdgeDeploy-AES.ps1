@@ -88,12 +88,20 @@ function Install-AideArcServer {
         return $true
     }
     Write-Host "> Installing ACMA..."
-    Push-Location $env:TEMP
+
+    $tempPath = Join-Path $env:SystemRoot "AkseeTemp"
+    if (-Not (Test-Path -Path $tempPath)) {
+        New-Item -Path $tempPath -ItemType Directory
+        Write-Output "Directory '$tempPath' created."
+    }
+
+    Push-Location $tempPath
     try {
         # Download the installation package
-        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -UseBasicParsing
+
+        Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 300 -OutFile ".\install_windows_azcmagent.ps1" -UseBasicParsing
         # Install the hybrid agent
-        & "$env:TEMP\install_windows_azcmagent.ps1"
+        & ".\install_windows_azcmagent.ps1"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Error: Failed to install the ACMA agent : $LASTEXITCODE" -ForegroundColor Red
         } else {

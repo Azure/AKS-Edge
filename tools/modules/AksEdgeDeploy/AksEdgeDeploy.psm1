@@ -739,7 +739,13 @@ function Install-AideMsi {
         $winUrl = "$urlParent\AksEdgeWindows-*.zip"
     }
     Write-Host "Installing $reqProduct from $url"
-    Push-Location $env:Temp
+    $tempPath = Join-Path $env:SystemRoot "AkseeTemp"
+    if (-Not (Test-Path -Path $tempPath)) {
+        New-Item -Path $tempPath -ItemType Directory
+        Write-Output "Directory '$tempPath' created."
+    }
+
+    Push-Location $tempPath
     $argList = '/I AksEdge.msi /qn '
     $windowsRequired = ($null -ne $($aideConfig.AksEdgeConfig.Machines.WindowsNode))
     if (Test-Path -Path $url) {

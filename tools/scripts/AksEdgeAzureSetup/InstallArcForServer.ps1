@@ -15,11 +15,18 @@ function Install-AideArcServer {
         return
     }
     Write-Host "> Installing ConnectedMachineAgent..."
-    Push-Location $env:TEMP
+
+    $tempPath = Join-Path $env:SystemRoot "AkseeTemp"
+    if (-Not (Test-Path -Path $tempPath)) {
+        New-Item -Path $tempPath -ItemType Directory
+        Write-Output "Directory '$tempPath' created."
+    }
+
+    Push-Location $tempPath
     # Download the installation package
-    Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 30 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -UseBasicParsing
+    Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 30 -OutFile ".\install_windows_azcmagent.ps1" -UseBasicParsing
     # Install the hybrid agent
-    & "$env:TEMP\install_windows_azcmagent.ps1"
+    & ".\install_windows_azcmagent.ps1"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Error: Failed to install the ConnectedMachineAgent agent : $LASTEXITCODE" -ForegroundColor Red
     } else {
