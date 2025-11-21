@@ -213,7 +213,7 @@ if (-not $hasRights) {
         Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
         foreach ($role in $adminrole) {
             Write-Host "$($role.roleDefinitionName) for scope $($role.scope)" -ForegroundColor Cyan
-            if (($($role.scope) -eq "/subscriptions/$($aicfg.SubscriptionId)") -and (( $role.roleDefinitionName -match 'Administrator'))) {
+            if (($($role.scope) -eq "/subscriptions/$($aicfg.SubscriptionId)") -and ($role.roleDefinitionName -match 'Owner')) {
                 Write-Host "* You have sufficient privileges" -ForegroundColor Green
                 $hasRights = $true
             }
