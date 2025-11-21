@@ -207,7 +207,7 @@ if (-not $hasRights) {
     # two stage call to work around issue reported here : https://github.com/Azure/azure-powershell/issues/15261 which occurs for CSP subscriptions
     # look for classic administrators only when there is no Azure RBAC roles defined
     Write-Host "Looking for classic administrator roles"
-    $adminroles = (az role assignment list --include-classic-administrators) | ConvertFrom-Json
+    $adminroles = (az role assignment list) | ConvertFrom-Json
     $adminrole = $adminroles | Where-Object { $_.principalName -ieq $($session.user.name) }
     if ($adminrole) {
         Write-Host "Roles enabled for this account are:" -ForegroundColor Cyan
