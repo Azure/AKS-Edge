@@ -383,6 +383,7 @@ param (
 
     $SubscriptionId = $aideuserConfig.Azure.SubscriptionId
     $ResourceGroupName = $aideuserConfig.Azure.ResourceGroupName
+    $Location = $aideuserConfig.Azure.Location
     $ClusterName = $aksedgeConfig.Arc.ClusterName
 
     # Set the azure subscription
