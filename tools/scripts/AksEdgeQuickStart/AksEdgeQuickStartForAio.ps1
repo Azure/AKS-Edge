@@ -90,19 +90,19 @@ param(
             Write-Host "$retries, AgentState = $agentState"
         }
 
-        $connectivityStatus = $connectedCluster.ConnectivityStatus
+        $connectivityStatus = $connectedCluster.properties.connectivityStatus
         Write-Host "$retries, connectivityStatus = $connectivityStatus"
 
-        if ($connectedCluster.ConnectivityStatus -eq "Connected")
+        if ($connectivityStatus -eq "Connected")
         {
-            if ((-Not $enableWorkloadIdentity) -Or ($connectedCluster.arcAgentProfile.agentState -eq "Succeeded"))
+            if ((-Not $enableWorkloadIdentity) -Or ($connectedCluster.properties.arcAgentProfile.agentState -eq "Succeeded"))
             {
                 Write-Host "Cluster reached connected status"
                 break
             }
         }
 
-        Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
+        Write-Host "Arc connection status is $($connectivityStatus). Waiting for status to be connected..."
         Start-Sleep -Seconds 10
     }
 
@@ -193,7 +193,7 @@ param(
             throw "Invalid, empty IssuerUrl!"
         }
 
-        $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
+        $serviceAccountIssuer = $obj.properties.oidcIssuerProfile.issuerUrl
         if ([string]::IsNullOrEmpty($serviceAccountIssuer))
         {
             throw "Invalid, empty IssuerUrl!"
@@ -384,6 +384,7 @@ param (
     $SubscriptionId = $aideuserConfig.Azure.SubscriptionId
     $ResourceGroupName = $aideuserConfig.Azure.ResourceGroupName
     $ClusterName = $aksedgeConfig.Arc.ClusterName
+    $Location = $aideuserConfig.Azure.Location
 
     # Set the azure subscription
     $errOut = $($retVal = & {az account set -s $SubscriptionId}) 2>&1
