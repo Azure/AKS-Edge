@@ -86,23 +86,23 @@ param(
 
         if ($enableWorkloadIdentity)
         {
-            $agentState = $connectedCluster.arcAgentProfile.agentState
+            $agentState = $connectedCluster.properties.arcAgentProfile.agentState
             Write-Host "$retries, AgentState = $agentState"
         }
 
-        $connectivityStatus = $connectedCluster.ConnectivityStatus
+        $connectivityStatus = $connectedCluster.properties.ConnectivityStatus
         Write-Host "$retries, connectivityStatus = $connectivityStatus"
 
-        if ($connectedCluster.ConnectivityStatus -eq "Connected")
+        if ($connectivityStatus -eq "Connected")
         {
-            if ((-Not $enableWorkloadIdentity) -Or ($connectedCluster.arcAgentProfile.agentState -eq "Succeeded"))
+            if ((-Not $enableWorkloadIdentity) -Or ($agentState -eq "Succeeded"))
             {
                 Write-Host "Cluster reached connected status"
                 break
             }
         }
 
-        Write-Host "Arc connection status is $($connectedCluster.ConnectivityStatus). Waiting for status to be connected..."
+        Write-Host "Arc connection status is $connectivityStatus. Waiting for status to be connected..."
         Start-Sleep -Seconds 10
     }
 
@@ -193,7 +193,7 @@ param(
             throw "Invalid, empty IssuerUrl!"
         }
 
-        $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
+        $serviceAccountIssuer = $obj.properties.oidcIssuerProfile.issuerUrl
         if ([string]::IsNullOrEmpty($serviceAccountIssuer))
         {
             throw "Invalid, empty IssuerUrl!"
