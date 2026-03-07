@@ -84,7 +84,10 @@ param(
     {
         $rawConnectedCluster  = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
         $hasProperties = [bool]$rawConnectedCluster.PSObject.Properties['properties']
-        $connectedCluster = $hasProperties ? $rawConnectedCluster.properties : $rawConnectedCluster
+        $connectedCluster = $rawConnectedCluster
+        if ($hasProperties) {
+            $connectedCluster = $rawConnectedCluster.properties
+        }
 
         if ($enableWorkloadIdentity)
         {
@@ -189,13 +192,18 @@ param(
 
     if ($arcArgs.EnableWorkloadIdentity)
     {
-        $errOut = $($obj = & {az connectedk8s show -g $arcArgs.ResourceGroupName -n $clusterName  | ConvertFrom-Json}) 2>&1
-        if ($null -eq $obj)
-        {
+        $errOut = $($rawObj = & {az connectedk8s show -g $arcArgs.ResourceGroupName -n $clusterName  | ConvertFrom-Json}) 2>&1
+        if ($null -eq $rawObj) {
             throw "Invalid, empty IssuerUrl!"
         }
 
-        $serviceAccountIssuer = $obj.properties?.oidcIssuerProfile?.issuerUrl ?? $obj.oidcIssuerProfile?.issuerUrl
+        $hasProperties = [bool]$rawObj.PSObject.Properties['properties']
+        $obj = $rawObj
+        if ($hasProperties) {
+            $obj = $rawObj.properties
+        }
+
+        $serviceAccountIssuer = $obj.oidcIssuerProfile.issuerUrl
         if ([string]::IsNullOrEmpty($serviceAccountIssuer))
         {
             throw "Invalid, empty IssuerUrl!"
