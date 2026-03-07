@@ -82,15 +82,17 @@ param(
     $retries = 90
     for (; $retries -gt 0; $retries--)
     {
-        $connectedCluster = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
+        $rawConnectedCluster  = az connectedk8s show -g $resourceGroup -n $clusterName --subscription $subscriptionId | ConvertFrom-Json
+        $hasProperties = [bool]$rawConnectedCluster.PSObject.Properties['properties']
+        $connectedCluster = $hasProperties ? $rawConnectedCluster.properties : $rawConnectedCluster
 
         if ($enableWorkloadIdentity)
         {
-            $agentState = $connectedCluster.properties.arcAgentProfile.agentState
+            $agentState = $connectedCluster.arcAgentProfile.agentState
             Write-Host "$retries, AgentState = $agentState"
         }
 
-        $connectivityStatus = $connectedCluster.properties.ConnectivityStatus
+        $connectivityStatus = $connectedCluster.ConnectivityStatus
         Write-Host "$retries, connectivityStatus = $connectivityStatus"
 
         if ($connectivityStatus -eq "Connected")
@@ -193,7 +195,7 @@ param(
             throw "Invalid, empty IssuerUrl!"
         }
 
-        $serviceAccountIssuer = $obj.properties.oidcIssuerProfile.issuerUrl
+        $serviceAccountIssuer = $obj.properties?.oidcIssuerProfile?.issuerUrl ?? $obj.oidcIssuerProfile?.issuerUrl
         if ([string]::IsNullOrEmpty($serviceAccountIssuer))
         {
             throw "Invalid, empty IssuerUrl!"
