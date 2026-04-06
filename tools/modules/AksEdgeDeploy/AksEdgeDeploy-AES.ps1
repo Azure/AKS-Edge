@@ -15,7 +15,7 @@ New-Variable -option Constant -ErrorAction SilentlyContinue -Name arcLocations -
     "westeurope", "eastus", "westcentralus", "southcentralus", "southeastasia", "uksouth",
     "eastus2", "westus2", "australiaeast", "northeurope", "francecentral", "centralus",
     "westus", "northcentralus", "koreacentral", "japaneast", "eastasia", "westus3",
-    "canadacentral", "eastus2euap"
+    "canadacentral", "eastus2euap", "germanywestcentral"
 )
 function Get-AideArcUserConfig {
     return (Get-AideUserConfig).Azure
