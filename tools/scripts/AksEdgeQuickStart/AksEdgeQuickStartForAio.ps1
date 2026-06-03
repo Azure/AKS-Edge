@@ -149,6 +149,7 @@ param(
     $k8sConnectArgs += @("--subscription", $arcArgs.SubscriptionId)
     $k8sConnectArgs += @("--tags", $tags)
     $k8sConnectArgs += @("--disable-auto-upgrade")
+    $k8sConnectArgs += @("--distribution", "aks_edge_k3s")
     if ($null -ne $proxyArgs)
     {
         if (-Not [string]::IsNullOrEmpty($proxyArgs.Http))
