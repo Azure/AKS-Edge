@@ -8,6 +8,8 @@ param(
     [String] $TenantId,
     [Parameter(Mandatory)]
     [String] $Location,
+    [String] $ResourceGroupName = 'aksedge-rg',
+    [String] $ServicePrincipalName = 'aksedge-sp',
     [Switch] $UseK8s,
     [string] $Tag
 )
@@ -52,8 +54,8 @@ $aideuserConfig = @"
         "SubscriptionName": "",
         "SubscriptionId": "$SubscriptionId",
         "TenantId": "$TenantId",
-        "ResourceGroupName": "aksedge-rg",
-        "ServicePrincipalName": "aksedge-sp",
+        "ResourceGroupName": "$ResourceGroupName",
+        "ServicePrincipalName": "$ServicePrincipalName",
         "Location": "$Location",
         "CustomLocationOID":"",
         "Auth":{
