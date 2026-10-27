@@ -1,5 +1,13 @@
 # AKS Edge Essentials VM-start diagnostics
 
+## Diagnostic tooling disclaimer
+
+These scripts are debugging tools, not stable product interfaces. They are
+subject to change or removal without notice, and backward compatibility is
+not guaranteed. Parameters, behavior, collected data, and output formats may
+change between revisions. Review the scripts and this README before each use;
+automation that depends on them may need updates when the scripts change.
+
 Run these scripts **elevated on the affected Windows AKS-EE host** using
 Windows PowerShell 5.1 or later. Keep all three scripts together
 (`Collect-AksEdgeDebug.ps1`, `Collect-AksEdgeRecoveryHost.ps1` and the guest
@@ -266,4 +274,3 @@ References:
 [Get-VMComPort](https://learn.microsoft.com/powershell/module/hyper-v/get-vmcomport),
 [HCS ComPort schema](https://learn.microsoft.com/en-us/virtualization/api/hcs/schemareference#comport),
 [HCS SerialConsole schema](https://learn.microsoft.com/en-us/virtualization/api/hcs/schemareference#serialconsole).
-
