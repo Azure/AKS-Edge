@@ -147,10 +147,10 @@ used for post-boot guest logs instead (see `-CollectGuestJournals` above).
 How the Linux node VM is created depends on the wssdagent provider, which the
 AKS-EE installer selects from the host OS:
 
-| Host OS | Provider | Linux VM visible to `Get-VM`? |
-|---|---|---|
-| Windows 10 Enterprise LTSC 2021, Windows 11 Enterprise (client SKUs other than build 17763) | `hcs` | **No** — HCS compute system, listed only by `hcsdiag list` |
-| Windows 10 Enterprise LTSC 2019 (build 17763), Windows Server | `vmms` | Yes |
+| Host OS | Provider | Linux VM visible to `Get-VM`? | Serial console capture |
+|---|---|---|---|
+| Windows 10 Enterprise LTSC 2021, Windows 11 Enterprise (client SKUs other than build 17763) | `hcs` | **No** — HCS compute system, listed only by `hcsdiag list` | **Not available** — no serial pipe is exposed (see below) |
+| Windows 10 Enterprise LTSC 2019 (build 17763), Windows Server | `vmms` | Yes | Only if `Get-VMComPort` shows a pipe `Path` |
 
 Check the provider in the collection's `aksee-node-state.txt` (`Provider`,
 read from the AKS-EE configuration store).
@@ -164,12 +164,26 @@ Get-VMComPort -VMName (Get-AksEdgeNodeName -NodeType Linux) | Select-Object VMNa
 A `Path` such as `\\.\pipe\<name>` gives the basename `<name>` for
 `-ConsolePipeName`; an empty `Path` means no serial pipe is configured.
 
-**`hcs` provider** — the COM port, if any, is defined in the HCS
-compute-system document that wssdagent submits (`ComPorts.<n>.NamedPipe`).
-Neither `hcsdiag` nor the Hyper-V cmdlets expose that document, and it has
-**not been verified that wssdagent configures a COM pipe for the AKS-EE Linux
-VM**. While the VM is running or starting, list host pipes that could belong to
-it:
+**`hcs` provider: serial console capture does not work.** No COM pipe is
+exposed for the AKS-EE Linux VM. On a Windows 11 Enterprise host (AKS-EE
+1.13) with the Linux node running, none of the host's named pipes
+belonged to the VM: none contained its compute-system ID, `-ledge`, `com<n>`,
+`serial` or `console`. `-ConsolePipeName` therefore has nothing to attach to,
+and early boot output of a VM stuck starting cannot be captured on these hosts.
+Instead:
+
+- Once the guest has booted, use `-CollectGuestJournals`. The HCS guest channel
+  (`hcsdiag write/exec/read`) works without SSH or the VM network.
+- For a start that failed and was later recovered, the previous-boot journal and
+  kernel log (`journal-previous`, `kernel-previous`) hold what was persisted
+  before the failure. This is not a full console recording: output before
+  journald starts, or lost at power-off, is missing.
+
+The COM port, if one existed, would be defined in the HCS compute-system
+document that wssdagent submits (`ComPorts.<n>.NamedPipe`); neither `hcsdiag`
+nor the Hyper-V cmdlets expose that document. To confirm on a specific host
+(for example after a product update), list host pipes that could belong to the
+VM while it is running or starting:
 
 ```powershell
 $ids = [regex]::Matches((hcsdiag list | Out-String), '[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}').Value
@@ -177,9 +191,9 @@ $ids = [regex]::Matches((hcsdiag list | Out-String), '[0-9a-fA-F]{8}(-[0-9a-fA-F
     Where-Object { $p = $_; ($ids | Where-Object { $p -like "*$_*" }) -or $p -match '(?i)-ledge|com[0-9]|serial|console' }
 ```
 
-Use a returned name as `-ConsolePipeName` only after confirming with the
-product team that it is the Linux VM's serial port. If nothing is returned,
-no serial console is exposed and it cannot be captured on that host. Do not
+Nothing is returned on current `hcs` hosts, which confirms no serial console is
+exposed. If a future version returns a name, use it as `-ConsolePipeName` only
+after confirming with the product team that it is the Linux VM's serial port. Do not
 change the HCS document or guest boot arguments on a customer system without
 a separately approved plan; the guest kernel must also log to the serial port
 (`console=ttyS0`) for Linux messages to reach it.
@@ -188,9 +202,12 @@ Every collection records both views read-only in `vm-serial-pipes.txt`.
 
 ### Capturing the console during a VM start that times out
 
-Both providers run the VM in a Hyper-V worker process (`vmwp.exe`), which
-creates a configured COM pipe server when the VM starts and removes it when the
-VM is turned off. The pipe does **not buffer**: only bytes
+This applies **only to `vmms` hosts whose Linux VM has a COM pipe** (see
+above). It does not work on `hcs` hosts, where no pipe exists; the reader would
+end with a connect timeout.
+
+The Hyper-V worker process (`vmwp.exe`) creates a configured COM pipe server
+when the VM starts and removes it when the VM is turned off. The pipe does **not buffer**: only bytes
 written while a reader is connected are captured. To capture a start that
 times out (for example a 240-second `Start-AksEdgeNode -TimeoutSeconds 240`):
 
